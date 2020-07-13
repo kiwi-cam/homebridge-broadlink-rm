@@ -1,5 +1,5 @@
 {
-  "name": "homebridge-broadlink-rm-pro",
+  "name": "homebridge-broadlink-rm-heater",
   "version": "4.2.7",
   "description": "Broadlink RM plugin (including the mini and pro) for homebridge with AC Pro and TV features",
   "license": "ISC",
@@ -17,7 +17,7 @@
     "homebridge": ">=0.2.0"
   },
   "author": {
-    "name": "kiwi-cam"
+    "name": "faisalthe01"
   },
   "repository": {
     "type": "git",
