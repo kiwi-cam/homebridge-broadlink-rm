@@ -4,7 +4,7 @@
 
 This Fork replaces the AirCon to Heat only mode and disable the Cool and Auto if you want to use with your Heater. 
 
-Also Minimum temperate can be more than 10.
+Also Minimum Temperature can be more than 10.
 
 
 `npm i -g homebridge-broadlink-rm-heater`
