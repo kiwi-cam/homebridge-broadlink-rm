@@ -2,13 +2,12 @@
 
 # About this fork
 
-This fork adds support for the TV type indroduced in iOS 12.2. I'm only give support for this specific accessory type!
+This Fork replaces the AirCon to Heat only mode and disable the Cool And Auto if you want to use with your Heater. 
 
-This fork also contains updates the to Air Conditioner accessory, as detailed in the documenation below.
+Also Minimum temperate can be more than 10.
 
-If you want to use this fork, use this command: 
 
-`npm i -g homebridge-broadlink-rm-pro`
+`npm i -g homebridge-broadlink-rm-heater`
 
 
 # Homebridge Broadlink RM [[Original](https://github.com/lprhodes/homebridge-broadlink-rm)]
