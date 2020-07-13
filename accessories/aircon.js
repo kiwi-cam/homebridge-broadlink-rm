@@ -84,8 +84,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
       assert.isAbove(config.pseudoDeviceTemperature, config.minTemperature - 1, `\x1b[31m[CONFIG ERROR] \x1b[33mpseudoDeviceTemperature\x1b[0m (${config.pseudoDeviceTemperature}) must be more than the minTemperature (${config.minTemperature})`)
     }
 
-    // minTemperature can't be more than 10 or HomeKit throws a fit
-    assert.isBelow(config.minTemperature, 11, `\x1b[31m[CONFIG ERROR] \x1b[33mminTemperature\x1b[0m (${config.minTemperature}) must be <= 10`)
 
     // maxTemperature > minTemperature
     assert.isBelow(config.minTemperature, config.maxTemperature, `\x1b[31m[CONFIG ERROR] \x1b[33mmaxTemperature\x1b[0m (${config.minTemperature}) must be more than minTemperature (${config.minTemperature})`)
@@ -706,6 +704,14 @@ class AirConAccessory extends BroadlinkRMAccessory {
         maxValue: maxTemperature,
         minStep: 1
       });
+    
+    	this.serviceManager
+        .getCharacteristic(Characteristic.TargetHeatingCoolingState)
+				.setProps({
+					minValue: 0,
+					maxValue: 1,
+					validValues: [0,1]
+				});
 
     this.serviceManager
       .getCharacteristic(Characteristic.CurrentTemperature)
