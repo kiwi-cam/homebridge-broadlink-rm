@@ -11,7 +11,10 @@ Also Minimum Temperature can be more than 10.
 
 <img src="https://i.ibb.co/1mZ121V/heater.jpg" alt="heater" border="0" width="150" height="300">
 
-However, the On/Off button is missing I/O text in the middle <img src="https://i.ibb.co/HTFw7Py/IO.jpg" alt="IO" border="0">
+Use this in your AirCon Config 
+
+"heatOnly": true
+
 
 
 # Homebridge Broadlink RM [[Original](https://github.com/lprhodes/homebridge-broadlink-rm)]
