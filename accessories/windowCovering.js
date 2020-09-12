@@ -54,7 +54,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
       this.reset();
 
       // Ignore if no change to the targetPosition
-      if (state.targetPosition === previousValue) return;
+      if (state.targetPosition === previousValue && !config.allowResend) return;
 
       // `initialDelay` allows multiple `window-covering` accessories to be updated at the same time
       // without RF interference by adding an offset to each `window-covering` accessory
