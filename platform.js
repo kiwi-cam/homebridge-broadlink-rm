@@ -76,16 +76,15 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
     });
 
     if (tvs.length > 0) {
-      accessories.push(tvs.shift(0, 1));
       if (tvs.length > 0) {
         const TV = homebridgeRef.hap.Accessory.Categories.TELEVISION;
         homebridgeRef.publishExternalAccessories(this, tvs.map(tv => createAccessory(tv, tv.name, TV, homebridgeRef)));
 
         log('');
         log(`**************************************************************************************************************`);
-        log(`You added more than TVs in your configuration!`);
-        log(`Due to a HomeKit limitation you need to add any additional TV to the Home app by using the Add Accessory function.`);
-        log(`There you'll find your additional TVs and you can use the same PIN as you using for this HomeBridge instance.`);
+        log(`You added TVs in your configuration!`);
+        log(`Due to a HomeKit limitation you need to add any TVs to the Home app by using the Add Accessory function.`);
+        log(`There you'll find your TVs and you can use the same PIN as you using for this HomeBridge instance.`);
         log(`**************************************************************************************************************`);
         log('');
       }
