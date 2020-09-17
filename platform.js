@@ -35,6 +35,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
 
   addAccessories (accessories) {
     const { config, log } = this;
+    const { debug } = config;
 
     this.discoverBroadlinkDevices();
     this.showMessage();
@@ -71,10 +72,12 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
         if(accessory.subType.toLowerCase() === 'stb'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.TV_SET_TOP_BOX;}
         if(accessory.subType.toLowerCase() === 'receiver'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.AUDIO_RECEIVER;}
         
+        if (debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} Adding Accessory ${accessory.type} (${accessory.subType})`);
         tvs.push(homeKitAccessory);
         return;
       }
 
+      if (debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} Adding Accessory ${accessory.type} (${accessory.subType})`);
       accessories.push(homeKitAccessory);
     });
 
