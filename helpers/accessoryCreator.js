@@ -11,7 +11,7 @@ function createAccessory(
 
   const accessoryUUID = uuid.generate(accessoryType + ':' + displayName);
 
-  const accessory = new platformAccessory(displayName, accessoryUUID);
+  const accessory = new platformAccessory(displayName, accessoryUUID, accessoryType);
 
   // listen for the identify event if the accessory instance has defined an identify() method
   if (accessoryInstance.identify)
