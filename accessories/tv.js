@@ -7,6 +7,7 @@ const BroadlinkRMAccessory = require('./accessory');
 class TVAccessory extends BroadlinkRMAccessory {
   constructor(log, config = {}, serviceManagerType) {
     super(log, config, serviceManagerType);
+    this.category = 31;
 
     if (!config.isUnitTest) this.checkPing(ping);
   }
