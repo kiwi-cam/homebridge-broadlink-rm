@@ -3,15 +3,17 @@ function createAccessory(
   accessoryInstance,
   displayName,
   accessoryType,
-  { hap: { Service, Accessory, Characteristic, uuid }, platformAccessory }
+  { hap: { Service, Accessory, Characteristic, uuid }, platformAccessory },
+  subType
 ) {
   const services = accessoryInstance.getServices();
   // The returned "services" for this accessory are simply an array of new-API-style
   // Service instances which we can add to a created HAP-NodeJS Accessory directly.
 
   const accessoryUUID = uuid.generate(accessoryType + ':' + displayName);
+  if (!subType){subType = accessoryType;}
 
-  const accessory = new platformAccessory(displayName, accessoryUUID, accessoryType);
+  const accessory = new platformAccessory(displayName, accessoryUUID, subType);
 
   // listen for the identify event if the accessory instance has defined an identify() method
   if (accessoryInstance.identify)
