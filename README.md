@@ -79,6 +79,7 @@ pingIPAddressStateOnly | Using this option will prevent the hex code from being 
 pingFrequency | The frequency in seconds that the IP address should be pinged | 5 | 1
 pingGrace (optional) | Pauses ping status changes for the specified period (seconds) to allow device to start-up/shutdown after the change | 15 | 10
 data | see below
+subType (Optional) | Updates the icon in Home to either TV, STB, Stick, or Receiver | stb | tv
 
 #### "data" key-value object
 
