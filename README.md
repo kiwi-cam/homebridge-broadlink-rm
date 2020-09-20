@@ -47,6 +47,7 @@ key | description | example | default
 --- | ----------- | ------- | -------
 w1DeviceID (optional) | Updates device current temperature from a Raspberry Pi Wire-1 thermometers (i.e. ds18b20). Value is the Device ID | 28-0321544e531ff | 
 heatOnly (optional) | Forces the Aircon accessory to only operate in Heat mode | true | false
+coolOnly (optional) | Forces the Aircon accessory to only operate in Cool mode | true | false
 
 #### "data" key-value object
 The device can be setup to manage modes in one of two ways. If your AC unit accepts a hexcade to change mode only (without temperature details) you can set the mode keys (heat/cool) and then the temperatureX values to change the teperature. If your AC unit sends hexcodes that contain the mode AND temperature you can use the modeX codes alone.
