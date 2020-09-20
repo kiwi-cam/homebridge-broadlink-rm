@@ -5,6 +5,7 @@
 - [Improvement] Adds coolOnly mode for Aircon accessories
 - [Improvement] Fixes TV Display issue in iOS14
 - [Improvement] Adds TV subType to display STB, Receiver, or Stick types 
+- [Bug] Fixes MAC address order error
 
 ## 4.3.0
 - [Improvement] Adds HeatOnly mode for Aircon accessories
