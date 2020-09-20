@@ -1,5 +1,11 @@
 # Changes
 
+## 4.3.1
+- [Bug] Fixes issue in heatOnly mode for Aircon accessories
+- [Improvement] Adds coolOnly mode for Aircon accessories
+- [Improvement] Fixes TV Display issue in iOS14
+- [Improvement] Adds TV subType to display STB, Receiver, or Stick types 
+
 ## 4.3.0
 - [Improvement] Adds HeatOnly mode for Aircon accessories
 - [Improvement] Adds support for RM4 Temperature sensors
