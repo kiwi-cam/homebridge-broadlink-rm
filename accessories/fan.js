@@ -61,7 +61,7 @@ class FanAccessory extends SwitchAccessory {
     if (showSwingMode !== false && hideSwingMode !== true) showSwingMode = true
     if (showRotationDirection !== false && hideRotationDirection !== true) showRotationDirection = true
 
-    this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Fanv2, this.log);
+    this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, showSwingMode ? Service.Fanv2 : Service.Fan, this.log);
 
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',
