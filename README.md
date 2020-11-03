@@ -196,6 +196,16 @@ exit | The hex code for this button function
 playPause | The hex code for this button function
 info | The hex code for this button function
 
+### Heater Cooler Accessory
+Implementation of heater cooler accessory specification as per Apple HAP. Heater cooler allows for better representation of standalone heaters and air-conditioners that support functions like 
+oscillation and fan speed.
+
+In addition to the fan speed and oscillation features, this accessory also supports temperature in both degree Celsius and Fahrenheit.
+
+<img src="https://j.gifs.com/vlVRR0.gif" alt="Home app heater cooler UI in action" width="150"/>
+
+For more details on how to configure a heater-cooler accessory please review the documentation [here](https://github.com/kiwi-cam/homebridge-broadlink-rm/blob/master/docs/heater-cooler.md) and review [config-sample.json](https://github.com/kiwi-cam/homebridge-broadlink-rm/blob/master/config-sample.json) for sample configurations.
+
 ## Thanks
 Original: Thanks to @tattn (https://github.com/tattn/homebridge-rm-mini3), @PJCzx (https://github.com/PJCzx/homebridge-thermostat), @momodalo (https://github.com/momodalo/broadlinkjs), and @lprhodes (https://github.com/lprhodes/homebridge-broadlink-rm) whose time and effort got this started.
 
