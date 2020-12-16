@@ -54,7 +54,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (config.minimumAutoOnOffDuration === undefined) config.minimumAutoOnOffDuration = config.autoMinimumDuration || 120; // Backwards compatible with `autoMinimumDuration`
     config.minTemperature = config.minTemperature || -15;
     config.maxTemperature = config.maxTemperature || 50;
-    config.temperatureUpdateFrequency = config.temperatureUpdateFrequency || 10;
+    if(config.mqttURL) {
+      //MQTT updates when published so frequent refreshes aren't required ( 10 minute default as a fallback )
+      config.temperatureUpdateFrequency = config.temperatureUpdateFrequency || 600;
+    } else {
+      config.temperatureUpdateFrequency = config.temperatureUpdateFrequency || 10;
+    }
     config.units = config.units ? config.units.toLowerCase() : 'c';
     config.temperatureAdjustment = config.temperatureAdjustment || 0;
     config.humidityAdjustment = config.humidityAdjustment || 0;
@@ -71,7 +76,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     config.defaultCoolTemperature = config.defaultCoolTemperature || 16;
     config.defaultHeatTemperature = config.defaultHeatTemperature || 30;
     // ignore Humidity if set to not use it, or using Temperature source that doesn't support it
-    if(config.noHumidity || config.w1Device || config.temperatureFilePath){
+    if(config.noHumidity || config.w1Device){
       state.currentHumidity = null;
       config.noHumidity = true;
     } else {
@@ -344,8 +349,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     if (pseudoDeviceTemperature !== undefined) return;
 
-    //Force w1 and file devices to a 10 minute refresh
-    if (w1DeviceID || temperatureFilePath) config.temperatureUpdateFrequency = 600;
+    //Force w1 and file devices to a minimum 1 minute refresh
+    if (w1DeviceID || temperatureFilePath) config.temperatureUpdateFrequency = Math.max(config.temperatureUpdateFrequency,60);
 
     const device = getDevice({ host, log });
 
@@ -394,7 +399,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   addTemperatureCallbackToQueue (callback) {
     const { config, host, debug, log, name, state } = this;
-    const { mqttURL, temperatureFilePath, w1DeviceID } = config;
+    const { mqttURL, temperatureFilePath, w1DeviceID, noHumidity } = config;
 
     // Clear the previous callback
     if (Object.keys(this.temperatureCallbackQueue).length > 1) {
@@ -425,7 +430,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
     // Read temperature from mqtt
     if (mqttURL) {
       const temperature = this.mqttValueForIdentifier('temperature');
-      this.onTemperature(temperature || 0);
+      const humidity = noHumidity ? null : this.mqttValueForIdentifier('humidity');
+      this.onTemperature(temperature || 0,humidity);
 
       return;
     }
@@ -450,24 +456,40 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   updateTemperatureFromFile () {
     const { config, debug, host, log, name, state } = this;
-    const { temperatureFilePath } = config;
+    const { temperatureFilePath, noHumidity, batteryAlerts } = config;
+    let humidity = null;
+    let temperature = null;
 
     if (debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} updateTemperatureFromFile reading file: ${temperatureFilePath}`);
 
-    fs.readFile(temperatureFilePath, 'utf8', (err, temperature) => {
+    fs.readFile(temperatureFilePath, 'utf8', (err, data) => {
       if (err) {
          log(`\x1b[31m[ERROR] \x1b[0m${name} updateTemperatureFromFile\n\n${err.message}`);
       }
 
-      if (temperature === undefined || temperature.trim().length === 0) {
+      if (data === undefined || data.trim().length === 0) {
         log(`\x1b[33m[WARNING]\x1b[0m ${name} updateTemperatureFromFile error reading file: ${temperatureFilePath}, using previous Temperature`);
+        if (!noHumidity) humidity = (state.currentHumidity || 0);
         temperature = (state.currentTemperature || 0);
       }
 
-      temperature = parseFloat(temperature);
-      if (debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} updateTemperatureFromFile (parsed temperature: ${temperature})`);
+      const lines = data.split(/\r?\n/);
+      if (/^[0-9]+\.*[0-9]*$/.test(lines[0])){
+        temperature = parseFloat(data);
+      } else {
+        lines.forEach((line) => {
+          if(-1 < line.indexOf(':')){
+            let value = line.split(':');
+            if(value[0] == 'temperature') temperature = parseFloat(value[1]);
+            if(value[0] == 'humidity' && !noHumidity) humidity = parseFloat(value[1]);
+            if(value[0] == 'battery' && batteryAlerts) state.batteryLevel = parseFloat(value[1]);
+          }
+        });
+      }
 
-      this.onTemperature(temperature);
+      if (debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} updateTemperatureFromFile (parsed temperature: ${temperature} humidity: ${humidity})`);
+
+      this.onTemperature(temperature, humidity);
     });
   }
 
@@ -599,9 +621,9 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   // MQTT
   onMQTTMessage (identifier, message) {
-    const { debug, log, name } = this;
+    const { state, debug, log, name } = this;
 
-    if (identifier !== 'unknown' && identifier !== 'temperature') {
+    if (identifier !== 'unknown' && identifier !== 'temperature' && identifier !== 'humidity' && identifier !== 'battery') {
       log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (mqtt message received with unexpected identifier: ${identifier}, ${message.toString()})`);
 
       return;
@@ -609,40 +631,56 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     super.onMQTTMessage(identifier, message);
 
-    let temperature = this.mqttValuesTemp[identifier];
-
-    if (debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} onMQTTMessage (raw value: ${temperature})`);
-
+    let value = this.mqttValuesTemp[identifier];
+    if (debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} onMQTTMessage (raw value: ${value})`);
     try {
+      //Attempt to parse JSON - if result is JSON
       const temperatureJSON = JSON.parse(temperature);
 
       if (typeof temperatureJSON === 'object') {
         let values = findKey(temperatureJSON, 'temp');
-        if (values.length === 0) values = findKey(temperatureJSON, 'Temp');
-        if (values.length === 0) values = findKey(temperatureJSON, 'temperature');
-        if (values.length === 0) values = findKey(temperatureJSON, 'Temperature');
+        if(identifier == 'unknown' || identifier == 'temperature'){
+          //Try to locate other Temperature fields
+          if (values.length === 0) values = findKey(temperatureJSON, 'Temp');
+          if (values.length === 0) values = findKey(temperatureJSON, 'temperature');
+          if (values.length === 0) values = findKey(temperatureJSON, 'Temperature');
+        }else if (identifier == 'humidity'){
+          //Try to locate other Humidity fields
+          if (values.length === 0) values = findKey(temperatureJSON, 'Hum');
+          if (values.length === 0) values = findKey(temperatureJSON, 'hum');
+          if (values.length === 0) values = findKey(temperatureJSON, 'Humidity');
+          if (values.length === 0) values = findKey(temperatureJSON, 'humidity');
+          if (values.length === 0) values = findKey(temperatureJSON, 'RelativeHumidity');
+          if (values.length === 0) values = findKey(temperatureJSON, 'relativehumidity');
+        }else{
+          //Try to locate other Battery fields
+          if (values.length === 0) values = findKey(temperatureJSON, 'Batt');
+          if (values.length === 0) values = findKey(temperatureJSON, 'batt');
+          if (values.length === 0) values = findKey(temperatureJSON, 'Battery');
+          if (values.length === 0) values = findKey(temperatureJSON, 'battery');
+        }
 
         if (values.length > 0) {
-          temperature = values[0];
+          value = values[0];
         } else {
-          temperature = undefined;
+          value = undefined;
         }
       }
-    } catch (err) {}
+    } catch (err) {} //Result couldn't be parsed as JSON
 
-    if (temperature === undefined || (typeof temperature === 'string' && temperature.trim().length === 0)) {
-      log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (mqtt temperature temperature not found)`);
-
+    if (value === undefined || (typeof value === 'string' && value.trim().length === 0)) {
+      log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (mqtt value not found)`);
       return;
     }
 
-    if (debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} onMQTTMessage (raw value 2: ${temperature.trim()})`);
+    if (debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} onMQTTMessage (parsed value: ${value.trim()})`);
+    value = parseFloat(value);
 
-    temperature = parseFloat(temperature);
-
-    if (debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} onMQTTMessage (parsed temperature: ${temperature})`);
-
-    this.mqttValues[identifier] = temperature;
+    if (identifier == 'battery'){
+      state.batteryLevel = value;
+      return;
+    }
+    this.mqttValues[identifier] = value;
     this.updateTemperatureUI();
   }
 

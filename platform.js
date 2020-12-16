@@ -1,4 +1,4 @@
-const { HomebridgePlatform } = require('homebridge-platform-helper');
+const { HomebridgePlatform } = require('./base');
 const { assert } = require('chai');
 
 const npmPackage = require('./package.json');
@@ -28,7 +28,8 @@ const classTypes = {
   'window-covering': Accessory.WindowCovering,
   'tv': Accessory.TV,
   'temperatureSensor': Accessory.TemperatureSensor,
-  'humiditySensor': Accessory.HumiditySensor
+  'humiditySensor': Accessory.HumiditySensor,
+  'heater-cooler': Accessory.HeaterCooler
 }
 
 let homebridgeRef
@@ -69,7 +70,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
     let tvs = [];
     config.accessories.forEach((accessory) => {
       if (!accessory.type) throw new Error(`Each accessory must be configured with a "type". e.g. "switch"`);
-
+      if (accessory.disabled) return;
       if (!classTypes[accessory.type]) throw new Error(`homebridge-broadlink-rm doesn't support accessories of type "${accessory.type}".`);
 
       const homeKitAccessory = new classTypes[accessory.type](log, accessory);

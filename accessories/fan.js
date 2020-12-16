@@ -141,10 +141,10 @@ class FanAccessory extends SwitchAccessory {
     const { config, data, name, serviceManagerType } = this;
     const { on, off, clockwise, counterClockwise, swingToggle } = data || {};
 
-    this.setDefaults();
-
     this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Fanv2, this.log);
 
+    this.setDefaults();
+    
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',
       type: Characteristic.Active,

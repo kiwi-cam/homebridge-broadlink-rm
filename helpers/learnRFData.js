@@ -55,7 +55,7 @@ const start = (host, callback, turnOffCallback, log, disableTimeout) => {
     getDataTimeout2 = null;
 
     if (getDataTimeout3) clearTimeout(getDataTimeout3);
-    getDataTimeout2 = null;
+    getDataTimeout3 = null;
 
 
     device.removeListener('rawRFData', onRawData);
@@ -131,12 +131,12 @@ const start = (host, callback, turnOffCallback, log, disableTimeout) => {
     device.cancelLearn()
 
     setTimeout(() => {
-      log('\x1b[35m[INFO]\x1b[0m Scan RF (stopped - 20s timeout)');
+      log('\x1b[35m[INFO]\x1b[0m Scan RF (stopped - 30s timeout)');
       closeClient();
 
       turnOffCallback();
     }, 1000);
-  }, 20 * 1000); // 20s
+  }, 30 * 1000); //30s
 }
 
 const getData = (device) => {

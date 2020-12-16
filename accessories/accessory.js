@@ -1,6 +1,6 @@
 const uuid = require('uuid');
 
-const { HomebridgeAccessory } = require('homebridge-platform-helper');
+const { HomebridgeAccessory } = require('../base');
 
 const sendData = require('../helpers/sendData');
 const delayForDuration = require('../helpers/delayForDuration');
