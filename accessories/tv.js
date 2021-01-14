@@ -76,12 +76,13 @@ class TVAccessory extends BroadlinkRMAccessory {
 
   checkPing(ping) {
     const { config } = this;
-    let { pingIPAddress, pingFrequency } = config;
+    let { pingIPAddress, pingFrequency, pingUseArp } = config;
 
     if (!pingIPAddress) return;
 
-    // Setup Ping-based State
-    ping(pingIPAddress, pingFrequency, this.pingCallback.bind(this));
+    // Setup Ping/Arp-based State
+    if(!pingUseArp) ping(pingIPAddress, pingFrequency, this.pingCallback.bind(this))
+    else arp(pingIPAddress, pingFrequency, this.pingCallback.bind(this))
   }
 
   pingCallback(active) {
