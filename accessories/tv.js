@@ -2,6 +2,7 @@ const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 const delayForDuration = require('../helpers/delayForDuration');
 const catchDelayCancelError = require('../helpers/catchDelayCancelError');
 const ping = require('../helpers/ping');
+const arp = require('../helpers/arp');
 const BroadlinkRMAccessory = require('./accessory');
 
 class TVAccessory extends BroadlinkRMAccessory {
