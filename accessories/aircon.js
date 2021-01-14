@@ -616,7 +616,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const { config } = this;
     const temperatureDisplayUnits = (config.units.toLowerCase() === 'f') ? Characteristic.TemperatureDisplayUnits.FAHRENHEIT : Characteristic.TemperatureDisplayUnits.CELSIUS;
 
-    callback(temperatureDisplayUnits);
+    callback(null, temperatureDisplayUnits);
   }
 
   // MQTT
