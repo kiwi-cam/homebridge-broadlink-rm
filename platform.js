@@ -167,6 +167,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
 
 BroadlinkRMPlatform.setHomebridge = (homebridge) => {
   homebridgeRef = homebridge
+  Accessory.setHomebridge(homebridge);
 }
 
 module.exports = BroadlinkRMPlatform

@@ -19,6 +19,11 @@ const TemperatureSensor = require('./temperatureSensor.js');
 const HumiditySensor = require('./humiditySensor.js');
 const HeaterCooler = require('./heater-cooler');
 
+function setHomebridge (homebridge) {
+  TemperatureSensor.setHomebridge(homebridge)
+  HumiditySensor.setHomebridge(homebridge)
+}
+
 module.exports = {
   AirCon,
   AirPurifier,
@@ -39,5 +44,6 @@ module.exports = {
   TV,
   TemperatureSensor,
   HumiditySensor,
-  HeaterCooler
+  HeaterCooler,
+  setHomebridge
 }

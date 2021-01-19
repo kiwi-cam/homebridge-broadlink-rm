@@ -99,6 +99,15 @@ class HumiditySensorAccessory extends HumidifierAccessory {
       })
     };
   }
+
+  getServices() {
+    const services = this.getInformationServices();
+
+    services.push(this.serviceManager.service);
+    services.push(this.historyService);
+
+    return services;
+  }
 }
 
 module.exports = HumiditySensorAccessory

@@ -108,6 +108,15 @@ class TemperatureSensorAccessory extends AirconAccessory {
         minStep: 0.1
       });
   }
+
+  getServices() {
+    const services = this.getInformationServices();
+
+    services.push(this.serviceManager.service);
+    services.push(this.historyService);
+
+    return services;
+  }
 }
 
 module.exports = TemperatureSensorAccessory

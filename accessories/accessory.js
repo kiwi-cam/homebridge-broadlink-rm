@@ -5,10 +5,13 @@ const { HomebridgeAccessory } = require('../base');
 const sendData = require('../helpers/sendData');
 const delayForDuration = require('../helpers/delayForDuration');
 const catchDelayCancelError = require('../helpers/catchDelayCancelError');
+const fakegatoHistory = require('fakegato-history')
+
+let HistoryService
 
 class BroadlinkRMAccessory extends HomebridgeAccessory {
 
-  constructor (log, config = {}, serviceManagerType) {
+  constructor(log, config = {}, serviceManagerType) {
     if (!config.name) config.name = "Unknown Accessory"
 
     config.resendDataAfterReload = config.resendHexAfterReload;
@@ -22,10 +25,20 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     this.serialNumber = uuid.v4();
   }
 
-  performSetValueAction ({ host, data, log, name, debug }) {
+  performSetValueAction({ host, data, log, name, debug }) {
     sendData({ host, hexData: data, log, name, debug });
   }
-  reset () {
+
+  getHistoryService() {
+    if (this.historyService == null) {
+      this.historyService = new HistoryService('weather', { displayName: 'Broadlink' }, {
+        storage: 'fs',
+      })
+    }
+    return this.historyService
+  }
+
+  reset() {
     // Clear Multi-hex timeouts
     if (this.intervalTimeoutPromise) {
       this.intervalTimeoutPromise.cancel();
@@ -38,7 +51,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     }
   }
 
-  async performSend (data, actionCallback) {
+  async performSend(data, actionCallback) {
     const { debug, config, host, log, name } = this;
 
     if (typeof data === 'string') {
@@ -62,7 +75,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     });
   }
 
-  async performRepeatSend (parentData, actionCallback) {
+  async performRepeatSend(parentData, actionCallback) {
     const { host, log, name, debug } = this;
     let { data, interval, sendCount } = parentData;
 
@@ -79,6 +92,10 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
       }
     }
   }
+}
+
+BroadlinkRMAccessory.setHomebridge = (homebridge) => {
+  HistoryService = fakegatoHistory(homebridge);
 }
 
 module.exports = BroadlinkRMAccessory;
