@@ -1,4 +1,4 @@
-# Homebridge Broadlink RM Pro
+# Homebridge Broadlink RM Pro (fork)
 
 ## Introduction
 Welcome to the Broadlink RM Mini and Broadlink RM Pro plugin for [Homebridge](https://github.com/nfarina/homebridge).
