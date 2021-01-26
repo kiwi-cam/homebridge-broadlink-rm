@@ -2,6 +2,7 @@ const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 const delayForDuration = require('../helpers/delayForDuration');
 const catchDelayCancelError = require('../helpers/catchDelayCancelError');
 const ping = require('../helpers/ping');
+const arp = require('../helpers/arp');
 const BroadlinkRMAccessory = require('./accessory');
 
 class TVAccessory extends BroadlinkRMAccessory {
@@ -76,12 +77,13 @@ class TVAccessory extends BroadlinkRMAccessory {
 
   checkPing(ping) {
     const { config } = this;
-    let { pingIPAddress, pingFrequency } = config;
+    let { pingIPAddress, pingFrequency, pingUseArp } = config;
 
     if (!pingIPAddress) return;
 
-    // Setup Ping-based State
-    ping(pingIPAddress, pingFrequency, this.pingCallback.bind(this));
+    // Setup Ping/Arp-based State
+    if(!pingUseArp) ping(pingIPAddress, pingFrequency, this.pingCallback.bind(this))
+    else arp(pingIPAddress, pingFrequency, this.pingCallback.bind(this))
   }
 
   pingCallback(active) {

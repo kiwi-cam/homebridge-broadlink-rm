@@ -312,6 +312,7 @@
 				"pingIPAddress": "192.168.1.5",
 				"pingFrequency": 5,
 				"pingIPAddressStateOnly": true,
+				"pingUseArp": false,
 				"pingGrace": 15,
 				"data": {
 					"on": "HEX...",
