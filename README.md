@@ -5,6 +5,8 @@ Welcome to the Broadlink RM Mini and Broadlink RM Pro plugin for [Homebridge](ht
 
 This plugin allows you to control your RM Mini and RM Pro with HomeKit using the Home app and Siri.
 
+This fork adds support for fakegato temperature and humidity history in the Eve App.
+
 ## Like this plugin?
 
 If you like this plugin and want to show your support then please star the Github repo, or better yet; buy me a drink using [Paypal](https://paypal.me/kiwicamRM).
