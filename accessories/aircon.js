@@ -198,8 +198,16 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     if (targetHeatingCoolingState === 'off') {
       this.updateServiceCurrentHeatingCoolingState(HeatingCoolingStates.off);
-      await this.performSend(data.off);
-
+      
+      if (currentHeatingCoolingState === 'cool' && data.offDryMode !== undefined) {
+        // Dry off mode when previously cooling
+        log(`${name} Previous state ${currentHeatingCoolingState}, setting off with dry mode`);
+        await this.performSend(data.offDryMode);
+      }
+      else {
+        await this.performSend(data.off);
+      }
+      
       return;
     }
 
