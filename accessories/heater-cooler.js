@@ -1,12 +1,9 @@
 const { assert } = require('chai');
 const uuid = require('uuid');
-const fs = require('fs');
-const findKey = require('find-key');
 
 const delayForDuration = require('../helpers/delayForDuration');
 const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
-const catchDelayCancelError = require('../helpers/catchDelayCancelError');
-const { getDevice, discoverDevices } = require('../helpers/getDevice');
+const { getDevice } = require('../helpers/getDevice');
 const BroadlinkRMAccessory = require('./accessory');
 
 // Initializing predefined constants based on homekit API
@@ -58,6 +55,8 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    */
   constructor(log, config = {}, serviceManagerType) {
     super(log, config, serviceManagerType)
+
+    this.historyService = super.getHistoryService();
   }
 
   /**
@@ -94,8 +93,62 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
     if (available.cool.swingMode || available.heat.swingMode) {
       if (state.swingMode === undefined) { state.swingMode = Characteristic.SwingMode.SWING_DISABLED }
     }
+
+    config.temperatureUpdateFrequency = config.temperatureUpdateFrequency || 10;
+    config.units = config.units ? config.units.toLowerCase() : 'c';
+    config.temperatureAdjustment = config.temperatureAdjustment || 0;
+
+    state.firstTemperatureUpdate = true;
+
+    this.temperatureCallbackQueue = {};
+    this.monitorTemperature();
   }
 
+  addTemperatureCallbackToQueue(callback) {
+    const { config, host, debug, log, name, state } = this;
+
+    // Clear the previous callback
+    if (Object.keys(this.temperatureCallbackQueue).length > 1) {
+      if (state.currentTemperature) {
+        if (debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} addTemperatureCallbackToQueue (clearing previous callback, using existing temperature)`);
+        this.processQueuedTemperatureCallbacks(state.currentTemperature);
+      }
+    }
+
+    // Add a new callback
+    const callbackIdentifier = uuid.v4();
+    this.temperatureCallbackQueue[callbackIdentifier] = callback;
+
+    // Read temperature from Broadlink RM device
+    // If the device is no longer available, use previous tempeature
+    const device = getDevice({ host, log });
+
+    if (!device || device.state === 'inactive') {
+      if (device && device.state === 'inactive') {
+        log(`${name} addTemperatureCallbackToQueue (device no longer active, using existing temperature)`);
+      }
+
+      this.processQueuedTemperatureCallbacks(state.currentTemperature || 0);
+
+      return;
+    }
+
+    device.checkTemperature();
+    if (debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} addTemperatureCallbackToQueue (requested temperature from device, waiting)`);
+  }
+
+  processQueuedTemperatureCallbacks(temperature) {
+    if (Object.keys(this.temperatureCallbackQueue).length === 0) return;
+
+    Object.keys(this.temperatureCallbackQueue).forEach((callbackIdentifier) => {
+      const callback = this.temperatureCallbackQueue[callbackIdentifier];
+
+      callback(null, temperature);
+      delete this.temperatureCallbackQueue[callbackIdentifier];
+    })
+
+    this.temperatureCallbackQueue = {};
+  }
 
   /**
    ********************************************************
@@ -153,7 +206,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    * @param {int} previousValue Previous value for targetHeaterCoolerState  
    */
   async setTargetHeaterCoolerState(hexData, previousValue) {
-    const { config, data, state } = this
+    const { config, state } = this
     const { internalConfig } = config
     const { available } = internalConfig
     let { targetHeaterCoolerState, heatingThresholdTemperature, coolingThresholdTemperature } = state
@@ -321,7 +374,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    * @returns {any} hexData - object, array or string values to be sent to IR device
    */
   decodeTemperatureHex(temperature, hexDataObject, toUpdateCharacteristic) {
-    const { config, state } = this
+    const { config } = this
     const { temperatureCodes } = hexDataObject
     const { temperatureUnits, internalConfig } = config
     const { available } = internalConfig
@@ -467,9 +520,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
    * @param {func} callback - callback function passed in by homebridge API to be called at the end of the method
    */
   getCurrentTemperature(callback) {
-    const currentTemp = this.config.defaultNowTemperature
-    this.log(`${this.name} getCurrentTemperature: ${currentTemp}`)
-    callback(null, currentTemp)
+    this.addTemperatureCallbackToQueue(callback);
   }
 
   /**
@@ -701,10 +752,61 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
     Heating Temperature: ${config.heatingThresholdTemperature} \u00b0C`)
   }
 
+  // Device Temperature Methods
+
+  async monitorTemperature() {
+    const { config, host, log, name } = this;
+
+    const device = getDevice({ host, log });
+
+    // Try again in a second if we don't have a device yet
+    if (!device) {
+      await delayForDuration(1);
+
+      this.monitorTemperature();
+
+      return;
+    }
+
+    log(`${name} monitorTemperature`);
+
+    device.on('temperature', this.onTemperature.bind(this));
+    device.checkTemperature();
+
+    this.updateTemperatureUI();
+    if (!config.isUnitTest) setInterval(this.updateTemperatureUI.bind(this), config.temperatureUpdateFrequency * 1000)
+  }
+
+  onTemperature(temperature) {
+    const { config, log, name, state } = this;
+    const { temperatureAdjustment } = config;
+
+    // onTemperature is getting called twice. No known cause currently.
+    // This helps prevent the same temperature from being processed twice
+    if (Object.keys(this.temperatureCallbackQueue).length === 0) return;
+
+    temperature += temperatureAdjustment;
+    state.currentTemperature = temperature;
+    log(`${name} onTemperature (${temperature})`);
+
+    this.historyService.addEntry({
+      time: Math.round(new Date().valueOf() / 1000),
+      temp: temperature
+    });
+
+    this.processQueuedTemperatureCallbacks(temperature);
+  }
+
+  updateTemperatureUI() {
+    const { serviceManager } = this;
+
+    serviceManager.refreshCharacteristicUI(Characteristic.CurrentTemperature);
+  }
+
   // Service Manager Setup
   setupServiceManager() {
     this.configDefaultsHelper()
-    const { config, name, data, serviceManagerType } = this;
+    const { config, name, serviceManagerType } = this;
     const { minTemperature, maxTemperature } = config
     const { internalConfig } = config
     const { available } = internalConfig
