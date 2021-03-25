@@ -63,6 +63,8 @@ class TemperatureSensorAccessory extends AirconAccessory {
     const { config, name, serviceManagerType } = this;
 
     this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.TemperatureSensor, this.log);
+    
+    this.loggingService = new FakeGatoHistoryService("room", this);
 
     this.serviceManager.addGetCharacteristic({
       name: 'currentTemperature',
