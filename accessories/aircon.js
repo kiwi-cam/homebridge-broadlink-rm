@@ -534,7 +534,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     Object.keys(this.temperatureCallbackQueue).forEach((callbackIdentifier) => {
       const callback = this.temperatureCallbackQueue[callbackIdentifier];
 
-      callback(null, temperature);
+      if (typeof(callback) == 'function') { callback(null, temperature); }
       delete this.temperatureCallbackQueue[callbackIdentifier];
     })
 
