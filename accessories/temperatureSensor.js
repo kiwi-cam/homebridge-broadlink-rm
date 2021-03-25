@@ -2,7 +2,6 @@ const { assert } = require('chai');
 const uuid = require('uuid');
 const fs = require('fs');
 const findKey = require('find-key');
-const FakeGatoHistoryService = require('fakegato-history');
 
 const delayForDuration = require('../helpers/delayForDuration');
 const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
