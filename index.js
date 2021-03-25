@@ -1,5 +1,6 @@
 const BroadlinkRMPlatform = require('./platform');
 const compareVersions = require('compare-versions');
+const FakeGatoHistoryService = require('fakegato-history')(homebridge);
 
 module.exports = (homebridge) => {
   if (compareVersions("0.4.47", homebridge.serverVersion) > 0) {
