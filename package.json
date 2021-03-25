@@ -35,7 +35,8 @@
     "mqtt": "^4.2.6",
     "node-persist": "^2.1.0",
     "semver": "^7.3.4",
-    "node-arp": "^1.0.6"
+    "node-arp": "^1.0.6",
+    "fakegato-history": "latest"
   },
   "devDependencies": {
     "hap-nodejs": "^0.8.3",
