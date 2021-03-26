@@ -15,7 +15,7 @@ class TemperatureSensorAccessory extends AirconAccessory {
     super(log, config, serviceManagerType);
     this.displayName = config.name;
     this.lastUpdatedAt = undefined;
-    this.loggingService = new HistoryService("room", this, { storage: 'fs'});
+    this.fakeGatoHistoryService = new HistoryService("room", this, { storage: 'fs'});
     this.temperatureCallbackQueue = {};
   }
 
@@ -46,7 +46,7 @@ class TemperatureSensorAccessory extends AirconAccessory {
   getCurrentTemperature (callback) {
     let result = super.getCurrentTemperature (callback);
     this.lastUpdatedAt = Date.now();
-    this.loggingService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature, humidity: this.state.currentHumidity });
+    this.fakeGatoHistoryService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature, humidity: this.state.currentHumidity });
     return result;
   }
 
