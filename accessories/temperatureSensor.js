@@ -13,7 +13,7 @@ class TemperatureSensorAccessory extends AirconAccessory {
 
   constructor (log, config = {}, serviceManagerType) {
     super(log, config, serviceManagerType);
-    const this.displayName = config.name;
+    this.displayName = config.name;
     this.loggingService = new HistoryService("room", this, { storage: 'fs'});
     this.temperatureCallbackQueue = {};
   }
