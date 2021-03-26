@@ -166,15 +166,11 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
 }
 
 BroadlinkRMPlatform.setHomebridge = (homebridge) => {
-  homebridgeRef = homebridge
-}
-
-//module.exports = BroadlinkRMPlatform
-
-  module.exports = (homebridge) => {
     FakeGatoHistoryService = require('fakegato-history')(homebridge);
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
     homebridgeAPI = homebridge;
-    return { BroadlinkRMPlatform };
-  };
+  homebridgeRef = homebridge
+}
+
+module.exports = BroadlinkRMPlatform
