@@ -6,7 +6,7 @@ module.exports = (homebridge) => {
     console.log(`[Broadlink RM] The plugin homebridge-broadlink-rm requires HomeBridge v0.4.47 or higher! You have: ${homebridge.serverVersion}.`);
     process.exit(1);
   }
-  var FakeGatoHistoryService = require('fakegato-history')(homebridge);
+  global.FakeGatoHistoryService = require('fakegato-history')(homebridge);
   
   global.Service = homebridge.hap.Service;
   global.Characteristic = homebridge.hap.Characteristic;
