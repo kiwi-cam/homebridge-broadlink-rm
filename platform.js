@@ -166,10 +166,6 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
 }
 
 BroadlinkRMPlatform.setHomebridge = (homebridge) => {
-    FakeGatoHistoryService = require('fakegato-history')(homebridge);
-    Service = homebridge.hap.Service;
-    Characteristic = homebridge.hap.Characteristic;
-    homebridgeAPI = homebridge;
   homebridgeRef = homebridge
 }
 
