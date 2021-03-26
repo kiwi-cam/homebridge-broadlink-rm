@@ -13,7 +13,7 @@ class TemperatureSensorAccessory extends AirconAccessory {
 
   constructor (log, config = {}, serviceManagerType) {
     super(log, config, serviceManagerType);
-    this.loggingService = new FakeGatoHistoryService("room", this, 4095);
+    this.loggingService = new HistoryService("room", this, { storage: 'fs'});
     this.temperatureCallbackQueue = {};
   }
 
