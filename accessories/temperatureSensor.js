@@ -2,7 +2,6 @@ const { assert } = require('chai');
 const uuid = require('uuid');
 const fs = require('fs');
 const findKey = require('find-key');
-const FakeGatoHistoryService = require('fakegato-history');
 
 const delayForDuration = require('../helpers/delayForDuration');
 const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
@@ -14,7 +13,7 @@ class TemperatureSensorAccessory extends AirconAccessory {
 
   constructor (log, config = {}, serviceManagerType) {
     super(log, config, serviceManagerType);
-    this.loggingService = new FakeGatoHistoryService("room", this);
+    this.loggingService = new FakeGatoHistoryService("room", this, 4095);
     this.temperatureCallbackQueue = {};
   }
 
