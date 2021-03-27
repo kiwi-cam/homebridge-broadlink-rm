@@ -15,7 +15,7 @@ class TemperatureSensorAccessory extends AirconAccessory {
     super(log, config, serviceManagerType);
     this.displayName = config.name;
     this.lastUpdatedAt = undefined;
-    this.historyService = new HistoryService("room", this, { storage: 'fs'}); 
+    this.historyService = new HistoryService("room", this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'}); 
     this.historyService.log = this.log; 
     this.temperatureCallbackQueue = {};
   }
