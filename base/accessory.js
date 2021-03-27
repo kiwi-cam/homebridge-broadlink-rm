@@ -231,6 +231,10 @@ class HomebridgeAccessory {
     const services = this.getInformationServices();
 
     services.push(this.serviceManager.service);
+    
+    if(this.historyService) {
+      services.push(this.historyService);
+    }
 
     return services;
   }
