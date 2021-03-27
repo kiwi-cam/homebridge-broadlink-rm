@@ -15,7 +15,9 @@ class TemperatureSensorAccessory extends AirconAccessory {
     super(log, config, serviceManagerType);
     this.displayName = config.name;
     this.lastUpdatedAt = undefined;
-    this.fakeGatoHistoryService = new HistoryService("room", this, { storage: 'fs'});
+    this.historyService = new HistoryService("room", this, { storage: 'fs'});
+    this.historyService.name =  this.getCharacteristic(Characteristic.CurrentTemperature);  
+    this.historyService.log = this.log; 
     this.temperatureCallbackQueue = {};
   }
 
