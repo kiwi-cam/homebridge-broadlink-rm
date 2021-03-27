@@ -45,13 +45,18 @@ class TemperatureSensorAccessory extends AirconAccessory {
   }
 
   getCurrentTemperature (callback) {
+    const { config, name, state, log, debug } = this;
+    
     let result = super.getCurrentTemperature (callback);
+    
     this.lastUpdatedAt = Date.now();
+    if(debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} Logging data to history: temp: ${this.state.currentTemperature}, humidity: ${this.state.currentHumidity}`);
     if(config.noHumidity){
       this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature });
     }else{
       this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature, humidity: this.state.currentHumidity });
     }
+    
     return result;
   }
 
