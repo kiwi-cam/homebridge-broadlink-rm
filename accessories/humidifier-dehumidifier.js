@@ -201,7 +201,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   }
 
   onHumidity (temperature,humidity) {
-    const { config, host, log, name, state } = this;
+    const { config, host, debug, log, name, state } = this;
     const { humidityAdjustment } = config;
 
     // onHumidity is getting called twice. No known cause currently.
@@ -210,7 +210,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
 
     humidity += humidityAdjustment;
     state.currentHumidity = humidity;
-    log(`${name} onHumidity (` + humidity + `)`);
+    if(debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} onHumidity (` + humidity + `)`);
 	 
 	  //Fakegato history update 
     this.lastUpdatedAt = Date.now();
