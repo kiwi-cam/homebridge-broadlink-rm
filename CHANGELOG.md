@@ -5,6 +5,8 @@
  - [Improvement] Sets "undefined" On/Active characteristics to Off to prevent future Homebridge errors
  - [Improvement] Adds offDryMode configuration option to the airconditioner accessory. Thanks @pixeleyesltd
  - [Improvement] Adds stateless configuration switch option to have a switch "forget" its state
+ - [Improvement] Adds Eve History service support. This can be disabled by adding `"noHistory":true` to your config
+ - [Improvement] Moves onTemperature and onHumidity logging to Debug only, reducing noice in the logs from all updates
  - [Bug] Fixes mac address formatting error when using manual hosts devices #266
 
 ## 4.4.1
