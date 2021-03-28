@@ -232,7 +232,7 @@ class HomebridgeAccessory {
 
     services.push(this.serviceManager.service);
     
-    if(this.historyService) {
+    if(this.historyService && this.config.noHistory !== true) {
       services.push(this.historyService);
     }
 
