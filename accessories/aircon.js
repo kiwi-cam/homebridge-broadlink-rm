@@ -386,7 +386,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   onTemperature (temperature,humidity) {
-    const { config, host, log, name, state } = this;
+    const { config, host, debug, log, name, state } = this;
     const { minTemperature, maxTemperature, temperatureAdjustment, humidityAdjustment, noHumidity } = config;
 
     // onTemperature is getting called twice. No known cause currently.
@@ -395,7 +395,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     temperature += temperatureAdjustment;
     state.currentTemperature = temperature;
-    log(`${name} onTemperature (${temperature})`);
+    if(debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} onTemperature (${temperature})`);
 
     if(humidity) {
       if(noHumidity){
@@ -403,7 +403,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       }else{
         humidity += humidityAdjustment;
         state.currentHumidity = humidity;
-        log(`${name} onHumidity (` + humidity + `)`);
+        if(debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} onHumidity (` + humidity + `)`);
       }
     }
     
