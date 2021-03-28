@@ -15,7 +15,13 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   
   constructor (log, config = {}, serviceManagerType) {
     super(log, config, serviceManagerType);
-
+	  
+    //Fakegato setup
+    this.displayName = config.name;
+    this.lastUpdatedAt = undefined;
+    this.historyService.log = this.log;
+    this.historyService = new HistoryService("room", this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'}); 
+    
     this.humidityCallbackQueue = {};
     this.monitorHumidity();
   }
@@ -205,6 +211,11 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
     humidity += humidityAdjustment;
     state.currentHumidity = humidity;
     log(`${name} onHumidity (` + humidity + `)`);
+	 
+	  //Fakegato history update 
+    this.lastUpdatedAt = Date.now();
+    if(debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} Logging data to history: humidity: ${this.state.currentHumidity}`);
+    this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), humidity: this.state.currentHumidity });
     
     this.updateDeviceState();
     this.processQueuedHumidityCallbacks(humidity);
