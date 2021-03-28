@@ -19,8 +19,8 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
     //Fakegato setup
     this.displayName = config.name;
     this.lastUpdatedAt = undefined;
-    this.historyService.log = log;
     this.historyService = new HistoryService("room", this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'}); 
+    this.historyService.log = log;
     
     this.humidityCallbackQueue = {};
     this.monitorHumidity();
