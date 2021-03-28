@@ -33,10 +33,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
     this.HeatingCoolingConfigKeys = HeatingCoolingConfigKeys;
     
     // Fakegato setup
-    this.displayName = config.name;
-    this.lastUpdatedAt = undefined;
-    this.historyService = new HistoryService("room", this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
-    this.historyService.log = this.log;  
+    if(config.noHistory !== true) {
+      this.displayName = config.name;
+      this.lastUpdatedAt = undefined;
+      this.historyService = new HistoryService("room", this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
+      this.historyService.log = this.log;  
+    }
 
     this.temperatureCallbackQueue = {};
     this.monitorTemperature();
@@ -408,12 +410,14 @@ class AirConAccessory extends BroadlinkRMAccessory {
     }
     
     //Process Fakegato history
-    this.lastUpdatedAt = Date.now();
-    if(debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} Logging data to history: temp: ${this.state.currentTemperature}, humidity: ${this.state.currentHumidity}`);
-    if(noHumidity){
-      this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature });
-    }else{
-      this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature, humidity: this.state.currentHumidity });
+    if(config.noHistory !== true) {
+      this.lastUpdatedAt = Date.now();
+      if(debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} Logging data to history: temp: ${this.state.currentTemperature}, humidity: ${this.state.currentHumidity}`);
+      if(noHumidity){
+        this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature });
+      }else{
+        this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature, humidity: this.state.currentHumidity });
+      }
     }
     
     this.processQueuedTemperatureCallbacks(temperature);
