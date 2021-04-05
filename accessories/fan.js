@@ -11,10 +11,18 @@ class FanAccessory extends SwitchAccessory {
     // Defaults
     config.showSwingMode = config.hideSwingMode === true || config.showSwingMode === false ? false : true;
     config.showRotationDirection = config.hideRotationDirection === true || config.showRotationDirection === false ? false : true;
-    config.stepSize = isNaN(config.stepSize) || config.stepSize > 100 || config.stepSize < 1 ? 1 : config.stepSize
+    config.stepSize = isNaN(config.stepSize) || config.stepSize > 100 || config.stepSize < 1 ? 1 : config.stepSize;
+    
+    if (config.speedSteps) {
+      config.stepSize = Math.floor(100 / config.speedSteps);
+    }
     
     if (config.alwaysResetToDefaults) {
       state.fanSpeed = (config.defaultFanSpeed !== undefined) ? config.defaultFanSpeed : 100;
+
+      if (config.defaultSpeedStep) {
+        state.fanSpeed = config.defaultSpeedStep * config.stepSize;
+      }
     }
   }
 
@@ -98,7 +106,7 @@ class FanAccessory extends SwitchAccessory {
   }
 
   async setFanSpeed (hexData) {
-    const { data, host, log, state, name, debug} = this;
+    const { config, data, host, log, state, name, debug} = this;
 
     this.reset();
 
@@ -114,6 +122,12 @@ class FanAccessory extends SwitchAccessory {
       foundSpeeds.push(parts[1])
     })
 
+    if (config.speedCycle && config.speedSteps) {
+      for (i = 1; i <= config.speedSteps; i++) {
+        foundSpeeds.push(config.stepSize * i);
+      }
+    }
+
     if (foundSpeeds.length === 0) {
 
       return log(`${name} setFanSpeed: No fan speed hex codes provided.`)
@@ -127,10 +141,31 @@ class FanAccessory extends SwitchAccessory {
       return;
     }
 
-    this.lastFanSpeed = closest;
-
     // Get the closest speed's hex data
     hexData = data[`fanSpeed${closest}`];
+
+    if (config.speedCycle) {
+      let fanSpeed = this.lastFanSpeed;
+      hexData = [];
+
+      if (fanSpeed > closest) {
+        while (fanSpeed < config.speedSteps * config.stepSize) {
+          hexData.push(data['fanSpeed']);
+          fanSpeed += config.stepSize;
+        }
+
+        fanSpeed = 0;
+      }
+
+      if (fanSpeed < closest) {
+        while (fanSpeed < closest) {
+          hexData.push(data['fanSpeed']);
+          fanSpeed += config.stepSize;
+        } 
+      }
+    }
+
+    this.lastFanSpeed = closest;
 
     await this.performSend(hexData);
 
