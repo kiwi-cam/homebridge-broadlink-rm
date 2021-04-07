@@ -1,5 +1,16 @@
 # Changes
 
+## 4.4.2
+ - [Improvement] Set node-persist to ignore parse errors to stop crashing the plugin on read errors
+ - [Improvement] Sets "undefined" characteristics to either 0 or minValue to prevent future Homebridge errors
+ - [Improvement] Adds offDryMode configuration option to the airconditioner accessory. Thanks @pixeleyesltd
+ - [Improvement] Adds stateless configuration switch option to have a switch "forget" its state
+ - [Improvement] Adds Eve History service support. This can be disabled by adding `"noHistory":true` to your config
+ - [Improvement] Moves onTemperature and onHumidity logging to Debug only, reducing noice in the logs from all updates
+ - [Bug] Fixes mac address formatting error when using manual hosts devices #266
+ - [Bug] Fixes Accessory mac address formatting to support all formats the hosts section does - and improve matching to devices.
+ - [Bug] Stopped MQTT updates from defaulting to 0 when the topic isn't found. This does create messages that the plugin is slowing homebridge until MQTT updates are recieved.
+
 ## 4.4.1
  - [Improvement] Adds pingUseArp configuration to use an ARP lookup instead of ICMP ping to test a device's status
  - [Improvement] Adds heater-cooler tempStepSize to support devices without 0.5 temperaure codes

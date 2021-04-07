@@ -134,7 +134,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
       deviceType = isRFSupported ? (deviceType | 0x2) : deviceType;
       deviceType = isRM4 ? (deviceType | 0x4) : deviceType;
       
-      broadlink.addDevice({ address, port: 80 }, mac, deviceType);
+      broadlink.addDevice({ address, port: 80 }, mac.toLowerCase(), deviceType);
     })
   }
 

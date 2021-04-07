@@ -101,7 +101,7 @@ class TemperatureSensorAccessory extends AirconAccessory {
       method: this.getTemperatureDisplayUnits,
       bind: this
     })
-
+    
     this.serviceManager
       .getCharacteristic(Characteristic.CurrentTemperature)
       .setProps({

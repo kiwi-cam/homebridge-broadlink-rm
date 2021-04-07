@@ -15,7 +15,15 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   
   constructor (log, config = {}, serviceManagerType) {
     super(log, config, serviceManagerType);
-
+	  
+    //Fakegato setup
+	  if(config.noHistory !== true) {
+      this.displayName = config.name;
+      this.lastUpdatedAt = undefined;
+      this.historyService = new HistoryService("room", this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'}); 
+      this.historyService.log = log;
+    }
+    
     this.humidityCallbackQueue = {};
     this.monitorHumidity();
   }
@@ -195,7 +203,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   }
 
   onHumidity (temperature,humidity) {
-    const { config, host, log, name, state } = this;
+    const { config, host, debug, log, name, state } = this;
     const { humidityAdjustment } = config;
 
     // onHumidity is getting called twice. No known cause currently.
@@ -204,7 +212,15 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
 
     humidity += humidityAdjustment;
     state.currentHumidity = humidity;
-    log(`${name} onHumidity (` + humidity + `)`);
+    if(debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} onHumidity (` + humidity + `)`);
+	 
+	  //Fakegato history update 
+    //Ignore readings of exactly zero - the default no value value.
+    if(config.noHistory !== true && this.state.currentHumidity != 0) {
+      this.lastUpdatedAt = Date.now();
+      if(debug) log(`\x1b[34m[DEBUG]\x1b[0m ${name} Logging data to history: humidity: ${this.state.currentHumidity}`);
+      this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), humidity: this.state.currentHumidity });
+    }
     
     this.updateDeviceState();
     this.processQueuedHumidityCallbacks(humidity);

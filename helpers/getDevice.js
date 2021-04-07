@@ -79,12 +79,17 @@ const discoverDevices = (automatic = true, log, debug, deviceDiscoveryTimeout = 
   }
 
   broadlink.on('deviceReady', (device) => {
-    const macAddressParts = device.mac.toString('hex').match(/[\s\S]{1,2}/g) || []
-    const macAddress = macAddressParts.join(':')
-    device.host.macAddress = macAddress
+    let macAddressParts, macAddress;
+    if (device.mac.includes(":")) {
+      macAddress = device.mac;
+    }else{
+      macAddressParts = device.mac.toString('hex').match(/[\s\S]{1,2}/g) || [];
+      macAddress = macAddressParts.join(':');
+    }
+    device.host.macAddress = macAddress;
 
-    log(`\x1b[35m[INFO]\x1b[0m Discovered ${device.model} (${device.type.toString(16)}) at ${device.host.address} (${device.host.macAddress})`)
-    addDevice(device)
+    log(`\x1b[35m[INFO]\x1b[0m Discovered ${device.model} (${device.type.toString(16)}) at ${device.host.address} (${device.host.macAddress})`);
+    addDevice(device);
 
     startPing(device, log);
     startKeepAlive(device, log);

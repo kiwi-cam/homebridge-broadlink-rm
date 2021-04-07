@@ -15,6 +15,13 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     if (!config.name) config.name = "Unknown Accessory"
 
     config.resendDataAfterReload = config.resendHexAfterReload;
+    if (config.host) {
+      //Clean up MAC address formatting
+      config.host = config.host.toLowerCase();
+      if (!config.host.includes(".") && !config.host.includes(":") && config.host.length === 12){
+        config.host = config.host.match(/[\s\S]{1,2}/g).join(':');
+      }
+    }
 
     super(log, config, serviceManagerType);
     if (config.debug) this.debug = true

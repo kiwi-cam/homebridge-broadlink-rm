@@ -89,7 +89,7 @@ const start = (host, callback, turnOffCallback, log, disableTimeout) => {
     getDataTimeout = null;
 
     log(`\x1b[35m[INFO]\x1b[0m Scan RF (found frequency - 2 of 2)`)
-    log(`\x1b[35m[ACTION]\x1b[0m Press the RF button multiple times with a pause between them.`);
+    log(`\x1b[35m[ACTION]\x1b[0m Press the RF button multiple times with a pause between them to get code.`);
 
     getDataTimeout3 = setTimeout(() => {
       getData3(device);
@@ -131,12 +131,12 @@ const start = (host, callback, turnOffCallback, log, disableTimeout) => {
     device.cancelLearn()
 
     setTimeout(() => {
-      log('\x1b[35m[INFO]\x1b[0m Scan RF (stopped - 30s timeout)');
+      log('\x1b[35m[INFO]\x1b[0m Scan RF (stopped - 20s timeout)');
       closeClient();
 
       turnOffCallback();
     }, 1000);
-  }, 30 * 1000); //30s
+  }, 20 * 1000); //20s
 }
 
 const getData = (device) => {

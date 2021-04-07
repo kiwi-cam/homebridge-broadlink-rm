@@ -38,6 +38,10 @@ class FanAccessory extends SwitchAccessory {
       this.autoOnTimeoutPromise.cancel();
       this.autoOnTimeoutPromise = null;
     }
+    
+	  if (this.serviceManager.getCharacteristic(Characteristic.Active) === undefined) {
+      this.serviceManager.setCharacteristic(Characteristic.Active, false);
+    }
   }
   
   checkAutoOnOff() {

@@ -149,10 +149,20 @@ class HomebridgeAccessory {
   async getCharacteristicValue (props, callback) {
     const { propertyName } = props;
     const { log, name } = this;
+    let value;
 
     const capitalizedPropertyName = propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
 
-    let value = this.state[propertyName];
+    if(this.state[propertyName] === undefined){
+      let thisCharacteristic =  this.serviceManager.getCharacteristicTypeForName(propertyName);
+      if(this.serviceManager.getCharacteristic(thisCharacteristic).props.format != 'bool' && this.serviceManager.getCharacteristic(thisCharacteristic).props.minValue){
+        value = this.serviceManager.getCharacteristic(thisCharacteristic).props.minValue;
+      } else {
+        value = 0;
+      }
+    }else{
+      value = this.state[propertyName];
+    }
 
     log(`${name} get${capitalizedPropertyName}: ${value}`);
     callback(null, value);
@@ -231,6 +241,11 @@ class HomebridgeAccessory {
     const services = this.getInformationServices();
 
     services.push(this.serviceManager.service);
+    
+    if(this.historyService && this.config.noHistory !== true) {
+      //Note that noHistory is not working as intended. Need to pull from platform config
+      services.push(this.historyService);
+    }
 
     return services;
   }

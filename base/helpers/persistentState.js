@@ -6,7 +6,7 @@ const init = ({ homebridgeDirectory, homebridge }) => {
     homebridgeDirectory = homebridge.user.storagePath()
   }
 
-  nodePersist.initSync({ dir: `${homebridgeDirectory}/plugin-persist/homebridge-broadlink-rm` });
+  nodePersist.initSync({ dir: `${homebridgeDirectory}/plugin-persist/homebridge-broadlink-rm`, forgiveParseErrors: true });
 }
 
 const clear = ({ host, name }) => {
