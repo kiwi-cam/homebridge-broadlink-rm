@@ -20,7 +20,7 @@ class FanAccessory extends SwitchAccessory {
     if (config.alwaysResetToDefaults) {
       state.fanSpeed = (config.defaultFanSpeed !== undefined) ? config.defaultFanSpeed : 100;
 
-      if (config.defaultSpeedStep) {
+      if (config.defaultSpeedStep && config.stepSize) {
         state.fanSpeed = config.defaultSpeedStep * config.stepSize;
       }
     }
@@ -99,6 +99,10 @@ class FanAccessory extends SwitchAccessory {
     if (!this.state.switchState) {
       this.lastFanSpeed = undefined;
     }
+
+    if (config.defaultSpeedStep && config.stepSize) {
+      this.lastFanSpeed = config.defaultSpeedStep * config.stepSize;
+    }
 	  
     // Reset the fan speed back to the default speed when turned off
     if (this.state.switchState === false && config.alwaysResetToDefaults) {
@@ -149,12 +153,19 @@ class FanAccessory extends SwitchAccessory {
     hexData = data[`fanSpeed${closest}`];
 
     if (config.speedCycle) {
+      let fanSpeedHexData = data['fanSpeed'];
       let fanSpeed = this.lastFanSpeed;
       hexData = [];
 
+      if (typeof fanSpeedHexData === 'string') {
+        fanSpeedHexData = {
+          data: fanSpeedHexData
+        }
+      }
+
       if (fanSpeed > closest) {
         while (fanSpeed < config.speedSteps * config.stepSize) {
-          hexData.push(data['fanSpeed']);
+          hexData.push(fanSpeedHexData);
           fanSpeed += config.stepSize;
         }
 
@@ -163,7 +174,7 @@ class FanAccessory extends SwitchAccessory {
 
       if (fanSpeed < closest) {
         while (fanSpeed < closest) {
-          hexData.push(data['fanSpeed']);
+          hexData.push(fanSpeedHexData);
           fanSpeed += config.stepSize;
         } 
       }
