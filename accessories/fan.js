@@ -127,7 +127,7 @@ class FanAccessory extends SwitchAccessory {
     })
 
     if (config.speedCycle && config.speedSteps) {
-      for (i = 1; i <= config.speedSteps; i++) {
+      for (let i = 1; i <= config.speedSteps; i++) {
         foundSpeeds.push(config.stepSize * i);
       }
     }
