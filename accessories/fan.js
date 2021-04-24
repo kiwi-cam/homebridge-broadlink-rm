@@ -172,6 +172,7 @@ class FanAccessory extends SwitchAccessory {
         props: {
           onData: swingToggle,
           offData: swingToggle,
+          setValuePromise: this.performSend.bind(this)
         }
       });
     }
@@ -199,7 +200,8 @@ class FanAccessory extends SwitchAccessory {
         bind: this,
         props: {
           onData: counterClockwise,
-          offData: clockwise
+          offData: clockwise,
+          setValuePromise: this.performSend.bind(this)
         }
       });
     }
