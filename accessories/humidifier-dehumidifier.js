@@ -564,7 +564,8 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
         bind: this,
         props: {
           onData: lockControls,
-          offData: unlockControls
+          offData: unlockControls,
+          setValuePromise: this.performSend.bind(this)
         }
       });
     }
@@ -579,6 +580,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
         props: {
           onData: swingToggle,
           offData: swingToggle,
+          setValuePromise: this.performSend.bind(this)
         }
       });
     }
