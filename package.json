@@ -4,7 +4,9 @@
   "description": "Broadlink RM plugin (including the mini and pro) for homebridge with AC Pro and TV features",
   "license": "ISC",
   "scripts": {
-    "release": "release-it"
+    "release": "release-it",
+    "lint": "eslint -c .eslintrc.json --ignore-pattern=\"node_modules\" --ext js .",
+    "lint-fix": "eslint -c .eslintrc.json --ignore-pattern=\"node_modules\" --ext js --fix ."
   },
   "keywords": [
     "homebridge-plugin",
@@ -40,6 +42,8 @@
     "fakegato-history": "^0.6.1"
   },
   "devDependencies": {
+    "eslint": "^7.0.0",
+    "eslint-plugin-no-autofix": "^1.1.2",
     "hap-nodejs": "^0.8.3",
     "mocha": "^8.2.1",
     "release-it": "^14.2.2"
