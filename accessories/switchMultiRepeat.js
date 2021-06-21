@@ -7,7 +7,7 @@ const SwitchAccessory = require('./switch');
 
 class SwitchMultiAccessory extends SwitchAccessory {
 
-  constructor (log, config = {}, serviceManagerType) {
+  constructor(log, config = {}, serviceManagerType) {
     super(log, config, serviceManagerType);
 
     const { data } = this
@@ -18,7 +18,7 @@ class SwitchMultiAccessory extends SwitchAccessory {
     if (nonObjects.length > 0) return log('The "switch-multi-repeat" type requires the config value for "data" an array of objects.')
   }
 
-  setDefaults () {
+  setDefaults() {
     super.setDefaults();
 
     const { config } = this;
@@ -26,7 +26,7 @@ class SwitchMultiAccessory extends SwitchAccessory {
     config.interval = config.interval || 1;
   }
 
-  reset () {
+  reset() {
     super.reset();
 
     // Clear Timeouts
@@ -41,9 +41,9 @@ class SwitchMultiAccessory extends SwitchAccessory {
     }
   }
 
-  checkStateWithPing () { }
+  checkStateWithPing() { }
 
-  async setSwitchState (hexData) {
+  async setSwitchState(hexData) {
     const { name, config, data, log, state } = this;
     let { interval, pause, sendCount } = config;
 
@@ -65,7 +65,7 @@ class SwitchMultiAccessory extends SwitchAccessory {
           await this.pauseTimeoutPromise;
         } else if (index < data.length - 1) {
           this.intervalTimeoutPromise = delayForDuration(interval);
-          await intervalTimeoutPromise;
+          await this.intervalTimeoutPromise;
         }
       }
 
@@ -73,7 +73,7 @@ class SwitchMultiAccessory extends SwitchAccessory {
     });
   }
 
-  async performRepeatSend (hexConfig) {
+  async performRepeatSend(hexConfig) {
     const { host, log, name, logLevel } = this;
     let { data, interval, sendCount } = hexConfig;
 
@@ -90,7 +90,7 @@ class SwitchMultiAccessory extends SwitchAccessory {
     }
   }
 
-  setupServiceManager () {
+  setupServiceManager() {
     const { data, log, name, config, serviceManagerType } = this;
 
     setTimeout(() => {

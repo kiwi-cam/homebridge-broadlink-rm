@@ -44,7 +44,6 @@
         "dot-notation": "warn",
         "no-autofix/prefer-const": "warn",
 
-
         "indent": ["error", 2, { "SwitchCase": 1 }],
         "linebreak-style": ["error", "unix"],
         "curly": 1
