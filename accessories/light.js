@@ -1,5 +1,5 @@
 const { assert } = require('chai');
-const ServiceManagerTypes = require('../helpers/serviceManagerTypes');;
+const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 const delayForDuration = require('../helpers/delayForDuration');
 const catchDelayCancelError = require('../helpers/catchDelayCancelError')
 
@@ -40,14 +40,14 @@ class LightAccessory extends SwitchAccessory {
         state.switchState = false;
         serviceManager.setCharacteristic(Characteristic.Brightness, brightness);
       } else {
-        if (hexData) await this.performSend(hexData);
+        if (hexData) {await this.performSend(hexData);}
 
         this.checkAutoOnOff();
       }
     } else {
       this.lastBrightness = undefined;
 
-      if (hexData) await this.performSend(hexData);
+      if (hexData) {await this.performSend(hexData);}
 
       this.checkAutoOnOff();
     }
@@ -149,7 +149,7 @@ class LightAccessory extends SwitchAccessory {
     const { data } = this;
     const allHexKeys = Object.keys(data || {});
 
-    if (!filter) return allHexKeys;
+    if (!filter) {return allHexKeys;}
 
     // Create an array of value specified in the data config
     const foundValues = [];
@@ -157,7 +157,7 @@ class LightAccessory extends SwitchAccessory {
     allHexKeys.forEach((key) => {
       const parts = key.split(filter);
 
-      if (parts.length !== 2) return;
+      if (parts.length !== 2) {return;}
 
       foundValues.push(parts[1]);
     })

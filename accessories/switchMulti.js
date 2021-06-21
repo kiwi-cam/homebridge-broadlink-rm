@@ -11,7 +11,7 @@ class SwitchMultiAccessory extends SwitchAccessory {
 
     const { data } = this
 
-    if (!Array.isArray(data)) return log('The "switch-multi" type requires the config value for "data" to be an array of hex codes.')
+    if (!Array.isArray(data)) {return log('The "switch-multi" type requires the config value for "data" to be an array of hex codes.')}
   }
 
   checkStateWithPing () { }

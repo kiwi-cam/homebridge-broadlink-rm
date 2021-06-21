@@ -241,7 +241,7 @@ describe('fanAccessory', () => {
 
   // Fan Turn Swing Mode On
   it('rotation direction clockwise', async () => {
-    const { device } = setup();;
+    const { device } = setup();
 
     const config = {
       host: device.host.address,

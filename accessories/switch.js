@@ -10,7 +10,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   constructor (log, config = {}, serviceManagerType) {    
     super(log, config, serviceManagerType);
 
-    if (!config.isUnitTest) this.checkPing(ping)
+    if (!config.isUnitTest) {this.checkPing(ping)}
     
   }
 
@@ -79,7 +79,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     const { config } = this
     let { pingIPAddress, pingFrequency, pingUseArp } = config;
 
-    if (!pingIPAddress) return
+    if (!pingIPAddress) {return}
     
     // Setup Ping/Arp-based State
     if(!pingUseArp) {
@@ -112,7 +112,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     this.stateChangeInProgress = true;
     this.reset();
 
-    if (hexData) await this.performSend(hexData);
+    if (hexData) {await this.performSend(hexData);}
     
     if (config.stateless === true) { 
       state.switchState = false;

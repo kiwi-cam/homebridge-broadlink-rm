@@ -33,14 +33,14 @@ class FakeDevice {
     let hasSentCodes = true
     
     hexCodes.forEach((hexCode) => {
-      if (this.sentHexCodes.indexOf(hexCode) === -1) hasSentCodes = false
+      if (this.sentHexCodes.indexOf(hexCode) === -1) {hasSentCodes = false}
     })
   
     return hasSentCodes
   }
 
   sendData (hexBufferData, debug, originalHexString) {
-    if (!hexBufferData) throw new Error('Missing HEX Data')
+    if (!hexBufferData) {throw new Error('Missing HEX Data')}
 
     this.sentHexCodes.push(originalHexString)
   }
@@ -52,7 +52,7 @@ class FakeDevice {
   sendFakeOnCallback (type, value) {
     const callback = this.callbacks[type];
 
-    if(callback) callback(value);
+    if(callback) {callback(value);}
   }
 
   checkTemperature () {

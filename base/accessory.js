@@ -23,7 +23,7 @@ class HomebridgeAccessory {
     let { disableLogs, host, name, data, persistState, resendDataAfterReload, resendDataAfterReloadDelay } = config;
 
     this.log = (!disableLogs && log) ? log : () => { };
-    if (this.logLevel === undefined) this.logLevel = 2; //Default to info
+    if (this.logLevel === undefined) {this.logLevel = 2;} //Default to info
     this.config = config;
 
     this.host = host;
@@ -57,7 +57,7 @@ class HomebridgeAccessory {
 
   checkConfig(config) {
     const { name, log, logLevel } = this;
-    if (typeof config !== 'object') return;
+    if (typeof config !== 'object') {return;}
 
     Object.keys(config).forEach((key) => {
       const value = config[key];
@@ -74,8 +74,8 @@ class HomebridgeAccessory {
         this.checkConfig(value);
       } else if (value === '0' || (typeof value === 'string' && parseInt(value) !== 0 && !isNaN(parseInt(value)))) {
 
-        if (typeof value === 'string' && value.split('.').length - 1 > 1) return;
-        if (typeof value === 'string' && !value.match(/^\d\.{0,1}\d*$/)) return;
+        if (typeof value === 'string' && value.split('.').length - 1 > 1) {return;}
+        if (typeof value === 'string' && !value.match(/^\d\.{0,1}\d*$/)) {return;}
 
         log(`\x1b[31m[CONFIG ERROR]\x1b[0m ${name}Numeric values should look like this: \x1b[32m"${key}": ${value}\x1b[0m not this \x1b[31m"${key}": "${value}"\x1b[0m`);
 
@@ -87,7 +87,7 @@ class HomebridgeAccessory {
   identify(callback) {
     const { name, log, logLevel } = this
 
-    if (logLevel <= 1) log(`Identify requested for ${name}`);
+    if (logLevel <= 1) {log(`Identify requested for ${name}`);}
 
     callback();
   }
@@ -106,17 +106,17 @@ class HomebridgeAccessory {
       const capitalizedPropertyName = propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
 
       if (delay) {
-        if (this.logLevel <= 3) log(`${name} set${capitalizedPropertyName}: ${value} (delaying by ${delay}s)`);
+        if (this.logLevel <= 3) {log(`${name} set${capitalizedPropertyName}: ${value} (delaying by ${delay}s)`);}
 
         await delayForDuration(delay);
       }
 
-      if (this.logLevel <= 2) log(`${name} set${capitalizedPropertyName}: ${value}`);
+      if (this.logLevel <= 2) {log(`${name} set${capitalizedPropertyName}: ${value}`);}
 
       if (this.isReloadingState && !resendDataAfterReload) {
         this.state[propertyName] = value;
 
-        if (this.logLevel <= 3) log(`${name} set${capitalizedPropertyName}: already ${value} (no data sent - A)`);
+        if (this.logLevel <= 3) {log(`${name} set${capitalizedPropertyName}: already ${value} (no data sent - A)`);}
 
         callback(null);
         return;
@@ -124,7 +124,7 @@ class HomebridgeAccessory {
 
       if (!ignorePreviousValue && this.state[propertyName] == value && !this.isReloadingState) {
         if (!allowResend) {
-          if (this.logLevel <= 3) log(`${name} set${capitalizedPropertyName}: already ${value} (no data sent - B)`);
+          if (this.logLevel <= 3) {log(`${name} set${capitalizedPropertyName}: already ${value} (no data sent - B)`);}
 
           callback(null);
           return;
@@ -148,7 +148,7 @@ class HomebridgeAccessory {
       }
       callback(null);
     } catch (err) {
-      if (this.logLevel <= 4) log('setCharacteristicValue error:', err.message)
+      if (this.logLevel <= 4) {log('setCharacteristicValue error:', err.message)}
       callback(err)
     }
   }
@@ -171,7 +171,7 @@ class HomebridgeAccessory {
       value = this.state[propertyName];
     }
 
-    if (this.logLevel <= 1) log(`${name} get${capitalizedPropertyName}: ${value}`);
+    if (this.logLevel <= 1) {log(`${name} get${capitalizedPropertyName}: ${value}`);}
     callback(null, value);
   }
 
@@ -180,10 +180,10 @@ class HomebridgeAccessory {
     let { host, resendDataAfterReload, resendDataAfterReloadDelay, persistState } = config;
 
     // Set defaults
-    if (persistState === undefined) persistState = true;
-    if (!resendDataAfterReloadDelay) resendDataAfterReloadDelay = 2
+    if (persistState === undefined) {persistState = true;}
+    if (!resendDataAfterReloadDelay) {resendDataAfterReloadDelay = 2}
 
-    if (!persistState) return;
+    if (!persistState) {return;}
 
     // Load state from file
     const restoreStateOrder = this.restoreStateOrder();
@@ -199,14 +199,14 @@ class HomebridgeAccessory {
 
     // Refresh the UI and resend data based on existing state
     Object.keys(serviceManager.characteristics).forEach((name) => {
-      if (this.state[name] === undefined) return;
+      if (this.state[name] === undefined) {return;}
 
       const characteristcType = serviceManager.characteristics[name];
 
       // Refresh the UI for any state that's been set once the init has completed
       // Use timeout as we want to make sure this doesn't happen until after all child contructor code has run
       setTimeout(() => {
-        if (persistState) serviceManager.refreshCharacteristicUI(characteristcType);
+        if (persistState) {serviceManager.refreshCharacteristicUI(characteristcType);}
       }, 200);
 
       // Re-set the value in order to resend
@@ -227,10 +227,10 @@ class HomebridgeAccessory {
       setTimeout(() => {
         this.isReloadingState = false;
 
-        if (this.logLevel <= 2) log(`${name} Accessory Ready`);
+        if (this.logLevel <= 2) {log(`${name} Accessory Ready`);}
       }, (resendDataAfterReloadDelay * 1000) + 300);
     } else {
-      if (this.logLevel <= 2) log(`${name} Accessory Ready`);
+      if (this.logLevel <= 2) {log(`${name} Accessory Ready`);}
     }
   }
 
@@ -262,31 +262,31 @@ class HomebridgeAccessory {
     const { config, log, logLevel, name } = this;
     let { mqttTopic, mqttURL, mqttUsername, mqttPassword } = config;
 
-    if (!mqttTopic || !mqttURL) return;
+    if (!mqttTopic || !mqttURL) {return;}
 
     this.mqttValues = {};
     this.mqttValuesTemp = {};
 
     // Perform some validation of the mqttTopic option in the config. 
     if (typeof mqttTopic !== 'string' && !Array.isArray(mqttTopic)) {
-      if (this.logLevel <= 4) log(`\x1b[31m[CONFIG ERROR]\x1b[0m ${name} \x1b[33mmqttTopic\x1b[0m value is incorrect. Please check out the documentation for more details.`)
+      if (this.logLevel <= 4) {log(`\x1b[31m[CONFIG ERROR]\x1b[0m ${name} \x1b[33mmqttTopic\x1b[0m value is incorrect. Please check out the documentation for more details.`)}
 
       return;
     }
 
     if (Array.isArray(mqttTopic)) {
       const erroneousTopics = mqttTopic.filter((mqttTopicObj) => {
-        if (typeof mqttTopic !== 'object') return true;
+        if (typeof mqttTopic !== 'object') {return true;}
 
         const { identifier, topic } = mqttTopicObj;
 
-        if (!identifier || !topic) return true;
-        if (typeof identifier !== 'string') return true;
-        if (typeof topic !== 'string') return true;
+        if (!identifier || !topic) {return true;}
+        if (typeof identifier !== 'string') {return true;}
+        if (typeof topic !== 'string') {return true;}
       });
 
       if (erroneousTopics.length > 0) {
-        if (this.logLevel <= 4) log(`\x1b[31m[CONFIG ERROR]\x1b[0m ${name} \x1b[33mmqttTopic\x1b[0m value is incorrect. Please check out the documentation for more details.`)
+        if (this.logLevel <= 4) {log(`\x1b[31m[CONFIG ERROR]\x1b[0m ${name} \x1b[33mmqttTopic\x1b[0m value is incorrect. Please check out the documentation for more details.`)}
 
         return;
       }
@@ -344,7 +344,7 @@ class HomebridgeAccessory {
     mqttClient.on('connect', () => {
       this.isMQTTConnecting = false;
 
-      if (this.logLevel <= 2) log(`\x1b[35m[INFO]\x1b[0m ${name} MQTT client connected.`)
+      if (this.logLevel <= 2) {log(`\x1b[35m[INFO]\x1b[0m ${name} MQTT client connected.`)}
 
       mqttTopic.forEach(({ topic }) => {
         mqttClient.subscribe(topic)
@@ -372,16 +372,16 @@ class HomebridgeAccessory {
     let value = this.mqttValues[identifier];
 
     // No identifier may have been set in the user's config so let's try "unknown" too
-    if (value === undefined) value = this.mqttValues['unknown'];
+    if (value === undefined) {value = this.mqttValues.unknown;}
 
     if (!this.mqttClient.connected) {
-      if (!this.isMQTTConnecting && logLevel <= 4) log(`\x1b[31m[ERROR]\x1b[0m ${name} MQTT client is not connected. Value could not be found for topic with identifier "${identifier}".`);
+      if (!this.isMQTTConnecting && logLevel <= 4) {log(`\x1b[31m[ERROR]\x1b[0m ${name} MQTT client is not connected. Value could not be found for topic with identifier "${identifier}".`);}
 
       return;
     }
 
     if (value === undefined) {
-      if (this.logLevel <= 4) log(`\x1b[31m[ERROR]\x1b[0m ${name} No MQTT value could be found for topic with identifier "${identifier}".`);
+      if (this.logLevel <= 4) {log(`\x1b[31m[ERROR]\x1b[0m ${name} No MQTT value could be found for topic with identifier "${identifier}".`);}
 
       return;
     }

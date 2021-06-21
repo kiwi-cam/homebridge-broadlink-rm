@@ -17,9 +17,9 @@ function createAccessory(
 
   // listen for the identify event if the accessory instance has defined an identify() method
   if (accessoryInstance.identify)
-    accessory.on('identify', function(paired, callback) {
-      accessoryInstance.identify(callback);
-    });
+  {accessory.on('identify', function(paired, callback) {
+    accessoryInstance.identify(callback);
+  });}
 
   services.forEach(function(service) {
     // if you returned an AccessoryInformation service, merge its values with ours
@@ -44,26 +44,26 @@ function createAccessory(
       ).value;
 
       if (manufacturer)
-        existingService.setCharacteristic(
-          Characteristic.Manufacturer,
-          manufacturer
-        );
-      if (model) existingService.setCharacteristic(Characteristic.Model, model);
+      {existingService.setCharacteristic(
+        Characteristic.Manufacturer,
+        manufacturer
+      );}
+      if (model) {existingService.setCharacteristic(Characteristic.Model, model);}
       if (serialNumber)
-        existingService.setCharacteristic(
-          Characteristic.SerialNumber,
-          serialNumber
-        );
+      {existingService.setCharacteristic(
+        Characteristic.SerialNumber,
+        serialNumber
+      );}
       if (firmwareRevision)
-        existingService.setCharacteristic(
-          Characteristic.FirmwareRevision,
-          firmwareRevision
-        );
+      {existingService.setCharacteristic(
+        Characteristic.FirmwareRevision,
+        firmwareRevision
+      );}
       if (hardwareRevision)
-        existingService.setCharacteristic(
-          Characteristic.HardwareRevision,
-          hardwareRevision
-        );
+      {existingService.setCharacteristic(
+        Characteristic.HardwareRevision,
+        hardwareRevision
+      );}
     } else {
       accessory.addService(service);
     }

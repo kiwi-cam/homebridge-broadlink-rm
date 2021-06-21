@@ -15,7 +15,7 @@ function delayForDuration(duration) {
   class Timer extends Promise {
 
     cancel () {
-      if (this.isCancelled) return;
+      if (this.isCancelled) {return;}
 
       clearTimeout(timerID);
       this.isCancelled = true;

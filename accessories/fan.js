@@ -64,7 +64,7 @@ class FanAccessory extends SwitchAccessory {
       let { disableAutomaticOff, enableAutoOff, onDuration } = config;
 
       if (state.switchState && enableAutoOff) {
-        if (logLevel <= 2) log(`${name} setSwitchState: (automatically turn off in ${onDuration} seconds)`);
+        if (logLevel <= 2) {log(`${name} setSwitchState: (automatically turn off in ${onDuration} seconds)`);}
 
         this.autoOffTimeoutPromise = delayForDuration(onDuration);
         await this.autoOffTimeoutPromise;
@@ -80,7 +80,7 @@ class FanAccessory extends SwitchAccessory {
       let { disableAutomaticOn, enableAutoOn, offDuration } = config;
 
       if (!state.switchState && enableAutoOn) {
-        if (logLevel <= 2) log(`${name} setSwitchState: (automatically turn on in ${offDuration} seconds)`);
+        if (logLevel <= 2) {log(`${name} setSwitchState: (automatically turn on in ${offDuration} seconds)`);}
 
         this.autoOnTimeoutPromise = delayForDuration(offDuration);
         await this.autoOnTimeoutPromise;
@@ -121,7 +121,7 @@ class FanAccessory extends SwitchAccessory {
     allHexKeys.forEach((key) => {
       const parts = key.split('fanSpeed');
 
-      if (parts.length !== 2) return;
+      if (parts.length !== 2) {return;}
 
       foundSpeeds.push(parts[1])
     })
@@ -139,7 +139,7 @@ class FanAccessory extends SwitchAccessory {
 
     // Find speed closest to the one requested
     const closest = foundSpeeds.reduce((prev, curr) => Math.abs(curr - state.fanSpeed) < Math.abs(prev - state.fanSpeed) ? curr : prev);
-    if (logLevel <= 2) log(`${name} setFanSpeed: (closest: ${closest})`);
+    if (logLevel <= 2) {log(`${name} setFanSpeed: (closest: ${closest})`);}
 
     if (this.lastFanSpeed === closest) {
       return;
@@ -149,7 +149,7 @@ class FanAccessory extends SwitchAccessory {
     hexData = data[`fanSpeed${closest}`];
 
     if (config.speedCycle) {
-      let fanSpeedHexData = data['fanSpeed'];
+      let fanSpeedHexData = data.fanSpeed;
       let fanSpeed = this.lastFanSpeed;
       hexData = [];
 

@@ -9,7 +9,7 @@ class TVAccessory extends BroadlinkRMAccessory {
   constructor(log, config = {}, serviceManagerType) {
     super(log, config, serviceManagerType);
 
-    if (!config.isUnitTest) this.checkPing(ping);
+    if (!config.isUnitTest) {this.checkPing(ping);}
   }
 
   setDefaults() {
@@ -83,11 +83,11 @@ class TVAccessory extends BroadlinkRMAccessory {
     const { config } = this;
     let { pingIPAddress, pingFrequency, pingUseArp } = config;
 
-    if (!pingIPAddress) return;
+    if (!pingIPAddress) {return;}
 
     // Setup Ping/Arp-based State
-    if(!pingUseArp) ping(pingIPAddress, pingFrequency, this.pingCallback.bind(this))
-    else arp(pingIPAddress, pingFrequency, this.pingCallback.bind(this))
+    if(!pingUseArp) {ping(pingIPAddress, pingFrequency, this.pingCallback.bind(this))}
+    else {arp(pingIPAddress, pingFrequency, this.pingCallback.bind(this))}
   }
 
   pingCallback(active) {
@@ -114,7 +114,7 @@ class TVAccessory extends BroadlinkRMAccessory {
     this.stateChangeInProgress = true;
     this.reset();
 
-    if (hexData) await this.performSend(hexData);
+    if (hexData) {await this.performSend(hexData);}
 
     this.checkAutoOnOff();
   }
@@ -391,18 +391,18 @@ class TVAccessory extends BroadlinkRMAccessory {
           return;
         }
       
-      let hexData = data.volume.mute;
-      if (!hexData) {
-        log(
-          `${name} VolumeSelector: No IR code found for mute!`
-        );
-        callback(null);
-        return;
-      }
+        let hexData = data.volume.mute;
+        if (!hexData) {
+          log(
+            `${name} VolumeSelector: No IR code found for mute!`
+          );
+          callback(null);
+          return;
+        }
 
-      this.performSend(hexData);
-      callback(null);         
-    });
+        this.performSend(hexData);
+        callback(null);         
+      });
 
     this.serviceManagers.push(speakerService);
 

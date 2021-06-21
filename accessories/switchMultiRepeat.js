@@ -12,10 +12,10 @@ class SwitchMultiAccessory extends SwitchAccessory {
 
     const { data } = this
 
-    if (!Array.isArray(data)) return log('The "switch-multi-repeat" type requires the config value for "data" an array of objects.')
+    if (!Array.isArray(data)) {return log('The "switch-multi-repeat" type requires the config value for "data" an array of objects.')}
 
     const nonObjects = data.filter(obj => typeof obj !== 'object')
-    if (nonObjects.length > 0) return log('The "switch-multi-repeat" type requires the config value for "data" an array of objects.')
+    if (nonObjects.length > 0) {return log('The "switch-multi-repeat" type requires the config value for "data" an array of objects.')}
   }
 
   setDefaults() {
