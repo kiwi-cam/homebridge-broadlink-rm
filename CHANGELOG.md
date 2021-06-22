@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [4.4.5] - 2021-06-23
 ### Changed
  - Improved default allowResend logic when using preventResendHex
  - Heater-Cooler now shows as Heating or Cooling depending on mode selected
@@ -14,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Fixed name not defined error when using oscillate in Heater Cooler
  - Fixed bug in Humidifier-Dehumidifier sending FanOnly hex regardless of state
  - Fixed logLevel is not defined error in aircon accessory
+ - Updated MQTT version requirements to fix known vulnerabilities in dependencies
 
 ## [4.4.4] - 2021-06-09
 ### Added
