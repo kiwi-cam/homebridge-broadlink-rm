@@ -91,7 +91,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
     if (tvs.length > 0) {
       if (tvs.length > 0) {
         const TV = homebridgeRef.hap.Accessory.Categories.TELEVISION;
-        homebridgeRef.publishExternalAccessories(this, tvs.map(tv => createAccessory(tv, tv.name, TV, homebridgeRef, tv.subType)));
+        homebridgeRef.publishExternalAccessories('homebridge-broadlink-rm', tvs.map(tv => createAccessory(tv, tv.name, TV, homebridgeRef, tv.subType)));
 
         log('');
         log(`**************************************************************************************************************`);
