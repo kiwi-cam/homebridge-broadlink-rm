@@ -67,7 +67,7 @@ const lircToBroadlink = (pulses, log) => {
 const convertProntoToBroadlink = (prontoCode, log) => {
   const lircPulses = prontoToLIRC(prontoCode, log);
 
-  if (!lircPulses) return
+  if (!lircPulses) {return}
   
   const broadlinkCode = lircToBroadlink(lircPulses, log);
 

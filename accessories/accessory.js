@@ -9,7 +9,7 @@ const catchDelayCancelError = require('../helpers/catchDelayCancelError');
 class BroadlinkRMAccessory extends HomebridgeAccessory {
 
   constructor (log, config = {}, serviceManagerType) {
-    if (!config.name) config.name = "Unknown Accessory"
+    if (!config.name) {config.name = "Unknown Accessory"}
 
     config.resendDataAfterReload = config.resendHexAfterReload;
     if (config.host) {
@@ -21,7 +21,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     }
 
     super(log, config, serviceManagerType);
-    if (config.debug) this.debug = true
+    if (config.debug) {this.debug = true}
 
     this.manufacturer = 'Broadlink';
     this.model = 'RM Mini or Pro';
@@ -52,7 +52,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
         break;
       default:
         //default to 'info':
-        if(this.config.logLevel !== undefined) log(`\x1b[31m[CONFIG ERROR] \x1b[33mlogLevel\x1b[0m should be one of: trace, debug, info, warning, error, critical, or none.`);
+        if(this.config.logLevel !== undefined) {log(`\x1b[31m[CONFIG ERROR] \x1b[33mlogLevel\x1b[0m should be one of: trace, debug, info, warning, error, critical, or none.`);}
         this.logLevel = 2;
         break;
     }
@@ -109,7 +109,7 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     let { data, interval, sendCount } = parentData;
 
     sendCount = sendCount || 1
-    if (sendCount > 1) interval = interval || 0.1;
+    if (sendCount > 1) {interval = interval || 0.1;}
 
     // Itterate through each hex config in the array
     for (let index = 0; index < sendCount; index++) {

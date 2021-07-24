@@ -1,0 +1,51 @@
+{
+    "root": true,
+    "plugins": [
+        "no-autofix"
+    ],
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true,
+        "jest": true
+    },
+    "extends": "eslint:recommended",
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly",
+
+        "HistoryService":true,
+        "Characteristic":true,
+        "Service":true
+
+    },
+    "ignorePatterns": [
+    ],
+    "parserOptions": {
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+    },
+    "rules": {
+
+        "global-require": "off",
+        "no-unused-vars": "off",
+        "no-mixed-spaces-and-tabs": "off",
+        "no-fallthrough": "off",
+        "no-unreachable": "off",
+        "no-empty": "off",
+        "no-console": "off",        
+        "quotes": "off",
+        "brace-style": "off",
+        "semi": "off",
+        "comma-dangle": "off",
+        "eqeqeq": "off",
+
+        "no-extra-semi": "warn",
+        "dot-notation": "warn",
+        "no-autofix/prefer-const": "warn",
+
+        "indent": ["error", 2, { "SwitchCase": 1 }],
+        "linebreak-style": ["error", "unix"],
+        "curly": 1
+    }
+}

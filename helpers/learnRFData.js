@@ -11,21 +11,21 @@ let currentDevice
 
 const stop = (log, device, logLevel) => {
   // Reset existing learn requests
-  if (!closeClient || isClosingClient) return;
+  if (!closeClient || isClosingClient) {return;}
 
   isClosingClient = true;
 
-  if (currentDevice) currentDevice.cancelLearn();
+  if (currentDevice) {currentDevice.cancelLearn();}
 
   setTimeout(() => {
     closeClient();
     closeClient = null;
     isClosingClient = false;
 
-    if (log) log(`\x1b[35m[INFO]\x1b[0m Scan RF (stopped)`);
+    if (log) {log(`\x1b[35m[INFO]\x1b[0m Scan RF (stopped)`);}
   }, 500)
 
-  if(this.initalDebug !== undefined && currentDevice) currentDevice.debug = this.initalDebug;
+  if(this.initalDebug !== undefined && currentDevice) {currentDevice.debug = this.initalDebug;}
 }
 
 const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) => {
@@ -38,10 +38,10 @@ const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) =
   }
 
   this.initalDebug = device.debug;
-  if (logLevel <=1) device.debug = true;
+  if (logLevel <=1) {device.debug = true;}
 
-  if (!device.enterLearning) return log(`\x1b[31m[ERROR]\x1b[0m Learn Code (IR/RF learning not supported for device at ${host})`);
-  if (!device.enterRFSweep) return log(`\x1b[31m[ERROR]\x1b[0m Scan RF (RF learning not supported for device (${device.type}) at ${host})`);
+  if (!device.enterLearning) {return log(`\x1b[31m[ERROR]\x1b[0m Learn Code (IR/RF learning not supported for device at ${host})`);}
+  if (!device.enterRFSweep) {return log(`\x1b[31m[ERROR]\x1b[0m Scan RF (RF learning not supported for device (${device.type}) at ${host})`);}
 
   currentDevice = device
 
@@ -50,16 +50,16 @@ const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) =
   let onRawData3;
 
   closeClient = (err) => {
-    if (timeout) clearTimeout(timeout);
+    if (timeout) {clearTimeout(timeout);}
     timeout = null;
 
-    if (getDataTimeout) clearTimeout(getDataTimeout);
+    if (getDataTimeout) {clearTimeout(getDataTimeout);}
     getDataTimeout = null;
 
-    if (getDataTimeout2) clearTimeout(getDataTimeout2);
+    if (getDataTimeout2) {clearTimeout(getDataTimeout2);}
     getDataTimeout2 = null;
 
-    if (getDataTimeout3) clearTimeout(getDataTimeout3);
+    if (getDataTimeout3) {clearTimeout(getDataTimeout3);}
     getDataTimeout3 = null;
 
 
@@ -69,9 +69,9 @@ const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) =
   };
 
   onRawData = (message) => {
-    if (!closeClient) return;
+    if (!closeClient) {return;}
 
-    if (getDataTimeout) clearTimeout(getDataTimeout);
+    if (getDataTimeout) {clearTimeout(getDataTimeout);}
     getDataTimeout = null;
 
     log(`\x1b[35m[INFO]\x1b[0m Scan RF (found frequency - 1 of 2)`);
@@ -88,9 +88,9 @@ const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) =
   };
 
   onRawData2 = (message) => {
-    if (!closeClient) return;
+    if (!closeClient) {return;}
 
-    if (getDataTimeout2) clearTimeout(getDataTimeout2);
+    if (getDataTimeout2) {clearTimeout(getDataTimeout2);}
     getDataTimeout = null;
 
     log(`\x1b[35m[INFO]\x1b[0m Scan RF (found frequency - 2 of 2)`)
@@ -102,7 +102,7 @@ const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) =
   };
 
   onRawData3 = (message) => {
-    if (!closeClient) return;
+    if (!closeClient) {return;}
 
     const hex = message.toString('hex');
     log(`\x1b[35m[INFO]\x1b[0m Scan RF (complete)`);
@@ -123,13 +123,13 @@ const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) =
   log(`\x1b[35m[INFO]\x1b[0m Scan RF (scanning)`);
   log(`\x1b[35m[ACTION]\x1b[0m Hold down the button that sends the RF frequency.`);
 
-  if (callback) callback();
+  if (callback) {callback();}
 
   getDataTimeout = setTimeout(() => {
     getData(device);
   }, 1000);
 
-  if (disableTimeout) return;
+  if (disableTimeout) {return;}
 
   // Timeout the client after 60 seconds
   timeout = setTimeout(() => {
@@ -145,8 +145,8 @@ const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) =
 }
 
 const getData = (device) => {
-  if (getDataTimeout) clearTimeout(getDataTimeout);
-  if (!closeClient) return;
+  if (getDataTimeout) {clearTimeout(getDataTimeout);}
+  if (!closeClient) {return;}
 
   device.checkRFData();
 
@@ -156,8 +156,8 @@ const getData = (device) => {
 }
 
 const getData2 = (device) => {
-  if (getDataTimeout2) clearTimeout(getDataTimeout2);
-  if (!closeClient) return;
+  if (getDataTimeout2) {clearTimeout(getDataTimeout2);}
+  if (!closeClient) {return;}
 
   device.checkRFData2();
 
@@ -167,8 +167,8 @@ const getData2 = (device) => {
 }
 
 const getData3 = (device) => {
-  if (getDataTimeout3) clearTimeout(getDataTimeout3);
-  if (!closeClient) return;
+  if (getDataTimeout3) {clearTimeout(getDataTimeout3);}
+  if (!closeClient) {return;}
 
   device.checkData()
 

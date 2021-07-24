@@ -19,12 +19,12 @@ describe('outletAccessory', () => {
     const { device } = setup();
 
     const config = {
-        data: {
-          on: 'ON',
-          off: 'OFF'
-        },
-        host: device.host.address,
-        persistState: false
+      data: {
+        on: 'ON',
+        off: 'OFF'
+      },
+      host: device.host.address,
+      persistState: false
     }
     
     

@@ -45,14 +45,14 @@ class TemperatureSensorAccessory extends AirconAccessory {
     const { config, name, state, log, logLevel } = this;
 
     const batteryAlert = state.batteryLevel <= 20? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL;
-    if (logLevel <=1) log(`\x1b[34m[DEBUG]\x1b[0m ${name} Battery Alert:`,batteryAlert);
+    if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} Battery Alert:`,batteryAlert);}
 
     callback(null, batteryAlert);
   }
   
   getBatteryLevel (callback) {
     const { config, name, state, log, logLevel } = this;
-    if (logLevel <=1) log(`\x1b[34m[DEBUG]\x1b[0m ${name} Battery Level:`,state.batteryLevel);
+    if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} Battery Level:`,state.batteryLevel);}
     callback(null, parseFloat(state.batteryLevel));
   }
   
@@ -77,7 +77,7 @@ class TemperatureSensorAccessory extends AirconAccessory {
         method: this.getCurrentHumidity,
         bind: this
       })
-    };
+    }
     
     if (config.batteryAlerts){
       this.serviceManager.addGetCharacteristic({
@@ -93,7 +93,7 @@ class TemperatureSensorAccessory extends AirconAccessory {
         method: this.getBatteryLevel,
         bind: this
       })
-    };
+    }
     
     this.serviceManager.addGetCharacteristic({
       name: 'temperatureDisplayUnits',

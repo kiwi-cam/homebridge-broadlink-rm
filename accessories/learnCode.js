@@ -7,19 +7,19 @@ const BroadlinkRMAccessory = require('./accessory');
 
 class LearnIRAccessory extends BroadlinkRMAccessory {
 
-  constructor (log, config = {}, serviceManagerType) {    
+  constructor(log, config = {}, serviceManagerType) {
     // Set a default name for the accessory
-    if (!config.name) config.name = 'Learn Code';
+    if (!config.name) {config.name = 'Learn Code';}
     config.persistState = false;
 
     super(log, config, serviceManagerType);
   }
 
-  setDefaults () {
+  setDefaults() {
     this.state.switchState = false;
   }
-  
-  toggleLearning (props, on, callback) {
+
+  toggleLearning(props, on, callback) {
     const { config, serviceManager } = this;
     const { disableAutomaticOff, scanRF, scanFrequency } = config;
 
@@ -48,9 +48,9 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
     }
   }
 
-  setupServiceManager () {
+  setupServiceManager() {
     const { data, name, config, serviceManagerType } = this;
-    const { on, off } = data || { };
+    const { on, off } = data || {};
 
     this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Switch, this.log);
 
@@ -61,9 +61,8 @@ class LearnIRAccessory extends BroadlinkRMAccessory {
       setMethod: this.toggleLearning.bind(this),
       bind: this,
       props: {
-      
-      },
-      bind: this
+
+      }
     })
   }
 }

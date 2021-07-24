@@ -32,7 +32,7 @@ class FakeService {
   setCharacteristic (type, value) {
     let characteristic = this.characteristics[type]
 
-    if (characteristic) characteristic.set(value);
+    if (characteristic) {characteristic.set(value);}
   }
 
   getCharacteristic (type) {
@@ -65,21 +65,21 @@ class FakeCharacteristic {
     this.log('Set Fake Value Received')
 
     return this.setMethod(value, (err, value) => {
-      if (err) return this.log(err.message)
+      if (err) {return this.log(err.message)}
 
       this.log('Fake Set Callback Received: ', value)
     })
   }
 
   on (getSet, method) {
-    if (getSet === 'get') this.getMethod = method
-    if (getSet === 'set') this.setMethod = method
+    if (getSet === 'get') {this.getMethod = method}
+    if (getSet === 'set') {this.setMethod = method}
   }
 
   getValue () {
     return new Promise((resolve, reject) => {
       this.getMethod((error, value) => {
-        if (error) return reject(error)
+        if (error) {return reject(error)}
 
         resolve(value)
       })

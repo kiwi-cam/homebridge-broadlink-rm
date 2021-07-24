@@ -6,13 +6,13 @@ let getDataTimeout = null;
 
 const stop = (log, device, logLevel) => {
   // Reset existing learn requests
-  if (!closeClient) return;
+  if (!closeClient) {return;}
 
   closeClient();
   closeClient = null;
 
   log(`\x1b[35m[INFO]\x1b[0m Learn Code (stopped)`);
-  if(this.initalDebug !== undefined && device) device.debug = this.initalDebug;
+  if(this.initalDebug !== undefined && device) {device.debug = this.initalDebug;}
 }
 
 const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) => {
@@ -25,17 +25,17 @@ const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) =
   }  
 
   this.initalDebug = device.debug;
-  if (logLevel <=1) device.debug = true;
+  if (logLevel <=1) {device.debug = true;}
 
-  if (!device.enterLearning) return log(`\x1b[31m[ERROR]\x1b[0m Learn Code (IR learning not supported for device at ${host})`);
+  if (!device.enterLearning) {return log(`\x1b[31m[ERROR]\x1b[0m Learn Code (IR learning not supported for device at ${host})`);}
 
   let onRawData;
 
   closeClient = (err) => {
-    if (timeout) clearTimeout(timeout);
+    if (timeout) {clearTimeout(timeout);}
     timeout = null;
 
-    if (getDataTimeout) clearTimeout(getDataTimeout);
+    if (getDataTimeout) {clearTimeout(getDataTimeout);}
     getDataTimeout = null;
 
     device.removeListener('rawData', onRawData);
@@ -43,7 +43,7 @@ const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) =
   };
 
   onRawData = (message) => {
-    if (!closeClient) return;
+    if (!closeClient) {return;}
 
     const hex = message.toString('hex');
     log(`\x1b[35m[RESULT]\x1b[0m Learn Code (learned hex code: ${hex})`);
@@ -59,13 +59,13 @@ const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) =
   device.enterLearning()
   log(`Learn Code (ready)`);
 
-  if (callback) callback();
+  if (callback) {callback();}
 
   getDataTimeout = setTimeout(() => {
     getData(device);
   }, 1000)
 
-  if (disableTimeout) return;
+  if (disableTimeout) {return;}
 
   // Timeout the client after 10 seconds
   timeout = setTimeout(() => {
@@ -79,8 +79,8 @@ const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) =
 }
 
 const getData = (device) => {
-  if (getDataTimeout) clearTimeout(getDataTimeout);
-  if (!closeClient) return;
+  if (getDataTimeout) {clearTimeout(getDataTimeout);}
+  if (!closeClient) {return;}
 
   device.checkData()
 
