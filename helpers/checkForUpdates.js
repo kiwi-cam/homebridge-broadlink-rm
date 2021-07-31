@@ -3,7 +3,7 @@ const pkg = require('../package.json');
 
 const options = {
   repo: 'homebridge-broadlink-rm', 
-  owner: 'kiwicam',
+  owner: 'kiwi-cam',
   currentVersion: pkg.version
 };
 
