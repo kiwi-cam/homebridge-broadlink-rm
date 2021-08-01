@@ -4,19 +4,19 @@ const catchDelayCancelError = require('../helpers/catchDelayCancelError');
 const delayForDuration = require('../helpers/delayForDuration');
 
 class FanAccessory extends SwitchAccessory {
-  setDefaults () {
+  setDefaults() {
     super.setDefaults();
     let { config, state } = this;
-    
+
     // Defaults
     config.showSwingMode = config.hideSwingMode === true || config.showSwingMode === false ? false : true;
     config.showRotationDirection = config.hideRotationDirection === true || config.showRotationDirection === false ? false : true;
     config.stepSize = isNaN(config.stepSize) || config.stepSize > 100 || config.stepSize < 1 ? 1 : config.stepSize;
-    
+
     if (config.speedSteps) {
       config.stepSize = Math.floor(100 / config.speedSteps);
     }
-    
+
     if (config.alwaysResetToDefaults) {
       state.fanSpeed = (config.defaultFanSpeed !== undefined) ? config.defaultFanSpeed : 100;
 
@@ -30,7 +30,7 @@ class FanAccessory extends SwitchAccessory {
     super.reset();
 
     this.stateChangeInProgress = true;
-    
+
     // Clear Timeouts
     if (this.delayTimeoutPromise) {
       this.delayTimeoutPromise.cancel();
@@ -46,12 +46,12 @@ class FanAccessory extends SwitchAccessory {
       this.autoOnTimeoutPromise.cancel();
       this.autoOnTimeoutPromise = null;
     }
-    
-	  if (this.serviceManager.getCharacteristic(Characteristic.Active) === undefined) {
+
+    if (this.serviceManager.getCharacteristic(Characteristic.Active) === undefined) {
       this.serviceManager.setCharacteristic(Characteristic.Active, false);
     }
   }
-  
+
   checkAutoOnOff() {
     this.reset();
     this.checkAutoOn();
@@ -60,11 +60,11 @@ class FanAccessory extends SwitchAccessory {
 
   async checkAutoOff() {
     await catchDelayCancelError(async () => {
-      const { config, log, name, state, serviceManager } = this;
+      const { config, log, logLevel, name, state, serviceManager } = this;
       let { disableAutomaticOff, enableAutoOff, onDuration } = config;
 
       if (state.switchState && enableAutoOff) {
-        if (logLevel <=2) log(`${name} setSwitchState: (automatically turn off in ${onDuration} seconds)`);
+        if (logLevel <= 2) {log(`${name} setSwitchState: (automatically turn off in ${onDuration} seconds)`);}
 
         this.autoOffTimeoutPromise = delayForDuration(onDuration);
         await this.autoOffTimeoutPromise;
@@ -76,11 +76,11 @@ class FanAccessory extends SwitchAccessory {
 
   async checkAutoOn() {
     await catchDelayCancelError(async () => {
-      const { config, log, name, state, serviceManager } = this;
+      const { config, log, logLevel, name, state, serviceManager } = this;
       let { disableAutomaticOn, enableAutoOn, offDuration } = config;
 
       if (!state.switchState && enableAutoOn) {
-        if (logLevel <=2) log(`${name} setSwitchState: (automatically turn on in ${offDuration} seconds)`);
+        if (logLevel <= 2) {log(`${name} setSwitchState: (automatically turn on in ${offDuration} seconds)`);}
 
         this.autoOnTimeoutPromise = delayForDuration(offDuration);
         await this.autoOnTimeoutPromise;
@@ -90,7 +90,7 @@ class FanAccessory extends SwitchAccessory {
     });
   }
 
-  async setSwitchState (hexData, previousValue) {	  
+  async setSwitchState(hexData, previousValue) {
     const { config, state, serviceManager } = this;
     if (!this.state.switchState) {
       this.lastFanSpeed = undefined;
@@ -99,7 +99,7 @@ class FanAccessory extends SwitchAccessory {
     if (config.defaultSpeedStep && config.stepSize) {
       this.lastFanSpeed = config.defaultSpeedStep * config.stepSize;
     }
-	  
+
     // Reset the fan speed back to the default speed when turned off
     if (this.state.switchState === false && config.alwaysResetToDefaults) {
       this.setDefaults();
@@ -109,8 +109,8 @@ class FanAccessory extends SwitchAccessory {
     super.setSwitchState(hexData, previousValue);
   }
 
-  async setFanSpeed (hexData) {
-    const { config, data, host, log, state, name, logLevel} = this;
+  async setFanSpeed(hexData) {
+    const { config, data, host, log, state, name, logLevel } = this;
 
     this.reset();
 
@@ -121,7 +121,7 @@ class FanAccessory extends SwitchAccessory {
     allHexKeys.forEach((key) => {
       const parts = key.split('fanSpeed');
 
-      if (parts.length !== 2) return;
+      if (parts.length !== 2) {return;}
 
       foundSpeeds.push(parts[1])
     })
@@ -139,7 +139,7 @@ class FanAccessory extends SwitchAccessory {
 
     // Find speed closest to the one requested
     const closest = foundSpeeds.reduce((prev, curr) => Math.abs(curr - state.fanSpeed) < Math.abs(prev - state.fanSpeed) ? curr : prev);
-    if (logLevel <=2) log(`${name} setFanSpeed: (closest: ${closest})`);
+    if (logLevel <= 2) {log(`${name} setFanSpeed: (closest: ${closest})`);}
 
     if (this.lastFanSpeed === closest) {
       return;
@@ -149,7 +149,7 @@ class FanAccessory extends SwitchAccessory {
     hexData = data[`fanSpeed${closest}`];
 
     if (config.speedCycle) {
-      let fanSpeedHexData = data['fanSpeed'];
+      let fanSpeedHexData = data.fanSpeed;
       let fanSpeed = this.lastFanSpeed;
       hexData = [];
 
@@ -172,7 +172,7 @@ class FanAccessory extends SwitchAccessory {
         while (fanSpeed < closest) {
           hexData.push(fanSpeedHexData);
           fanSpeed += config.stepSize;
-        } 
+        }
       }
     }
 
@@ -183,14 +183,14 @@ class FanAccessory extends SwitchAccessory {
     this.checkAutoOnOff();
   }
 
-  setupServiceManager () {
+  setupServiceManager() {
     const { config, data, name, serviceManagerType } = this;
     const { on, off, clockwise, counterClockwise, swingToggle } = data || {};
 
     this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Fanv2, this.log);
 
     this.setDefaults();
-    
+
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',
       type: Characteristic.Active,
@@ -227,9 +227,9 @@ class FanAccessory extends SwitchAccessory {
       bind: this,
       props: {
         setValuePromise: this.setFanSpeed.bind(this),
-		    minStep: config.stepSize,
-		    minValue: 0,
-		    maxValue: 100
+        minStep: config.stepSize,
+        minValue: 0,
+        maxValue: 100
       }
     });
 

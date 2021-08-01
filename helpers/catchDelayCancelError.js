@@ -7,7 +7,7 @@ const catchDelayCancelError = async (originalMethod) => {
   try {
     result = await originalMethod()
   } catch (err) {
-    if (err.message !== TIMEOUT_CANCELLATION) throw err
+    if (err.message !== TIMEOUT_CANCELLATION) {throw err}
   }
 
   return result

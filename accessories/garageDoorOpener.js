@@ -60,7 +60,7 @@ class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
     let { autoCloseDelay, openDuration, openCloseDuration } = config;
 
     // Defaults
-    if (!openDuration) openDuration = openCloseDuration || 8;
+    if (!openDuration) {openDuration = openCloseDuration || 8;}
 
     log(`${name} setDoorCurrentState: opening`);
     this.openingTimeoutPromise = delayForDuration(openDuration);
@@ -69,7 +69,7 @@ class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
     log(`${name} setDoorCurrentState: opened`);
     serviceManager.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.OPEN);
 
-    if (!autoCloseDelay) return;
+    if (!autoCloseDelay) {return;}
 
     log(`${name} automatically closing in ${autoCloseDelay}s`);
     this.autoCloseTimeoutPromise = delayForDuration(autoCloseDelay);
@@ -84,7 +84,7 @@ class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
     let { closeDuration, openCloseDuration } = config;
 
     // Defaults
-    if (!closeDuration) closeDuration = openCloseDuration || 8;
+    if (!closeDuration) {closeDuration = openCloseDuration || 8;}
 
     log(`${name} setDoorCurrentState: closing`);
 

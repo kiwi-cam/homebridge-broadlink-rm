@@ -11,15 +11,15 @@ class AirPurifierAccessory extends FanAccessory {
 
   // User requested a the target state be set
   async setTargetState (hexData, previousValue) {
-      const { log, name, state, serviceManager } = this;
+    const { log, name, state, serviceManager } = this;
 
-      // Ignore if no change to the targetPosition
-      if (state.targetState === previousValue) return;
+    // Ignore if no change to the targetPosition
+    if (state.targetState === previousValue) {return;}
 
-      // Set the CurrentAirPurifierState to match the switch state
-      log(`${name} setTargetState: currently ${previousValue === 0 ? 'manual' : 'auto'}, changing to ${state.targetState === 0 ? 'manual' : 'auto'}`);
+    // Set the CurrentAirPurifierState to match the switch state
+    log(`${name} setTargetState: currently ${previousValue === 0 ? 'manual' : 'auto'}, changing to ${state.targetState === 0 ? 'manual' : 'auto'}`);
 
-      await this.performSend(hexData);
+    await this.performSend(hexData);
   }
 
   updateCurrentState() {
@@ -49,9 +49,9 @@ class AirPurifierAccessory extends FanAccessory {
     } = data || {};
 
     // Defaults
-    if (config.showLockPhysicalControls !== false) config.showLockPhysicalControls = true
-    if (config.showSwingMode !== false && config.hideSwingMode !== true) config.showSwingMode = true
-    if (config.showRotationDirection !== false && config.hideRotationDirection !== true) config.showRotationDirection = true
+    if (config.showLockPhysicalControls !== false) {config.showLockPhysicalControls = true}
+    if (config.showSwingMode !== false && config.hideSwingMode !== true) {config.showSwingMode = true}
+    if (config.showRotationDirection !== false && config.hideRotationDirection !== true) {config.showRotationDirection = true}
 
     this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.AirPurifier, this.log);
 

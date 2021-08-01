@@ -17,11 +17,11 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
     assert.isNumber(totalDurationClose, '`totalDurationClose` is required and should be numeric.')
 
     // Set config default values
-    if (!initialDelay) config.initialDelay = 0.1;
+    if (!initialDelay) {config.initialDelay = 0.1;}
 
     // Set state default values
-    if (currentPosition === undefined) this.state.currentPosition = 0;
-    if (positionState === undefined) this.state.positionState = Characteristic.PositionState.STOPPED;
+    if (currentPosition === undefined) {this.state.currentPosition = 0;}
+    if (positionState === undefined) {this.state.positionState = Characteristic.PositionState.STOPPED;}
   }
 
   async reset () {
@@ -54,7 +54,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
       this.reset();
 
       // Ignore if no change to the targetPosition
-      if (state.targetPosition === previousValue && !config.allowResend) return;
+      if (state.targetPosition === previousValue && !config.allowResend) {return;}
 
       // `initialDelay` allows multiple `window-covering` accessories to be updated at the same time
       // without RF interference by adding an offset to each `window-covering` accessory
@@ -62,7 +62,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
       await this.initialDelayPromise;
 
       const closeCompletely = await this.checkOpenOrCloseCompletely();
-      if (closeCompletely) return;
+      if (closeCompletely) {return;}
 
       log(`${name} setTargetPosition: (currentPosition: ${state.currentPosition})`);
 
@@ -70,7 +70,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
       let difference = state.targetPosition - state.currentPosition;
 
       state.opening = (difference > 0);
-      if (!state.opening) difference = -1 * difference;
+      if (!state.opening) {difference = -1 * difference;}
 
       hexData = state.opening ? open : close
 
@@ -93,7 +93,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
       await this.performSend(hexData);
 
       let difference = state.targetPosition - state.currentPosition
-      if (!state.opening) difference = -1 * difference;
+      if (!state.opening) {difference = -1 * difference;}
 
       const fullOpenCloseTime = state.opening ? totalDurationOpen : totalDurationClose;
       const durationPerPercentage = fullOpenCloseTime / 100;
@@ -122,9 +122,9 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
     // Reset the state and timers
     this.reset();
 
-    if (state.targetPosition === 100 && sendStopAt100) await this.performSend(stop);
-    if (state.targetPosition === 0 && sendStopAt0) await this.performSend(stop);
-    if (state.targetPosition !== 0 && state.targetPosition != 100) await this.performSend(stop);
+    if (state.targetPosition === 100 && sendStopAt100) {await this.performSend(stop);}
+    if (state.targetPosition === 0 && sendStopAt0) {await this.performSend(stop);}
+    if (state.targetPosition !== 0 && state.targetPosition != 100) {await this.performSend(stop);}
 
     serviceManager.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.STOPPED);
   }
@@ -158,7 +158,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
     return false;
   }
 
-    // Determine how long it should take to increase/decrease a single %
+  // Determine how long it should take to increase/decrease a single %
   determineOpenCloseDurationPerPercent ({ opening, totalDurationOpen, totalDurationClose  }) {
     assert.isBoolean(opening);
     assert.isNumber(totalDurationOpen);
@@ -186,8 +186,8 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
       // Set the new currentPosition
       let currentValue = state.currentPosition || 0;
 
-      if (state.opening) currentValue++;
-      if (!state.opening) currentValue--;
+      if (state.opening) {currentValue++;}
+      if (!state.opening) {currentValue--;}
 
       serviceManager.setCharacteristic(Characteristic.CurrentPosition, currentValue);
 

@@ -8,11 +8,11 @@ module.exports = ({ host, hexData, log, name, logLevel }) => {
 
   // Check for pronto code
   if (hexData.substring(0, 4) === '0000') {
-    if (logLevel <= 1) log(`\x1b[33m[DEBUG]\x1b[0m ${name} sendHex (Converting Pronto code "${hexData}" to Broadlink code)`);
+    if (logLevel <= 1) {log(`\x1b[33m[DEBUG]\x1b[0m ${name} sendHex (Converting Pronto code "${hexData}" to Broadlink code)`);}
     hexData = convertProntoCode(hexData, log);
-    if (logLevel <=1) log(`\x1b[33m[DEBUG]\x1b[0m ${name} sendHex (Pronto code successfuly converted: "${hexData}")`);
+    if (logLevel <=1) {log(`\x1b[33m[DEBUG]\x1b[0m ${name} sendHex (Pronto code successfuly converted: "${hexData}")`);}
     
-    if (!hexData) return log(`\x1b[31m[ERROR] \x1b[0m${name} sendData (A Pronto code was detected however its conversion to a Broadlink code failed.)`);
+    if (!hexData) {return log(`\x1b[31m[ERROR] \x1b[0m${name} sendData (A Pronto code was detected however its conversion to a Broadlink code failed.)`);}
 
   }
 
@@ -20,16 +20,16 @@ module.exports = ({ host, hexData, log, name, logLevel }) => {
   const device = getDevice({ host, log });
 
   if (!device) {
-    if (!host) return log(`\x1b[31m[ERROR] \x1b[0m${name} sendData (no device found)`);
+    if (!host) {return log(`\x1b[31m[ERROR] \x1b[0m${name} sendData (no device found)`);}
 
     return log(`\x1b[31m[ERROR] \x1b[0m${name} sendData (no device found at ${host})`);
   }
 
-  if (!device.sendData) return log(`\x1b[31m[ERROR] \x1b[0mThe device at ${device.host.address} (${device.host.macAddress}) doesn't support the sending of IR or RF codes.`);
-  if (hexData.includes('5aa5aa555')) return log(`\x1b[31m[ERROR] \x1b[0mThis type of hex code (5aa5aa555...) is no longer valid. Use the included "Learn Code" accessory to find new (decrypted) codes.`);
+  if (!device.sendData) {return log(`\x1b[31m[ERROR] \x1b[0mThe device at ${device.host.address} (${device.host.macAddress}) doesn't support the sending of IR or RF codes.`);}
+  if (hexData.includes('5aa5aa555')) {return log(`\x1b[31m[ERROR] \x1b[0mThis type of hex code (5aa5aa555...) is no longer valid. Use the included "Learn Code" accessory to find new (decrypted) codes.`);}
 
   const hexDataBuffer = new Buffer(hexData, 'hex');
   device.sendData(hexDataBuffer, logLevel, hexData);
 
-  if (logLevel <=2) log(`${name} sendHex (${device.host.address}; ${device.host.macAddress}) ${hexData}`);
+  if (logLevel <=2) {log(`${name} sendHex (${device.host.address}; ${device.host.macAddress}) ${hexData}`);}
 }

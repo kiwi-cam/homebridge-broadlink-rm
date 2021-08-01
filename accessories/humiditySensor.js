@@ -42,14 +42,14 @@ class HumiditySensorAccessory extends HumidifierAccessory {
       return;
     }
 
-    if (logLevel <=1) log(`${name} monitorHumidity`);
+    if (logLevel <=1) {log(`${name} monitorHumidity`);}
 
     //Broadlink module emits 'temperature for both sensors.
     device.on('temperature', this.onHumidity.bind(this));
     device.checkHumidity();
 
     this.updateHumidityUI();
-    if (!config.isUnitTest) setInterval(this.updateHumidityUI.bind(this), config.humidityUpdateFrequency * 1000)
+    if (!config.isUnitTest) {setInterval(this.updateHumidityUI.bind(this), config.humidityUpdateFrequency * 1000)}
   }
 
   //Method inhertied but not required
@@ -59,14 +59,14 @@ class HumiditySensorAccessory extends HumidifierAccessory {
     const { config, name, state, log, logLevel } = this;
 
     const batteryAlert = state.batteryLevel <= 20? Characteristic.StatusLowBattery.BATTERY_LEVEL_LOW : Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL;
-    if (logLevel <=1) log(`\x1b[34m[DEBUG]\x1b[0m ${name} Battery Level:`,state.batteryLevel,'Alert:',batteryAlert);
+    if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} Battery Level:`,state.batteryLevel,'Alert:',batteryAlert);}
 
     callback(null, batteryAlert);
   }
   
   getBatteryLevel (callback) {
     const { config, name, state, log, logLevel } = this;
-    if (logLevel <=1) log(`\x1b[34m[DEBUG]\x1b[0m ${name} Battery Level:`,state.batteryLevel);
+    if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} Battery Level:`,state.batteryLevel);}
     callback(null, parseFloat(state.batteryLevel));
   }
 
@@ -97,7 +97,7 @@ class HumiditySensorAccessory extends HumidifierAccessory {
         method: this.getBatteryLevel,
         bind: this
       })
-    };
+    }
   }
 }
 

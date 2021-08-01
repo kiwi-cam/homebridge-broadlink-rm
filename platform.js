@@ -47,7 +47,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
     this.showMessage();
     setTimeout(checkForUpdates, 1800);
 
-    if (!config.accessories) config.accessories = []
+    if (!config.accessories) {config.accessories = []}
 
     // Add a Learn Code accessory if none exist in the config
     const learnIRAccessories = (config && config.accessories && Array.isArray(config.accessories)) ? config.accessories.filter((accessory) => (accessory.type === 'learn-ir' || accessory.type === 'learn-code')) : [];
@@ -68,9 +68,9 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
     // Iterate through the config accessories
     let tvs = [];
     config.accessories.forEach((accessory) => {
-      if (!accessory.type) throw new Error(`Each accessory must be configured with a "type". e.g. "switch"`);
-      if (accessory.disabled) return;
-      if (!classTypes[accessory.type]) throw new Error(`homebridge-broadlink-rm doesn't support accessories of type "${accessory.type}".`);
+      if (!accessory.type) {throw new Error(`Each accessory must be configured with a "type". e.g. "switch"`);}
+      if (accessory.disabled) {return;}
+      if (!classTypes[accessory.type]) {throw new Error(`homebridge-broadlink-rm doesn't support accessories of type "${accessory.type}".`);}
 
       const homeKitAccessory = new classTypes[accessory.type](log, accessory);
 
@@ -79,19 +79,19 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
         if(accessory.subType.toLowerCase() === 'receiver'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.AUDIO_RECEIVER;}
         if(accessory.subType.toLowerCase() === 'stick'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.TV_STREAMING_STICK;}
 
-        if (logLevel <=1) log(`\x1b[34m[DEBUG]\x1b[0m Adding Accessory ${accessory.type} (${accessory.subType})`);
+        if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m Adding Accessory ${accessory.type} (${accessory.subType})`);}
         tvs.push(homeKitAccessory);
         return;
       }
 
-      if (logLevel <=1) log(`\x1b[34m[DEBUG]\x1b[0m Adding Accessory ${accessory.type} (${accessory.subType})`);
+      if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m Adding Accessory ${accessory.type} (${accessory.subType})`);}
       accessories.push(homeKitAccessory);
     });
 
     if (tvs.length > 0) {
       if (tvs.length > 0) {
         const TV = homebridgeRef.hap.Accessory.Categories.TELEVISION;
-        homebridgeRef.publishExternalAccessories(this, tvs.map(tv => createAccessory(tv, tv.name, TV, homebridgeRef, tv.subType)));
+        homebridgeRef.publishExternalAccessories('homebridge-broadlink-rm', tvs.map(tv => createAccessory(tv, tv.name, TV, homebridgeRef, tv.subType)));
 
         log('');
         log(`**************************************************************************************************************`);
@@ -109,7 +109,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
     const { hosts } = config;
 
     if (!hosts) {
-      if (logLevel <=2) log(`\x1b[35m[INFO]\x1b[0m Automatically discovering Broadlink RM devices.`)
+      if (logLevel <=2) {log(`\x1b[35m[INFO]\x1b[0m Automatically discovering Broadlink RM devices.`)}
       discoverDevices(true, log, logLevel, config.deviceDiscoveryTimeout);
 
       return;
@@ -117,7 +117,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
 
     discoverDevices(false, log, logLevel);
 
-    if (logLevel <=2) log(`\x1b[35m[INFO]\x1b[0m Automatic Broadlink RM device discovery has been disabled as the "hosts" option has been set.`)
+    if (logLevel <=2) {log(`\x1b[35m[INFO]\x1b[0m Automatic Broadlink RM device discovery has been disabled as the "hosts" option has been set.`)}
 
     assert.isArray(hosts, `\x1b[31m[CONFIG ERROR] \x1b[33mhosts\x1b[0m should be an array of objects.`)
 
