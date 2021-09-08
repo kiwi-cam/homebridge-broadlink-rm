@@ -9,7 +9,7 @@ class LightAccessory extends SwitchAccessory {
 
   setDefaults () {
     super.setDefaults();
-  
+
     const { config } = this;
 
     config.onDelay = config.onDelay || 0.1;
@@ -54,7 +54,7 @@ class LightAccessory extends SwitchAccessory {
   }
 
   async setSaturation () {
-    
+
   }
 
   async setHue () {
@@ -83,9 +83,17 @@ class LightAccessory extends SwitchAccessory {
       // Find hue closest to the one requested
       const foundValues = this.dataKeys('hue');
       const closest = foundValues.reduce((prev, curr) => Math.abs(curr - state.hue) < Math.abs(prev - state.hue) ? curr : prev);
-      const hexData = data[`hue${closest}`];
+      var hexData = "";
 
-      log(`${name} setHue: (closest: hue${closest})`);
+      // If saturation is less than 10, choose white
+      if (state.saturation < 10) {
+        hexData = data[`white`];
+        log(`${name} setHue: (closest: white)`);
+      } else {
+        hexData = data[`hue${closest}`];
+        log(`${name} setHue: (closest: hue${closest})`);
+      }
+
       await this.performSend(hexData);
     });
   }
@@ -115,11 +123,11 @@ class LightAccessory extends SwitchAccessory {
         if (!state.switchState) {
           state.switchState = true;
           serviceManager.refreshCharacteristicUI(Characteristic.On);
-    
+
           if (on) {
             log(`${name} setBrightness: (turn on, wait ${onDelay}s)`);
             await this.performSend(on);
-    
+
             log(`${name} setHue: (wait ${onDelay}s then send data)`);
             this.onDelayTimeoutPromise = delayForDuration(onDelay);
             await this.onDelayTimeoutPromise;
@@ -133,7 +141,7 @@ class LightAccessory extends SwitchAccessory {
 
         const closest = foundValues.reduce((prev, curr) => Math.abs(curr - state.brightness) < Math.abs(prev - state.brightness) ? curr : prev);
         const hexData = data[`brightness${closest}`];
-    
+
         log(`${name} setBrightness: (closest: ${closest})`);
         await this.performSend(hexData);
       } else {
@@ -168,7 +176,7 @@ class LightAccessory extends SwitchAccessory {
   setupServiceManager () {
     const { data, name, config, serviceManagerType } = this;
     const { on, off } = data || { };
-    
+
     this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Lightbulb, this.log);
 
     this.serviceManager.addToggleCharacteristic({
