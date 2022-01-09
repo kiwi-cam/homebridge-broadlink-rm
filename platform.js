@@ -137,7 +137,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
     })
   }
 
-  tryAddDeviceFromHosts(host, macAddress, deviceType, log ) {
+  tryAddDeviceFromHosts(host, macAddress, deviceType, log) {
     // will close the socket and remove the device, could live on the kiwicam-broadlinkjs-rm module itself
     if (broadlink.devices[macAddress]) {
       if (broadlink.devices[macAddress].socket) {
