@@ -5,7 +5,7 @@ const npmPackage = require('./package.json');
 const Accessory = require('./accessories');
 const checkForUpdates = require('./helpers/checkForUpdates');
 const broadlink = require('./helpers/broadlink');
-const { discoverDevices } = require('./helpers/getDevice');
+const { discoverDevices, getDevice} = require('./helpers/getDevice');
 const { createAccessory } = require('./helpers/accessoryCreator');
 
 const classTypes = {
@@ -132,9 +132,28 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
       let deviceType = 0x2221;
       deviceType = isRFSupported ? (deviceType | 0x2) : deviceType;
       deviceType = isRM4 ? (deviceType | 0x4) : deviceType;
-      
-      broadlink.addDevice({ address, port: 80 }, mac.toLowerCase(), deviceType);
+
+      this.tryAddDeviceFromHosts({ address, port: 80 }, mac.toLowerCase(), deviceType, log);
     })
+  }
+
+  tryAddDeviceFromHosts(host, macAddress, deviceType, log ) {
+    // will close the socket and remove the device, could live on the kiwicam-broadlinkjs-rm module itself
+    if (broadlink.devices[macAddress]) {
+      if (broadlink.devices[macAddress].socket) {
+        broadlink.devices[macAddress].socket.close();
+      }
+      delete broadlink.devices[macAddress];
+    }
+    broadlink.addDevice(host, macAddress, deviceType);
+    setTimeout(()=> {
+      // simply checking after 5 seconds if device has been registered, if not - retry the whole process
+      const device = getDevice({ host: host.address, log })
+      if (!device) {
+        log(`\x1b[31m[ERROR] \x1b[0mCould not add device at ${host.address}, retrying...`);
+        this.tryAddDeviceFromHosts(host, macAddress, deviceType, log);
+      }
+    }, 5000);
   }
 
   showMessage () {
