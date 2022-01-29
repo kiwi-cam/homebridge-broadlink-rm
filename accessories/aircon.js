@@ -1,3 +1,4 @@
+// -*- mode: js-mode; js-indent-level : 2 -*-
 const { assert } = require('chai');
 const uuid = require('uuid');
 const fs = require('fs');
@@ -8,6 +9,8 @@ const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 const catchDelayCancelError = require('../helpers/catchDelayCancelError');
 const { getDevice } = require('../helpers/getDevice');
 const BroadlinkRMAccessory = require('./accessory');
+const eveHistoryType = 'custom';
+const enableTagetTemperatureHistory = true;
 
 class AirConAccessory extends BroadlinkRMAccessory {
 
@@ -34,14 +37,44 @@ class AirConAccessory extends BroadlinkRMAccessory {
     
     // Fakegato setup
     if(config.noHistory !== true) {
+      this.services = this.getServices();
       this.displayName = config.name;
       this.lastUpdatedAt = undefined;
-      this.historyService = new HistoryService("room", this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
+      //this.historyService = new HistoryService("room", this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
+      //this.historyService = new HistoryService("thermo", this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
+      this.historyService = new HistoryService(eveHistoryType, this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
       this.historyService.log = this.log;  
+
+      if (eveHistoryType == 'custom') {
+	let state2 = this.state;
+	//console.log(state2)
+	this.state = new Proxy(state2, {
+	  set: function(target, key, value) {
+	    if (target[key] != value) {
+	      Reflect.set(target, key, value);
+	      if (this.historyService) {
+		if (key == `targetTemperature`) {
+		  this.log.debug(`adding history of targetTemperature.`, value)
+		  this.historyService.addEntry(
+		    {time: Math.round(new Date().valueOf()/1000),
+		     setTemp: value || 30})
+		} else if (key == 'targetHeatingCoolingState') {
+		  this.log.debug(`adding history of targetHeatingCoolingState.`, value * 25)
+		  this.historyService.addEntry(
+		    {time: Math.round(new Date().valueOf()/1000),
+		     valvePosition: value * 25})
+		}
+	      }
+	    }
+	    return true
+	  }.bind(this)
+	})
+      }
     }
 
     this.temperatureCallbackQueue = {};
     this.monitorTemperature();
+    this.thermoHistory();
   }
 
   correctReloadedState (state) {
@@ -474,6 +507,26 @@ class AirConAccessory extends BroadlinkRMAccessory {
     this.processQueuedTemperatureCallbacks(temperature);
   }
 
+  async thermoHistory() { 
+    const {config} = this;
+    if (config.noHistory !== true && eveHistoryType === 'custom') {
+      // this.historyService.addEntry({
+      //   time: Math.round(new Date().valueOf() / 1000),
+      //   temp: this.state.currentTemperature, 
+      //   humidity: this.state.currentHumidity
+      // });
+      this.historyService.addEntry({
+	time: Math.round(new Date().valueOf() / 1000),
+	setTemp: this.state.targetTemperature, 
+	valvePosition: this.state.targetHeatingCoolingState * 25
+      });
+      
+      setTimeout(() => {
+	this.thermoHistory();
+      }, 10 * 60 * 1000);
+    }
+  }
+
   addTemperatureCallbackToQueue (callback) {
     const { config, host, logLevel, log, name, state } = this;
     const { mqttURL, temperatureFilePath, w1DeviceID, noHumidity } = config;
@@ -796,12 +849,97 @@ class AirConAccessory extends BroadlinkRMAccessory {
     this.onTemperature(this.mqttValues.temperature,this.mqttValues.humidity);
   }
 
+  getValvePosition(callback) {
+    // not implemented
+    //console.log('getValvePosition() is requested.', this.displayName);
+    callback(null, this.state.targetHeatingCoolingState * 25);
+  }
+  
+  setProgramCommand(value, callback) {
+    // not implemented
+    //console.log('setProgramCommand() is requested. %s', value, this.displayName);
+    callback();
+  }
+  
+  getProgramData(callback) {
+    // not implemented
+    //    var data  = "12f1130014c717040af6010700fc140c170c11fa24366684ffffffff24366684ffffffff24366684ffffffff24366684ffffffff24366684ffffffff24366684ffffffff24366684fffffffff42422222af3381900001a24366684ffffffff";
+    var data  = "ff04f6";
+    var buffer = new Buffer.from(('' + data).replace(/[^0-9A-F]/ig, ''), 'hex').toString('base64');
+    //console.log('getProgramData() is requested. (%s)', buffer, this.displayName);
+    callback(null, buffer);
+  }
+
+  localCharacteristic(key, uuid, props) {
+    let characteristic = class extends Characteristic {
+      constructor() {
+	super(key, uuid);
+	this.setProps(props);
+      }
+    }
+    characteristic.UUID = uuid;
+
+    return characteristic;
+  }
+
   // Service Manager Setup
 
   setupServiceManager () {
     const { config, name, serviceManagerType } = this;
 
     this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Thermostat, this.log);
+
+    if(config.noHistory !== true && eveHistoryType === 'custom') {
+      const ValvePositionCharacteristic = this.localCharacteristic(
+	'ValvePosition', 'E863F12E-079E-48FF-8F27-9C2605A29F52',
+	{format: Characteristic.Formats.UINT8,
+	 unit: Characteristic.Units.PERCENTAGE,
+	 perms: [
+           Characteristic.Perms.READ,
+           Characteristic.Perms.NOTIFY
+	 ]});
+
+      this.serviceManager.addGetCharacteristic({
+	name: 'currentValvePosition',
+	//type: eve.Characteristics.ValvePosition,
+	type: ValvePositionCharacteristic,
+	method: this.getValvePosition,
+	bind: this
+      });
+      
+      if (enableTagetTemperatureHistory) {
+	const ProgramDataCharacteristic = this.localCharacteristic(
+	  'ProgramData', 'E863F12F-079E-48FF-8F27-9C2605A29F52',
+	  {format: Characteristic.Formats.DATA,
+	   perms: [
+             Characteristic.Perms.READ,
+             Characteristic.Perms.NOTIFY
+	   ]});
+	
+	const ProgramCommandCharacteristic = this.localCharacteristic(
+	  'ProgramCommand', 'E863F12C-079E-48FF-8F27-9C2605A29F52',
+	  {format: Characteristic.Formats.DATA,
+	   perms: [
+             Characteristic.Perms.WRITE
+	   ]});
+	
+	this.serviceManager.addGetCharacteristic({
+	  name: 'setProgramData',
+	  //type: eve.Characteristics.ProgramData,
+	  type: ProgramDataCharacteristic,
+	  method: this.getProgramData,
+	  bind: this,
+	});
+	
+	this.serviceManager.addSetCharacteristic({
+	  name: 'setProgramCommand',
+	  //type: eve.Characteristics.ProgramCommand,
+	  type: ProgramCommandCharacteristic,
+	  method: this.setProgramCommand,
+	  bind: this,
+	});
+      }
+    }
 
     this.serviceManager.addToggleCharacteristic({
       name: 'currentHeatingCoolingState',
