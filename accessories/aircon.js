@@ -583,7 +583,10 @@ class AirConAccessory extends BroadlinkRMAccessory {
     Object.keys(this.temperatureCallbackQueue).forEach((callbackIdentifier) => {
       const callback = this.temperatureCallbackQueue[callbackIdentifier];
 
-      callback(null, temperature);
+      //callback(null, temperature);
+
+      this.serviceManager.getCharacteristic(Characteristic.CurrentTemperature).updateValue(temperature);
+      
       delete this.temperatureCallbackQueue[callbackIdentifier];
     })
 
@@ -609,6 +612,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
       if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} getCurrentTemperature (using pseudoDeviceTemperature ${pseudoDeviceTemperature} from config)`);}
       return callback(null, pseudoDeviceTemperature);
     }
+
+    callback(null, this.state.currentTemperature);
 
     this.addTemperatureCallbackToQueue(callback);
   }
