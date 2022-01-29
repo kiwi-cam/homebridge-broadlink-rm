@@ -176,8 +176,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
     return (!this.autoSwitchAccessory || (this.autoSwitchAccessory && this.autoSwitchAccessory.state && this.autoSwitchAccessory.state.switchState));
   }
 
-  setTargetTemperature (previousValue) {
-    const { config, log, logLevel, name, serviceManager, state } = this;
+  setTargetTemperature (HexData,previousValue) {
+    const { HeatingCoolingConfigKeys, data, config, log, logLevel, name, serviceManager, state } = this;
     const { preventResendHex, minTemperature, maxTemperature } = config;
 
     if (state.targetTemperature === previousValue && preventResendHex && !this.previouslyOff) {return;}
@@ -187,6 +187,20 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (state.targetTemperature < minTemperature) {return log(`The target temperature (${this.targetTemperature}) must be more than the minTemperature (${minTemperature})`);}
     if (state.targetTemperature > maxTemperature) {return log(`The target temperature (${this.targetTemperature}) must be less than the maxTemperature (${maxTemperature})`);}
 
+    const mode = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
+    const r = new RegExp(`${mode}`);
+    const k = Object.keys(data).sort().filter(x => x.match(r));
+    const modemin = parseInt(k[0].match(/\d+/)[0]);
+    const modemax = parseInt(k[k.length - 1].match(/\d+/)[0]);
+    const temperature = state.targetTemperature;
+    if (temperature < modemin) {
+	state.targetTemperature = previousValue;
+	throw `${name} Target temperature (${temperature}) is below minimal ${mode} temperature (${modemin})`;
+    } else if (temperature > modemax) {
+	state.targetTemperature = previousValue;
+	throw `${name} Target temperature (${temperature}) is above maxmum ${mode} temperature (${modemax})`;
+    }
+	
     // Used within correctReloadedState() so that when re-launching the accessory it uses
     // this temperature rather than one automatically set.
     state.userSpecifiedTargetTemperature = state.targetTemperature;
@@ -246,12 +260,19 @@ class AirConAccessory extends BroadlinkRMAccessory {
     let mode = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
 
     if (state.currentHeatingCoolingState !== state.targetHeatingCoolingState){
+        const r = new RegExp(`${mode}`);
+	const k = Object.keys(data).sort().filter(x => x.match(r));
+	const modemin = parseInt(k[0].match(/\d+/)[0]);
+	const modemax = parseInt(k[k.length - 1].match(/\d+/)[0]);
+ 	if (temperature < modemin || temperature > modemax) {
+	
       // Selecting a heating/cooling state allows a default temperature to be used for the given state.
       if (state.targetHeatingCoolingState === Characteristic.TargetHeatingCoolingState.HEAT) {
         temperature = defaultHeatTemperature;
       } else if (state.targetHeatingCoolingState === Characteristic.TargetHeatingCoolingState.COOL) {
         temperature = defaultCoolTemperature;
       }
+	}
 
       //Set the mode, and send the mode hex
       this.updateServiceCurrentHeatingCoolingState(state.targetHeatingCoolingState);
