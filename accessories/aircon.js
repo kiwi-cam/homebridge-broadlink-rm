@@ -45,9 +45,9 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   correctReloadedState (state) {
-    if (state.currentHeatingCoolingState === Characteristic.CurrentHeatingCoolingState.OFF)  {
-      state.targetTemperature = state.currentTemperature;
-    }
+    //if (state.currentHeatingCoolingState === Characteristic.CurrentHeatingCoolingState.OFF)  {
+    //  state.targetTemperature = state.currentTemperature;
+    //}
 
     state.targetHeatingCoolingState = state.currentHeatingCoolingState;
 
@@ -97,6 +97,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     // Set state default values
     // state.targetTemperature = state.targetTemperature || config.minTemperature;
+    state.targetTemperature = state.targetTemperature || config.maxTemperature || config.minTemperature;
     state.currentHeatingCoolingState = state.currentHeatingCoolingState || Characteristic.CurrentHeatingCoolingState.OFF;
     state.targetHeatingCoolingState = state.targetHeatingCoolingState || Characteristic.TargetHeatingCoolingState.OFF;
     state.firstTemperatureUpdate = true;
