@@ -1,3 +1,4 @@
+// -*- js-indent-level : 2 -*-
 const { assert } = require('chai');
 const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 const delayForDuration = require('../helpers/delayForDuration');
@@ -6,10 +7,10 @@ const catchDelayCancelError = require('../helpers/catchDelayCancelError')
 const SwitchAccessory = require('./switch');
 
 class LightAccessory extends SwitchAccessory {
-
+    
   setDefaults () {
     super.setDefaults();
-  
+    
     const { config } = this;
 
     config.onDelay = config.onDelay || 0.1;
@@ -26,6 +27,36 @@ class LightAccessory extends SwitchAccessory {
     }
   }
 
+  async updateAccessories (accessories) {
+    const { config, name, log, logLevel } = this;
+    const { exclusives } = config;
+    //console.log('updateAccessories: %s', this.name);
+
+    if (exclusives) {
+      exclusives.forEach(exname => {
+	const exAccessory = accessories.find(x => x.name === exname);
+	//console.log(exAccessory.name);
+	if (exAccessory) {
+	  if (!this.exclusives) this.exclusives = [];
+	  if (!this.exclusives.find(x => x === exAccessory)) {
+	    this.exclusives.push(exAccessory);
+	  }
+	  if (!exAccessory.exclusives) exAccessory.exclusives = [];
+	  if (!exAccessory.exclusives.find(x => x === this)) {
+	    exAccessory.exclusives.push(this);
+	  }
+	} else {
+	  log(`${name} No accessory could be found with the name "${exName}". Please update the "exclusives" value or add a matching switch accessory.`);
+	}
+      });
+    }
+    //console.log(this.exclusives);
+
+    // if (autoSwitchAccessories.length === 0) {return log(`${name} No accessory could be found with the name "${autoSwitchName}". Please update the "autoSwitchName" value or add a matching switch accessory.`);}
+
+    // this.autoSwitchAccessory = autoSwitchAccessories[0];
+  }
+
   async setSwitchState (hexData, previousValue) {
     const { config, data, host, log, name, state, logLevel, serviceManager } = this;
     let { defaultBrightness, useLastKnownBrightness } = config;
@@ -33,11 +64,23 @@ class LightAccessory extends SwitchAccessory {
     this.reset();
 
     if (state.switchState) {
+      if (this.exclusives) {
+	this.exclusives.forEach(x => {
+	  if (x.state.switchState) {
+	    log(`${name} setSwitchState: (${x.name} is configured to be turned off)`);
+	    x.reset();
+	    x.state.switchState = false;
+	    x.lastBrightness = undefined;
+            x.serviceManager.refreshCharacteristicUI(Characteristic.On);
+	  }
+	});
+      }
       const brightness = (useLastKnownBrightness && state.brightness > 0) ? state.brightness : defaultBrightness;
       if (brightness !== state.brightness || previousValue !== state.switchState) {
         log(`${name} setSwitchState: (brightness: ${brightness})`);
 
-        state.switchState = false;
+        //state.switchState = false;
+        this.state.brightness = brightness;
         serviceManager.setCharacteristic(Characteristic.Brightness, brightness);
       } else {
         if (hexData) {await this.performSend(hexData);}
@@ -67,7 +110,8 @@ class LightAccessory extends SwitchAccessory {
 
       if (!state.switchState) {
 
-        state.switchState = true;
+        //state.switchState = true;
+        this.state.switchState = true;
         serviceManager.refreshCharacteristicUI(Characteristic.On);
 
         if (on) {
@@ -105,7 +149,8 @@ class LightAccessory extends SwitchAccessory {
       if (this.lastBrightness === state.brightness) {
 
         if (state.brightness > 0) {
-          state.switchState = true;
+          //state.switchState = true;
+          this.state.switchState = true;
         }
 
         await this.checkAutoOnOff();
@@ -119,7 +164,8 @@ class LightAccessory extends SwitchAccessory {
 
       if (state.brightness > 0) {
         if (!state.switchState) {
-          state.switchState = true;
+          //state.switchState = true;
+          this.state.switchState = true;
           serviceManager.refreshCharacteristicUI(Characteristic.On);
     
           if (on) {
