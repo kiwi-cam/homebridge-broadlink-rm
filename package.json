@@ -40,7 +40,7 @@
     "node-persist": ">=2.1.0 <3.0.0",
     "semver": "^7.3.4",
     "node-arp": "^1.0.6",
-    "fakegato-history": "git+https://github.com/banboobee/fakegato-history.git"
+    "fakegato-history": "^0.6.3"
   },
   "devDependencies": {
     "eslint": "^8.3.0",
