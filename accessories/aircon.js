@@ -130,6 +130,11 @@ class AirConAccessory extends BroadlinkRMAccessory {
       this.turnOnWhenOffDelayPromise.cancel();
       this.turnOnWhenOffDelayPromise = undefined;
     }
+
+    if (this.autoOffTimeoutPromise) {
+      this.autoOffTimeoutPromise.cancel();
+      this.autoOffTimeoutPromise = null;
+    }
   }
 
   updateServiceTargetHeatingCoolingState (value) {
@@ -215,6 +220,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
         await this.performSend(data.off);
       }
 
+      this.reset();
+
       return;
     }
 
@@ -269,6 +276,28 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     serviceManager.refreshCharacteristicUI(Characteristic.CurrentHeatingCoolingState);
     serviceManager.refreshCharacteristicUI(Characteristic.TargetHeatingCoolingState);
+
+    this.checkAutoOff();
+  }
+
+  async checkAutoOff () {
+    await catchDelayCancelError(async () => {
+      const {config, name, data, log} = this;
+      const {onDuration} = config;
+
+      if (onDuration !== undefined && parseInt(onDuration) > 0) {
+        log(`${name} setTargetHeatingCoolingState: (automatically turn off in ${onDuration} seconds)`);
+	if (this.autoOffTimeoutPromise) {
+	  this.autoOffTimeoutPromise.cancel();
+	  this.autoOffTimeoutPromise = null;
+	}
+	this.autoOffTimeoutPromise = delayForDuration(onDuration);
+	await this.autoOffTimeoutPromise;
+	await this.performSend(data.off);
+	this.updateServiceTargetHeatingCoolingState(this.HeatingCoolingStates.off);
+	this.updateServiceCurrentHeatingCoolingState(this.HeatingCoolingStates.off);
+      }
+    });
   }
 
   // Thermostat
