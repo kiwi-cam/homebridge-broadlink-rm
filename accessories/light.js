@@ -73,8 +73,7 @@ class LightAccessory extends SwitchAccessory {
       if (brightness !== state.brightness || previousValue !== state.switchState) {
         log(`${name} setSwitchState: (brightness: ${brightness})`);
 
-        //state.switchState = false;
-        state.brightness = brightness;
+        state.switchState = false;
         serviceManager.setCharacteristic(Characteristic.Brightness, brightness);
       } else {
         if (hexData) {await this.performSend(hexData);}
