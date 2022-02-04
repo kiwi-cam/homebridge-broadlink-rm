@@ -36,7 +36,7 @@ class LightAccessory extends SwitchAccessory {
       exclusives.forEach(exname => {
 	const exAccessory = accessories.find(x => x.name === exname);
 	//console.log(exAccessory.name);
-	if (exAccessory) {
+	if (exAccessory && exAccessory.config.type === 'light') {
 	  if (!this.exclusives) this.exclusives = [];
 	  if (!this.exclusives.find(x => x === exAccessory)) {
 	    this.exclusives.push(exAccessory);
@@ -46,15 +46,10 @@ class LightAccessory extends SwitchAccessory {
 	    exAccessory.exclusives.push(this);
 	  }
 	} else {
-	  log(`${name} No accessory could be found with the name "${exName}". Please update the "exclusives" value or add a matching switch accessory.`);
+	  log(`${name}: No light accessory could be found with the name "${exname}". Please update the "exclusives" value or add matching light accessories.`);
 	}
       });
     }
-    //console.log(this.exclusives);
-
-    // if (autoSwitchAccessories.length === 0) {return log(`${name} No accessory could be found with the name "${autoSwitchName}". Please update the "autoSwitchName" value or add a matching switch accessory.`);}
-
-    // this.autoSwitchAccessory = autoSwitchAccessories[0];
   }
 
   async setSwitchState (hexData, previousValue) {
@@ -80,7 +75,7 @@ class LightAccessory extends SwitchAccessory {
         log(`${name} setSwitchState: (brightness: ${brightness})`);
 
         //state.switchState = false;
-        this.state.brightness = brightness;
+        state.brightness = brightness;
         serviceManager.setCharacteristic(Characteristic.Brightness, brightness);
       } else {
         if (hexData) {await this.performSend(hexData);}
@@ -110,8 +105,7 @@ class LightAccessory extends SwitchAccessory {
 
       if (!state.switchState) {
 
-        //state.switchState = true;
-        this.state.switchState = true;
+        state.switchState = true;
         serviceManager.refreshCharacteristicUI(Characteristic.On);
 
         if (on) {
@@ -149,8 +143,7 @@ class LightAccessory extends SwitchAccessory {
       if (this.lastBrightness === state.brightness) {
 
         if (state.brightness > 0) {
-          //state.switchState = true;
-          this.state.switchState = true;
+          state.switchState = true;
         }
 
         await this.checkAutoOnOff();
@@ -164,8 +157,7 @@ class LightAccessory extends SwitchAccessory {
 
       if (state.brightness > 0) {
         if (!state.switchState) {
-          //state.switchState = true;
-          this.state.switchState = true;
+          state.switchState = true;
           serviceManager.refreshCharacteristicUI(Characteristic.On);
     
           if (on) {

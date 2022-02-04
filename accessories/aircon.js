@@ -338,9 +338,14 @@ class AirConAccessory extends BroadlinkRMAccessory {
   async checkAutoOff () {
     await catchDelayCancelError(async () => {
       const {config, name, data, log} = this;
-      const {onDuration} = config;
+      let {enableAutoOff, onDuration, enableAutoOn, offDuration} = config;
+      onDuration = onDuration|| 60;
+      offDuration = offDuration|| 60;
 
-      if (onDuration !== undefined && parseInt(onDuration) > 0) {
+      if (enableAutoOn) {
+        log(`${name} enableAutoOn is not supported.`);
+      }
+      if (enableAutoOff && parseInt(onDuration) > 0) {
         log(`${name} setTargetHeatingCoolingState: (automatically turn off in ${onDuration} seconds)`);
 	if (this.autoOffTimeoutPromise) {
 	  this.autoOffTimeoutPromise.cancel();
