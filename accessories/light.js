@@ -35,7 +35,7 @@ class LightAccessory extends SwitchAccessory {
       exclusives.forEach(exname => {
 	const exAccessory = accessories.find(x => x.name === exname);
 	//console.log(exAccessory.name);
-	if (exAccessory) {
+	if (exAccessory && exAccessory.config.type === 'light') {
 	  if (!this.exclusives) this.exclusives = [];
 	  if (!this.exclusives.find(x => x === exAccessory)) {
 	    this.exclusives.push(exAccessory);
@@ -45,7 +45,7 @@ class LightAccessory extends SwitchAccessory {
 	    exAccessory.exclusives.push(this);
 	  }
 	} else {
-	  log(`${name} No accessory could be found with the name "${exName}". Please update the "exclusives" value or add matching light accessories.`);
+	  log(`${name}: No light accessory could be found with the name "${exname}". Please update the "exclusives" value or add matching light accessories.`);
 	}
       });
     }
