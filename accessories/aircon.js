@@ -34,14 +34,13 @@ class AirConAccessory extends BroadlinkRMAccessory {
     
     // Fakegato setup
     if(config.noHistory !== true) {
-      const eveHistory = config.enableSetTempHistory === true ? 'custom' : 'room';
       this.services = this.getServices();
       this.displayName = config.name;
       this.lastUpdatedAt = undefined;
-      this.historyService = new HistoryService(eveHistory, this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
+      this.historyService = new HistoryService(config.enableModeHistory ? 'custom' : 'room', this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
       this.historyService.log = this.log;  
 
-      if (config.enableSetTempHistory === true) {
+      if (config.enableModeHistory) {
 	let state2 = this.state;
 	//console.log(state2)
 	this.state = new Proxy(state2, {
@@ -418,7 +417,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   onTemperature (temperature,humidity) {
     const { config, host, logLevel, log, name, state } = this;
-    const { minTemperature, maxTemperature, temperatureAdjustment, humidityAdjustment, noHumidity, enableSetTempHistory } = config;
+    const { minTemperature, maxTemperature, temperatureAdjustment, humidityAdjustment, noHumidity } = config;
 
     // onTemperature is getting called twice. No known cause currently.
     // This helps prevent the same temperature from being processed twice
@@ -443,7 +442,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if(config.noHistory !== true && this.state.currentTemperature != 0.00) {
       this.lastUpdatedAt = Date.now();
       if(logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} Logging data to history: temp: ${this.state.currentTemperature}, humidity: ${this.state.currentHumidity}`);}
-      if(noHumidity && enableSetTempHistory !== true){
+      if(noHumidity && config.enableModeHistory === false){
         this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature });
       }else{
         this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature, humidity: this.state.currentHumidity });
@@ -455,7 +454,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   async thermoHistory() { 
     const {config} = this;
-    if (config.noHistory !== true && config.enableSetTempHistory === true) {
+    if (config.noHistory !== true && config.enableModeHistory) {
       this.historyService.addEntry({
 	time: Math.round(new Date().valueOf() / 1000),
 	setTemp: this.state.targetTemperature, 
@@ -825,7 +824,17 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Thermostat, this.log);
 
-    if(config.noHistory !== true && config.enableSetTempHistory === true) {
+    config.enableTargetTemperatureHistory = config.enableTargetTemperatureHistory === true || false;
+    config.enableModeHistory = config.enableModeHistory === true || config.enableTargetTemperatureHistory === true || false;
+    if (config.noHistory !== true) {
+      if (config.enableTargetTemperatureHistory === true) {
+	this.log(`${this.name} Accessory is configured to record HeatingCoolingState and targetTemperature history.`);
+      } else if (config.enableModeHistory === true) {
+	this.log(`${this.name} Accessory is configured to record HeatingCoolingState history.`);
+      }
+    }
+
+    if(config.noHistory !== true && config.enableModeHistory) {
       const ValvePositionCharacteristic = this.localCharacteristic(
 	'ValvePosition', 'E863F12E-079E-48FF-8F27-9C2605A29F52',
 	{format: Characteristic.Formats.UINT8,
@@ -843,36 +852,38 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	bind: this
       });
       
-      const ProgramDataCharacteristic = this.localCharacteristic(
-	'ProgramData', 'E863F12F-079E-48FF-8F27-9C2605A29F52',
-	{format: Characteristic.Formats.DATA,
-	 perms: [
-           Characteristic.Perms.READ,
-           Characteristic.Perms.NOTIFY
-	 ]});
-      
-      const ProgramCommandCharacteristic = this.localCharacteristic(
-	'ProgramCommand', 'E863F12C-079E-48FF-8F27-9C2605A29F52',
-	{format: Characteristic.Formats.DATA,
-	 perms: [
-           Characteristic.Perms.WRITE
-	 ]});
-      
-      this.serviceManager.addGetCharacteristic({
-	name: 'setProgramData',
-	//type: eve.Characteristics.ProgramData,
-	type: ProgramDataCharacteristic,
-	method: this.getProgramData,
-	bind: this,
-      });
-      
-      this.serviceManager.addSetCharacteristic({
-	name: 'setProgramCommand',
-	//type: eve.Characteristics.ProgramCommand,
-	type: ProgramCommandCharacteristic,
-	method: this.setProgramCommand,
-	bind: this,
-      });
+      if (config.enableTargetTemperatureHistory) {
+	const ProgramDataCharacteristic = this.localCharacteristic(
+	  'ProgramData', 'E863F12F-079E-48FF-8F27-9C2605A29F52',
+	  {format: Characteristic.Formats.DATA,
+	   perms: [
+             Characteristic.Perms.READ,
+             Characteristic.Perms.NOTIFY
+	   ]});
+	
+	const ProgramCommandCharacteristic = this.localCharacteristic(
+	  'ProgramCommand', 'E863F12C-079E-48FF-8F27-9C2605A29F52',
+	  {format: Characteristic.Formats.DATA,
+	   perms: [
+             Characteristic.Perms.WRITE
+	   ]});
+	
+	this.serviceManager.addGetCharacteristic({
+	  name: 'setProgramData',
+	  //type: eve.Characteristics.ProgramData,
+	  type: ProgramDataCharacteristic,
+	  method: this.getProgramData,
+	  bind: this,
+	});
+	
+	this.serviceManager.addSetCharacteristic({
+	  name: 'setProgramCommand',
+	  //type: eve.Characteristics.ProgramCommand,
+	  type: ProgramCommandCharacteristic,
+	  method: this.setProgramCommand,
+	  bind: this,
+	});
+      }
     }
 
     this.serviceManager.addToggleCharacteristic({
