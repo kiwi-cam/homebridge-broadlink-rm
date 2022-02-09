@@ -40,13 +40,13 @@
     "node-persist": ">=2.1.0 <3.0.0",
     "semver": "^7.3.4",
     "node-arp": "^1.0.6",
-    "fakegato-history": "^0.6.2"
+    "fakegato-history": "^0.6.3"
   },
   "devDependencies": {
     "eslint": "^8.3.0",
     "eslint-plugin-no-autofix": "^1.2.3",
     "hap-nodejs": "^0.9.7",
-    "mocha": "^9.1.3",
-    "release-it": "^14.11.8"
+    "mocha": "^9.2.0",
+    "release-it": "^14.12.4"
   }
 }

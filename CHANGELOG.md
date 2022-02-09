@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
  - Adds AutoOff support to the AirConditioner accessory (Thanks @banboobee)
+ - Updated dependencies to remove security vulnerabilities.
 
 ## [4.4.8] - 2021-12-08
 ### Fixed
