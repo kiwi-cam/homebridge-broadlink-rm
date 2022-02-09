@@ -828,7 +828,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     config.enableModeHistory = config.enableModeHistory === true || config.enableTargetTemperatureHistory === true || false;
     if (config.noHistory !== true) {
       if (config.enableTargetTemperatureHistory === true) {
-	this.log(`${this.name} Accessory is configured to record HeatingCoolingState and targetTemperature history.`);
+	this.log(`${this.name} Accessory is configured to record HeatingCoolingState and targetTemperature histories.`);
       } else if (config.enableModeHistory === true) {
 	this.log(`${this.name} Accessory is configured to record HeatingCoolingState history.`);
       }
