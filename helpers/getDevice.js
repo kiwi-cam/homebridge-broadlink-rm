@@ -34,16 +34,22 @@ const startPing = (device, log) => {
         }
         
         if (!active && device.state === 'active' && retryCount === 2) {
-          log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) is no longer reachable after three attempts.`);
+	  if (!broadlink.accessories || broadlink.accessories.find((x) => x.host === undefined || x.host === device.host.address || x.host === device.host.macAddress)) {
+            log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) is no longer reachable after three attempts.`);
+	  }
 
           device.state = 'inactive';
           retryCount = 0;
         } else if (!active && device.state === 'active') {
-          if(broadlink.debug) {log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) is no longer reachable. (attempt ${retryCount})`);}
+	  if (!broadlink.accessories || broadlink.accessories.find((x) => x.host === undefined || x.host === device.host.address || x.host === device.host.macAddress)) {
+	    if(broadlink.debug) {log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) is no longer reachable. (attempt ${retryCount})`);}
+	  }
 
           retryCount += 1;
         } else if (active && device.state !== 'active') {
-          if (device.state === 'inactive') {log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) has been re-discovered.`);}
+	  if (!broadlink.accessories || broadlink.accessories.find((x) => x.host === undefined || x.host === device.host.address || x.host === device.host.macAddress)) {
+            if (device.state === 'inactive') {log(`Broadlink RM device at ${device.host.address} (${device.host.macAddress || ''}) has been re-discovered.`);}
+	  }
 
           device.state = 'active';
           retryCount = 0;
@@ -62,9 +68,10 @@ const discoveredDevices = {};
 const manualDevices = {};
 let discoverDevicesInterval;
 
-const discoverDevices = (automatic = true, log, logLevel, deviceDiscoveryTimeout = 60) => {
+const discoverDevices = (automatic = true, log, logLevel, deviceDiscoveryTimeout = 60, accessories = null) => {
   broadlink.log = log;
   broadlink.debug = logLevel <=1;
+  broadlink.accessories = accessories;
   //broadlink.logLevel = logLevel;
 
   if (automatic) {
