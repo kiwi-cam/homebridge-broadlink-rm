@@ -8,11 +8,10 @@ const options = {
 };
 
 
-const checkForUpdates = () => {
+const checkForUpdates = (log) => {
   versionCheck (options, (error, update) => { 
-    // if (error) throw error;
     if (update) { 
-      console.log(`\x1b[32m[UPDATE AVAILABLE] \x1b[0mVersion ${update.name} of Homebridge Broadlink RM Pro is available. The release notes can be found here: \x1b[4mhttps://github.com/${options.owner}/homebridge-broadlink-rm/releases/\x1b[0m`);
+      log(`\x1b[32m[UPDATE AVAILABLE] \x1b[0mVersion ${update.name} of Homebridge Broadlink RM Pro is available. The release notes can be found here: \x1b[4mhttps://github.com/${options.owner}/homebridge-broadlink-rm/releases/\x1b[0m`);
     }
   });
 }
