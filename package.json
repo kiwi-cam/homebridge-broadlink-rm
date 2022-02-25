@@ -1,7 +1,7 @@
 {
   "name": "homebridge-broadlink-rm-pro",
   "displayName": "Homebridge Broadlink RM Pro",
-  "version": "4.4.8",
+  "version": "4.4.9",
   "description": "Broadlink RM plugin (including the mini and pro) for homebridge with AC Pro and TV features",
   "license": "ISC",
   "scripts": {
@@ -46,7 +46,7 @@
     "eslint": "^8.3.0",
     "eslint-plugin-no-autofix": "^1.2.3",
     "hap-nodejs": "^0.9.7",
-    "mocha": "^9.1.3",
-    "release-it": "^14.11.8"
+    "mocha": "^9.2.0",
+    "release-it": "^14.12.4"
   }
 }
