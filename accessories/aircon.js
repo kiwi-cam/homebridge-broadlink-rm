@@ -757,7 +757,9 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     super.onMQTTMessage(identifier, message);
 
-    if (identifier === 'mode' || identifier.toLowerCase() === 'currentheatingcoolingstate') {
+    if (identifier === 'mode' ||
+	identifier.toLowerCase() === 'currentheatingcoolingstate' ||
+	identifier.toLowerCase() === 'currentheatercoolerstate') {
       let mode = this.mqttValuesTemp[identifier].toLowerCase();
       switch (mode) {
       case 'off':
@@ -776,7 +778,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	  this.updateServiceTargetHeatingCoolingState(state);
 	  this.updateServiceCurrentHeatingCoolingState(state);
 	}
-	//log(`${name} onMQTTMessage (currentHeatingCoolingState: ${this.state.currentHeatingCoolingState}}).`);
+	log(`${name} onMQTTMessage (currentHeatingCoolingState: ${this.state.currentHeatingCoolingState}}).`);
 	break;
       default:
 	log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (unexpected HeatingCoolingState: ${this.mqttValuesTemp[identifier]})`);
@@ -784,7 +786,9 @@ class AirConAccessory extends BroadlinkRMAccessory {
       return;
     }
 
-    if (identifier.toLowerCase() === 'targettemperature') {
+    if (identifier.toLowerCase() === 'targettemperature' ||
+	identifier.toLowerCase() === 'targetcoolingthresholdtemperature' ||
+	identifier.toLowerCase() === 'targetheatingthresholdtemperature') {
       let target = parseInt(this.mqttValuesTemp[identifier].match(/^([0-9]+)$/g));
       if (target > 0 && target >= config.minTemperature && target <= config.maxTemperature) {
 	if (config.mqttStateOnly) {
@@ -793,7 +797,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	} else {
 	  this.serviceManager.setCharacteristic(Characteristic.TargetTemperature, target);
 	}
-	//log(`${name} onMQTTMessage (set targetTemperature to ${target}).`);
+	log(`${name} onMQTTMessage (set targetTemperature to ${target}).`);
       } else {
 	log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (unexpected targetTemperature: ${this.mqttValuesTemp[identifier]})`);
       }
