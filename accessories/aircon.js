@@ -776,9 +776,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	  this.serviceManager.refreshCharacteristicUI(Characteristic.TargetHeatingCoolingState);
 	} else {
 	  this.updateServiceTargetHeatingCoolingState(state);
-	  this.updateServiceCurrentHeatingCoolingState(state);
 	}
-	log(`${name} onMQTTMessage (currentHeatingCoolingState: ${this.state.currentHeatingCoolingState}}).`);
+	log(`${name} onMQTTMessage (set currentHeatingCoolingState to ${this.state.currentHeatingCoolingState}).`);
 	break;
       default:
 	log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (unexpected HeatingCoolingState: ${this.mqttValuesTemp[identifier]})`);
