@@ -754,6 +754,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   // MQTT
   onMQTTMessage (identifier, message) {
     const { state, logLevel, log, name, config } = this;
+    config.mqttStateOnly = config.mqttStateOnly == undefined ? true : config.mqttStateOnly;
 
     super.onMQTTMessage(identifier, message);
 
