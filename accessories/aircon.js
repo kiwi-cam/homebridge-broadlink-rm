@@ -754,7 +754,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   // MQTT
   onMQTTMessage (identifier, message) {
     const { state, logLevel, log, name, config } = this;
-    config.mqttStateOnly = config.mqttStateOnly == undefined ? true : config.mqttStateOnly;
+    const mqttStateOnly = config.mqttStateOnly === false ? false : true;
 
     super.onMQTTMessage(identifier, message);
 
@@ -770,7 +770,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	let state = this.HeatingCoolingStates[mode];
 	//log(`${name} onMQTTMessage (set HeatingCoolingState to ${mode}).`);
 	this.reset();
-	if (config.mqttStateOnly) {
+	if (mqttStateOnly) {
 	  this.state.currentHeatingCoolingState = state;
 	  this.serviceManager.refreshCharacteristicUI(Characteristic.CurrentHeatingCoolingState);
 	  this.state.targetHeatingCoolingState = state;
@@ -791,7 +791,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	identifier.toLowerCase() === 'targetheatingthresholdtemperature') {
       let target = parseInt(this.mqttValuesTemp[identifier].match(/^([0-9]+)$/g));
       if (target > 0 && target >= config.minTemperature && target <= config.maxTemperature) {
-	if (config.mqttStateOnly) {
+	if (mqttStateOnly) {
 	  this.state.targetTemperature = target;
 	  this.serviceManager.refreshCharacteristicUI(Characteristic.TargetTemperature);
 	} else {
