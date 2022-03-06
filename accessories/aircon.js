@@ -648,15 +648,62 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   // MQTT
   onMQTTMessage (identifier, message) {
-    const { state, logLevel, log, name } = this;
+    const { state, logLevel, log, name, config } = this;
+    const mqttStateOnly = config.mqttStateOnly === false ? false : true;
+
+    super.onMQTTMessage(identifier, message);
+
+    if (identifier === 'mode' ||
+	identifier.toLowerCase() === 'currentheatingcoolingstate' ||
+	identifier.toLowerCase() === 'currentheatercoolerstate') {
+      let mode = this.mqttValuesTemp[identifier].toLowerCase();
+      switch (mode) {
+      case 'off':
+      case 'heat':
+      case 'cool':
+      case 'auto':
+	let state = this.HeatingCoolingStates[mode];
+	//log(`${name} onMQTTMessage (set HeatingCoolingState to ${mode}).`);
+	this.reset();
+	if (mqttStateOnly) {
+	  this.state.currentHeatingCoolingState = state;
+	  this.serviceManager.refreshCharacteristicUI(Characteristic.CurrentHeatingCoolingState);
+	  this.state.targetHeatingCoolingState = state;
+	  this.serviceManager.refreshCharacteristicUI(Characteristic.TargetHeatingCoolingState);
+	} else {
+	  this.updateServiceTargetHeatingCoolingState(state);
+	}
+	log(`${name} onMQTTMessage (set currentHeatingCoolingState to ${this.state.currentHeatingCoolingState}).`);
+	break;
+      default:
+	log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (unexpected HeatingCoolingState: ${this.mqttValuesTemp[identifier]})`);
+      }
+      return;
+    }
+
+    if (identifier.toLowerCase() === 'targettemperature' ||
+	identifier.toLowerCase() === 'targetcoolingthresholdtemperature' ||
+	identifier.toLowerCase() === 'targetheatingthresholdtemperature') {
+      let target = parseInt(this.mqttValuesTemp[identifier].match(/^([0-9]+)$/g));
+      if (target > 0 && target >= config.minTemperature && target <= config.maxTemperature) {
+	if (mqttStateOnly) {
+	  this.state.targetTemperature = target;
+	  this.serviceManager.refreshCharacteristicUI(Characteristic.TargetTemperature);
+	} else {
+	  this.serviceManager.setCharacteristic(Characteristic.TargetTemperature, target);
+	}
+	log(`${name} onMQTTMessage (set targetTemperature to ${target}).`);
+      } else {
+	log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (unexpected targetTemperature: ${this.mqttValuesTemp[identifier]})`);
+      }
+      return;
+    }
 
     if (identifier !== 'unknown' && identifier !== 'temperature' && identifier !== 'humidity' && identifier !== 'battery' && identifier !== 'combined') {
       log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (mqtt message received with unexpected identifier: ${identifier}, ${message.toString()})`);
 
       return;
     }
-
-    super.onMQTTMessage(identifier, message);
 
     let temperatureValue, humidityValue, batteryValue;
     let objectFound = false;
