@@ -42,6 +42,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       this.historyService.log = this.log;  
 
       if (config.enableModeHistory) {
+	this.valveInterval = 1;
 	let state2 = this.state;
 	//console.log(state2)
 	this.state = new Proxy(state2, {
@@ -56,10 +57,14 @@ class AirConAccessory extends BroadlinkRMAccessory {
 		     setTemp: value || 30})
 		} else if (key == 'targetHeatingCoolingState') {
 		  this.log.debug(`adding history of targetHeatingCoolingState.`, value * 25)
-		  this.historyService.addEntry(
-		    {time: Math.round(new Date().valueOf()/1000),
-		     valvePosition: value * 25})
-		}
+		  // this.historyService.addEntry(
+		  //   {time: Math.round(new Date().valueOf()/1000),
+		  //    valvePosition: value ? Math.round((this.state.currentTemperature - this.state.targetTemperature)/this.state.targetTemperature*100 + 50) : 0
+		  //    //value * 25
+		  //   })
+		  this.valveInterval = 1;
+		  clearTimeout(this.valveTimer);
+		  this.thermoHistory();		}
 	      }
 	    }
 	    return true
@@ -512,15 +517,25 @@ class AirConAccessory extends BroadlinkRMAccessory {
   async thermoHistory() { 
     const {config} = this;
     if (config.noHistory !== true && config.enableModeHistory) {
-      this.historyService.addEntry({
-	time: Math.round(new Date().valueOf() / 1000),
-	setTemp: this.state.targetTemperature, 
-	valvePosition: this.state.targetHeatingCoolingState * 25
-      });
+      const valve = this.config.enableTargetTemperatureHistory ?
+	    this.state.targetHeatingCoolingState * 25 :
+	    (this.state.targetHeatingCoolingState ?
+	     //Math.round((this.state.currentTemperature - this.state.targetTemperature)/this.state.targetTemperature*100 + 50) : 0);
+	     (this.state.currentTemperature - this.state.targetTemperature)/this.state.targetTemperature*100 + 50 : 0);
+      if (valve >= 0 && valve <= 100) {
+	this.historyService.addEntry({
+	  time: Math.round(new Date().valueOf() / 1000),
+	  setTemp: this.state.targetTemperature, 
+	  valvePosition: valve
+	});
+      } else {
+	this.valveInterval = 0.7;
+      }
       
-      setTimeout(() => {
+      this.valveInterval = Math.min(this.valveInterval * 1/0.7, 10);
+      this.valveTimer = setTimeout(() => {
 	this.thermoHistory();
-      }, 10 * 60 * 1000);
+      }, Math.round(this.valveInterval * 60 * 1000));
     }
   }
 
@@ -895,8 +910,15 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   getValvePosition(callback) {
     // not implemented
-    //console.log('getValvePosition() is requested.', this.displayName);
-    callback(null, this.state.targetHeatingCoolingState * 25);
+    let valve = this.config.enableTargetTemperatureHistory ?
+	  this.state.targetHeatingCoolingState * 25 :
+	  (this.state.targetHeatingCoolingState ?
+	   //Math.round((this.state.currentTemperature - this.state.targetTemperature)/this.state.targetTemperature*100 + 50) : 0);
+	   (this.state.currentTemperature - this.state.targetTemperature)/this.state.targetTemperature*100 + 50 : 0);
+    valve = (valve < 0 || valve > 100) ? 50 : valve;
+    //callback(null, this.state.targetHeatingCoolingState * 25);
+    //console.log('getValvePosition() is requested.', this.displayName, valve);
+    callback(null, valve);
   }
   
   setProgramCommand(value, callback) {
