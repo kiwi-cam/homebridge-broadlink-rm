@@ -802,8 +802,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
     }
 
     if (identifier.toLowerCase() === 'targettemperature' ||
-	identifier.toLowerCase() === 'targetcoolingthresholdtemperature' ||
-	identifier.toLowerCase() === 'targetheatingthresholdtemperature') {
+	identifier.toLowerCase() === 'coolingthresholdtemperature' ||
+	identifier.toLowerCase() === 'heatingthresholdtemperature') {
       let target = parseInt(this.mqttValuesTemp[identifier].match(/^([0-9]+)$/g));
       if (target > 0 && target >= config.minTemperature && target <= config.maxTemperature) {
 	if (mqttStateOnly) {
