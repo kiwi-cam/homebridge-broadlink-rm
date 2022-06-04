@@ -296,7 +296,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
     let humidity = null;
     let temperature = null;
 
-    if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} updateHumidityFromFile reading file: ${humidity}`);}
+    if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} updateHumidityFromFile reading file: ${humidityFilePath}`);}
 
     fs.readFile(humidityFilePath, 'utf8', (err, data) => {
       if (err) {
