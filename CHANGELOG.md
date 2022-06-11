@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.11] - 2022-06-08
+### Added
+ - MQTT support for zigbee2mqtt (Thanks @mikicof) #467
+### Fixed
+ - "no device found" message in Node 18 (Thanks @h2oota) #486
+ - Version number message incorrect in prerelease (Thanks @seidnerj)
+### Changed
+ - Homebridge versions bumped
+ - Device not found message update to suggest unlocking (Thanks @jacoblukewook) #491
+
 ## [4.4.10] - 2022-04-12
 ### Added
  - Turns off other lights in group when it turns on. (Thanks @banboobee)
