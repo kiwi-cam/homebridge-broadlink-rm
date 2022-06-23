@@ -8,6 +8,7 @@ const ServiceManagerTypes = require('../helpers/serviceManagerTypes');
 const catchDelayCancelError = require('../helpers/catchDelayCancelError');
 const { getDevice } = require('../helpers/getDevice');
 const BroadlinkRMAccessory = require('./accessory');
+const { hasGranularTemperatures, lookup: fuzzyTemperatureLookup } = require('../helpers/flexibleTemperatureDataUtils.js');
 
 class AirConAccessory extends BroadlinkRMAccessory {
 
@@ -342,12 +343,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const { defaultHeatTemperature, defaultCoolTemperature, heatTemperature } = config;
 
     let finalTemperature = temperature;
-    let hexData = data[`${mode}${temperature}`];
+    let hexData = fuzzyTemperatureLookup(data, mode, temperature);
 
     if (!hexData) {
       // Mode based code not found, try mode-less
       if (logLevel <=3) {this.log(`${name} No ${mode} HEX code found for ${temperature}`);}
-      hexData = data[`temperature${temperature}`];
+      hexData = fuzzyTemperatureLookup(data, 'temperature', temperature);
     } else {
       if (hexData['pseudo-mode']) {
         if (logLevel <=2) {this.log(`\x1b[36m[INFO] \x1b[0m${name} Configuration found for ${mode}${temperature} with pseudo-mode. Pseudo-mode will replace the configured mode.`);}
@@ -357,7 +358,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     // You may not want to set the hex data for every single mode...
     if (!hexData) {
       const defaultTemperature = (temperature >= heatTemperature) ? defaultHeatTemperature : defaultCoolTemperature;
-      hexData = data[`temperature${defaultTemperature}`];
+      hexData = fuzzyTemperatureLookup(data, 'temperature', defaultTemperature);
 
       assert(hexData, `\x1b[31m[CONFIG ERROR] \x1b[0m You need to provide a hex code for the following temperature:
         \x1b[33m{ "temperature${temperature}": { "data": "HEXCODE", "pseudo-mode" : "heat/cool" } }\x1b[0m
@@ -779,7 +780,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   // Service Manager Setup
 
   setupServiceManager () {
-    const { config, name, serviceManagerType } = this;
+    const { config, data, name, serviceManagerType, logLevel, log } = this;
 
     this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Thermostat, this.log);
 
@@ -860,12 +861,17 @@ class AirConAccessory extends BroadlinkRMAccessory {
       bind: this
     })
 
+    const dataHasGranularTemperatures = hasGranularTemperatures(data, ['temperature', 'cool', 'heat', 'auto']);
+    if (dataHasGranularTemperatures && logLevel <= 2) {
+      log(`${name}: Decimal temperature values were detected in some data keys. Setting a lower minStep.`);
+    }
+
     this.serviceManager
       .getCharacteristic(Characteristic.TargetTemperature)
       .setProps({
         minValue: config.minTemperature,
         maxValue: config.maxTemperature,
-        minStep: 1
+        minStep: dataHasGranularTemperatures ? 0.1 : 1
       });
 
     this.serviceManager
