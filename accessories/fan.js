@@ -121,7 +121,7 @@ class FanAccessory extends SwitchAccessory {
     allHexKeys.forEach((key) => {
       const parts = key.split('fanSpeed');
 
-      if (parts.length !== 2) {return;}
+      if (parts.length !== 2 || !parts[1]) {return;}
 
       foundSpeeds.push(parts[1])
     })
