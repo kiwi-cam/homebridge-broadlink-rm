@@ -26,6 +26,31 @@ class LightAccessory extends SwitchAccessory {
     }
   }
 
+  async updateAccessories (accessories) {
+    const { config, name, log, logLevel } = this;
+    const { exclusives } = config;
+    //console.log('updateAccessories: %s', this.name);
+
+    if (exclusives) {
+      exclusives.forEach(exname => {
+	const exAccessory = accessories.find(x => x.name === exname);
+	//console.log(exAccessory.name);
+	if (exAccessory && exAccessory.config.type === 'light') {
+	  if (!this.exclusives) this.exclusives = [];
+	  if (!this.exclusives.find(x => x === exAccessory)) {
+	    this.exclusives.push(exAccessory);
+	  }
+	  if (!exAccessory.exclusives) exAccessory.exclusives = [];
+	  if (!exAccessory.exclusives.find(x => x === this)) {
+	    exAccessory.exclusives.push(this);
+	  }
+	} else {
+	  log(`${name}: No light accessory could be found with the name "${exname}". Please update the "exclusives" value or add matching light accessories.`);
+	}
+      });
+    }
+  }
+
   async setSwitchState (hexData, previousValue) {
     const { config, data, host, log, name, state, logLevel, serviceManager } = this;
     let { defaultBrightness, useLastKnownBrightness } = config;
@@ -33,6 +58,17 @@ class LightAccessory extends SwitchAccessory {
     this.reset();
 
     if (state.switchState) {
+      if (this.exclusives) {
+	this.exclusives.forEach(x => {
+	  if (x.state.switchState) {
+	    log(`${name} setSwitchState: (${x.name} is configured to be turned off)`);
+	    x.reset();
+	    x.state.switchState = false;
+	    x.lastBrightness = undefined;
+            x.serviceManager.refreshCharacteristicUI(Characteristic.On);
+	  }
+	});
+      }
       const brightness = (useLastKnownBrightness && state.brightness > 0) ? state.brightness : defaultBrightness;
       if (brightness !== state.brightness || previousValue !== state.switchState) {
         log(`${name} setSwitchState: (brightness: ${brightness})`);

@@ -20,9 +20,9 @@ module.exports = ({ host, hexData, log, name, logLevel }) => {
   const device = getDevice({ host, log });
 
   if (!device) {
-    if (!host) {return log(`\x1b[31m[ERROR] \x1b[0m${name} sendData (no device found)`);}
+    if (!host) {return log(`\x1b[31m[ERROR] \x1b[0m${name} sendData (no device found, ensure the device is not locked)`);}
 
-    return log(`\x1b[31m[ERROR] \x1b[0m${name} sendData (no device found at ${host})`);
+    return log(`\x1b[31m[ERROR] \x1b[0m${name} sendData (no device found at ${host}, ensure the device is not locked)`);
   }
 
   if (!device.sendData) {return log(`\x1b[31m[ERROR] \x1b[0mThe device at ${device.host.address} (${device.host.macAddress}) doesn't support the sending of IR or RF codes.`);}
