@@ -109,6 +109,51 @@ class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
     }
   }
   
+
+  // MQTT
+  async onMQTTMessage (identifier, message) {
+    const { config, state, logLevel, log, name} = this;
+    let { openDuration, openCloseDuration } = config;
+
+    if(identifier!=='door_open_sensor_state'){
+      log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (mqtt message received with unexpected identifier: ${identifier}, ${message.toString()})`);
+      return;
+    }
+
+    let messsageStr = message.toString();
+    log(`\x1b[31m[INFO] \x1b[0m${name} onMQTTMessage (mqtt message received : ${identifier}, ${messsageStr})`);
+
+    if(messsageStr==='on' && state.doorCurrentState !== Characteristic.CurrentDoorState.OPEN  
+      && state.doorCurrentState !== Characteristic.CurrentDoorState.OPENING
+      && state.doorTargetState !== Characteristic.TargetDoorState.OPEN ){
+      // Defaults
+      if (!openDuration) {openDuration = openCloseDuration || 8;}
+      log(`${name} setDoorCurrentState: opening`);
+
+      this.state.doorTargetState = Characteristic.TargetDoorState.OPEN;
+      this.serviceManager.refreshCharacteristicUI(Characteristic.TargetDoorState);
+      this.state.doorCurrentState = Characteristic.CurrentDoorState.OPENING;
+      this.serviceManager.setCharacteristic(Characteristic.CurrentDoorState, Characteristic.CurrentDoorState.OPENING);
+      
+
+      this.openingTimeoutPromise = delayForDuration(openDuration);
+      await this.openingTimeoutPromise;
+
+      log(`${name} setDoorCurrentState: opened`);
+      this.state.doorCurrentState = Characteristic.CurrentDoorState.OPEN;
+	    this.state.doorTargetState = Characteristic.TargetDoorState.OPEN;
+    }
+    if(messsageStr==='off'){
+      log(`${name} setDoorCurrentState: closed`);
+      this.state.doorCurrentState = Characteristic.CurrentDoorState.CLOSED;
+	    this.state.doorTargetState = Characteristic.TargetDoorState.CLOSED;   
+    }
+
+    this.serviceManager.refreshCharacteristicUI(Characteristic.CurrentDoorState);
+	  this.serviceManager.refreshCharacteristicUI(Characteristic.TargetDoorState); 
+  }
+
+
   // Service Manager Setup
 
   setupServiceManager () {
