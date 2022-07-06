@@ -115,6 +115,11 @@ class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
     const { config, state, logLevel, log, name} = this;
     let { openDuration, openCloseDuration } = config;
 
+    if(identifier!=='door_open_sensor_state'){
+      log(`\x1b[31m[ERROR] \x1b[0m${name} onMQTTMessage (mqtt message received with unexpected identifier: ${identifier}, ${message.toString()})`);
+      return;
+    }
+
     let messsageStr = message.toString();
     log(`\x1b[31m[INFO] \x1b[0m${name} onMQTTMessage (mqtt message received : ${identifier}, ${messsageStr})`);
 
@@ -146,8 +151,6 @@ class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
 
     this.serviceManager.refreshCharacteristicUI(Characteristic.CurrentDoorState);
 	  this.serviceManager.refreshCharacteristicUI(Characteristic.TargetDoorState); 
-    
-    // TODO: check indentifier
   }
 
 
