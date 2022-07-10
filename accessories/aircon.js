@@ -518,7 +518,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const {config} = this;
     if (config.noHistory !== true && config.enableModeHistory) {
       const valve = this.state.targetHeatingCoolingState ?
-	     (this.state.currentTemperature - this.state.targetTemperature)/this.state.targetTemperature*100*2 + 50 : 50;
+	     (this.state.currentTemperature - this.state.targetTemperature)/this.state.targetTemperature*100*2 + 50 : 0;
       if (valve >= 0 && valve <= 100) {
 	this.historyService.addEntry({
 	  time: Math.round(new Date().valueOf() / 1000),
@@ -908,7 +908,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   getValvePosition(callback) {
     let valve = this.state.targetHeatingCoolingState ?
-	   (this.state.currentTemperature - this.state.targetTemperature)/this.state.targetTemperature*100*2 + 50 : 50;
+	   (this.state.currentTemperature - this.state.targetTemperature)/this.state.targetTemperature*100*2 + 50 : 0;
       valve = valve < 0 ? 0 : (valve > 100 ? 100 : valve);
     //callback(null, this.state.targetHeatingCoolingState * 25);
     //console.log('getValvePosition() is requested.', this.displayName, valve);
