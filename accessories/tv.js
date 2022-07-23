@@ -90,13 +90,19 @@ class TVAccessory extends BroadlinkRMAccessory {
     else {arp(pingIPAddress, pingFrequency, this.pingCallback.bind(this))}
   }
 
-  pingCallback(active) {
-    const { config, state, serviceManager } = this;
+  async pingCallback(active) {
+    const { name, config, state, serviceManager } = this;
     
     if (this.stateChangeInProgress){ 
       return; 
     }
 
+    if (config.syncInputSourceWhenOn && state.switchState === false && active === true) {
+      if (this.state.currentInput !== undefined) {
+	// console.log(`${name} Ping: sync InputSource.`);
+	await this.setInputSource(null, null);	// sync if asynchronously turned on
+      }
+    }
     if (config.pingIPAddressStateOnly) {
       state.switchState = active ? true : false;
       serviceManager.refreshCharacteristicUI(Characteristic.Active);
@@ -117,6 +123,7 @@ class TVAccessory extends BroadlinkRMAccessory {
     if (hexData) {await this.performSend(hexData);}
 
     this.checkAutoOnOff();
+    // console.log(`${name} Active: set to ${this.state.switchState ? 'ON' : 'OFF'}.`);
   }
   
   async checkPingGrace () {
@@ -180,6 +187,25 @@ class TVAccessory extends BroadlinkRMAccessory {
     return services;
   }
 
+  async setInputSource(hexData, previousValue) {
+    const { data, host, log, name, logLevel } = this;
+    const newValue = this.state.currentInput;
+  
+    if (
+      !data ||
+        !data.inputs ||
+        !data.inputs[newValue] ||
+        !data.inputs[newValue].data
+    ) {
+      log(`${name} Input: No input data found. Ignoring request.`);
+      return;
+    }
+  
+    await this.performSend(data.inputs[newValue].data);
+    // this.serviceManager.setCharacteristic(Characteristic.ActiveIdentifier, newValue);
+    // console.log(`${name} Input: set to ${data.inputs[newValue].name}(${newValue}).`);
+  }
+  
   setupServiceManager() {
     const { data, name, config, serviceManagerType, log } = this;
     const { on, off } = data || {};
@@ -211,28 +237,45 @@ class TVAccessory extends BroadlinkRMAccessory {
       }
     });
 
-    this.serviceManager.setCharacteristic(Characteristic.ActiveIdentifier, 1);
+    this.serviceManager.addToggleCharacteristic({
+      name: 'currentInput',
+      type: Characteristic.ActiveIdentifier,
+      getMethod: this.getCharacteristicValue,
+      setMethod: this.setCharacteristicValue,
+      bind: this,
+      props: {
+        setValuePromise: this.setInputSource.bind(this),
+	ignorePreviousValue: true
+      }
+    });
 
-    this.serviceManager
-      .getCharacteristic(Characteristic.ActiveIdentifier)
-      .on('get', (callback) => callback(null, this.state.input || 0))
-      .on('set', (newValue, callback) => {
-        if (
-          !data ||
-          !data.inputs ||
-          !data.inputs[newValue] ||
-          !data.inputs[newValue].data
-        ) {
-          log(`${name} Input: No input data found. Ignoring request.`);
-          callback(null);
-          return;
-        }
+    // this.serviceManager.setCharacteristic(Characteristic.ActiveIdentifier, 1);
 
-        this.state.input = newValue;
-        this.performSend(data.inputs[newValue].data);
+    // this.serviceManager
+    //   .getCharacteristic(Characteristic.ActiveIdentifier)
+    //   .on('get', (callback) => {
+    //     //console.log(`${name} Input: get ${this.state.input}.`);
+    // 	callback(null, this.state.input || 0);
+    //   })
+    //   .on('set', (newValue, callback) => {
+    //     if (
+    //       !data ||
+    //       !data.inputs ||
+    //       !data.inputs[newValue] ||
+    //       !data.inputs[newValue].data
+    //     ) {
+    //       log(`${name} Input: No input data found. Ignoring request.`);
+    //       callback(null);
+    //       return;
+    //     }
 
-        callback(null);
-      });
+    //     this.state.input = newValue;
+    // 	//this.serviceManager.setCharacteristic(Characteristic.ActiveIdentifier, newValue);
+    //     this.performSend(data.inputs[newValue].data);
+
+    //     callback(null);
+    //     console.log(`${name} Input: set to ${newValue}.`);
+    //   });
 
     this.serviceManager
       .getCharacteristic(Characteristic.RemoteKey)
@@ -337,7 +380,8 @@ class TVAccessory extends BroadlinkRMAccessory {
         callback(null);
       });
 
-    const speakerService = new Service.TelevisionSpeaker('Speaker', 'Speaker');
+    // const speakerService = new Service.TelevisionSpeaker('Speaker', 'Speaker');
+    const speakerService = new Service.TelevisionSpeaker(`${name} Speaker`, '${name} Speaker');
 
     speakerService.setCharacteristic(
       Characteristic.Active,
@@ -382,6 +426,10 @@ class TVAccessory extends BroadlinkRMAccessory {
       });
     speakerService
       .getCharacteristic(Characteristic.Mute)
+      .on('get', (callback) => {
+	// console.log(`${name} Mute: get ${this.state.Mute}.`);
+	callback(null, this.state.Mute || false);
+      })
       .on('set', (newValue, callback) => {
         if (!data || !data.volume || !data.volume.mute) {
           log(
@@ -400,16 +448,19 @@ class TVAccessory extends BroadlinkRMAccessory {
           return;
         }
 
+	this.state.Mute = newValue;
         this.performSend(hexData);
         callback(null);         
       });
+    speakerService.setCharacteristic(Characteristic.Mute, false);
 
     this.serviceManagers.push(speakerService);
 
     if (data.inputs && data.inputs instanceof Array) {
       for (let i = 0; i < data.inputs.length; i++) {
         const input = data.inputs[i];
-        const inputService = new Service.InputSource(`input${i}`, `input${i}`);
+        // const inputService = new Service.InputSource(`input${i}`, `input${i}`);
+        const inputService = new Service.InputSource(`${name} input${i}`, `${name} input${i}`);
 
         inputService
           .setCharacteristic(Characteristic.Identifier, i)
