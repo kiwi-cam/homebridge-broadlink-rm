@@ -2,6 +2,7 @@ const ping = require('ping');
 const broadlink = require('./broadlink');
 const delayForDuration = require('./delayForDuration');
 const dgram = require('dgram');
+const Mutex = require('await-semaphore').Mutex;
 
 const pingFrequency = 20000;
 const keepAliveFrequency = 90000;
@@ -106,6 +107,8 @@ const discoverDevices = (automatic = true, log, logLevel, deviceDiscoveryTimeout
 
 const addDevice = (device) => {
   if (!device.isUnitTestDevice && (discoveredDevices[device.host.address] || discoveredDevices[device.host.macAddress])) {return;}
+
+  device.mutex = new Mutex();
 
   discoveredDevices[device.host.address] = device;
   discoveredDevices[device.host.macAddress] = device;
