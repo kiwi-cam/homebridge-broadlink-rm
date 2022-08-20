@@ -97,8 +97,10 @@ class TVAccessory extends BroadlinkRMAccessory {
       return; 
     }
 
-    if (config.syncInputSourceWhenOn && state.switchState === false && active === true) {
-      if (this.state.currentInput !== undefined) {
+    if (state.switchState != active) {	// 0/1 vs. true/false
+      // const on = active ? 'on' : 'off';
+      // console.log(`[${new Date().toLocaleString()}] ${name} Ping: Turned ${on}.`);
+      if (config.syncInputSourceWhenOn && active && this.state.currentInput !== undefined) {
 	// console.log(`[${new Date().toLocaleString()}] ${name} Ping: sync InputSource.`);
 	await this.setInputSource(null, null);	// sync if asynchronously turned on
       }

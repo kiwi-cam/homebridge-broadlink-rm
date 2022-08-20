@@ -142,9 +142,9 @@ class HomebridgeAccessory {
       const data = value ? onData : offData;
 
       if (setValuePromise) {
-        setValuePromise(data, previousValue);
+        await setValuePromise(data, previousValue);
       } else if (data) {
-        this.performSetValueAction({ host, data, log, name });
+        await this.performSetValueAction({ host, data, log, name });
       }
       callback(null);
     } catch (err) {
