@@ -6,412 +6,429 @@
 		"pin": "031-45-154"
 	},
 	"description": "Homebridge",
-	"accessories": [
-
-	],
-	"platforms": [{
-		"platform": "BroadlinkRM",
-		"name": "Broadlink RM",
-		"hideScanFrequencyButton": false,
-		"hideLearnButton": false,
-		"hideWelcomeMessage": false,
-		"hosts": [{
-			"address": "192.168.1.76",
-			"mac": "34:ea:34:e7:d7:28",
-			"isRFSupported": false
-		},{
-			"address": "192.168.1.77",
-			"mac": "34:ea:34:e8:d8:30",
-			"isRFSupported": true,
-			"isRM4": true
-		}],
-		"accessories": [{
-				"name": "Auto-off Switch",
-				"type": "switch",
-				"enableAutoOff": true,
-				"onDuration": 5,
-				"data": {
-					"on": "2600500000012...",
-					"off": "2600500000012..."
+	"accessories": [],
+	"platforms": [
+		{
+			"platform": "BroadlinkRM",
+			"name": "Broadlink RM",
+			"hideScanFrequencyButton": false,
+			"hideLearnButton": false,
+			"hideWelcomeMessage": false,
+			"hosts": [
+				{
+					"address": "192.168.1.76",
+					"mac": "34:ea:34:e7:d7:28",
+					"isRFSupported": false
+				},
+				{
+					"address": "192.168.1.77",
+					"mac": "34:ea:34:e8:d8:30",
+					"isRFSupported": true,
+					"isRM4": true
 				}
-			},
-			{
-				"name": "TV On/Off",
-				"type": "switch",
-				"data": {
-					"on": "2600500000012...",
-					"off": "2600500000012..."
-				}
-			},
-			{
-				"name": "Entertainment",
-				"type": "switch",
-				"enableAutoOff": true,
-				"onDuration": 1.5,
-				"data": [{
-						"data": "HEX_1...",
-						"pause": 0.3
-					},
-					{
-						"data": "HEX_2...",
-						"pause": 0.3
-					},
-					{
-						"data": "HEX_3...",
-						"pause": 0.3
+			],
+			"accessories": [
+				{
+					"name": "Auto-off Switch",
+					"type": "switch",
+					"enableAutoOff": true,
+					"onDuration": 5,
+					"data": {
+						"on": "2600500000012...",
+						"off": "2600500000012..."
 					}
-				]
-			},
-			{
-				"name": "Light",
-				"type": "light",
-				"defaultBrightness": 70,
-				"useLastKnownBrightness": true,
-				"enableAutoOff": true,
-				"onDuration": 10,
-				"data": {
-					"off": "2600500000012...",
-					"brightness10": "2600500000012...",
-					"brightness20": "2600500000012...",
-					"brightness30": "2600500000012...",
-					"brightness40": "2600500000012...",
-					"brightness50": "2600500000012...",
-					"brightness60": "2600500000012...",
-					"brightness70": "2600500000012...",
-					"brightness80": "2600500000012...",
-					"brightness90": "2600500000012...",
-					"brightness100": "2600500000012...",
-					"hue0": "2600500000012...",
-					"hue99": "2600500000012...",
-					"hue199": "2600500000012...",
-					"hue299": "2600500000012...",
-					"hue359": "2600500000012...",
-					"white": "2600500000012..."
-				}
-			},{
-				"name": "LivingRoom Humidity",
-				"type": "humiditySensor"
-			},{
-				"name": "LivingRoom temperature",
-				"type": "temperatureSensor",
-        "batteryAlerts": true,
-        "mqttURL": "mqtt://localhost",
-        "mqttTopic": [{
-          "identifier": "temperature",
-          "topic": "/mi_temp/LivingRoom/temperature"
-        },{
-          "identifier": "battery",
-          "topic": "/mi_temp/LivingRoom/battery"
-        },{
-          "identifier": "humidity",
-          "topic": "/mi_temp/LivingRoom/humidity"
-        }],
-			},{
-				"name": "Classic Dehumidifer",
-				"type": "humidifier-dehumidifier",
-				"noHumidity": true
-	      "showLockPhysicalControls": true,
-        "data":{
-          "on":"2600500000012...",
-          "off":"2600500000012...",
-          "targetStateHumidifier": "2600500000012...",
-          "targetStateDehumidifier": "2600500000012...",
-          "fanOnly": "2600500000012...",
-          "lockControls": "2600500000012...",
-          "unlockControls": "2600500000012...",
-          "swingToggle": "2600500000012...",
-          "fanSpeed10": "2600500000012...",
-          "fanSpeed20": "2600500000012...",
-          "fanSpeed30": "2600500000012...",
-          "fanSpeed40": "2600500000012...",
-          "fanSpeed50": "2600500000012...",
-          "fanSpeed60": "2600500000012...",
-          "fanSpeed70": "2600500000012...",
-          "fanSpeed80": "2600500000012...",
-          "fanSpeed90": "2600500000012...",
-          "fanSpeed100": "2600500000012..."
-        }
-      },
-      {
-				"name": "Dehumidifer using Broadlink",
-				"type": "humidifier-dehumidifier",
-				"showLockPhysicalControls": true,
-				"data":{
-				"on":"2600500000012...",
-				"off":"2600500000012...",
-				"targetStateHumidifier": "2600500000012...",
-				"targetStateDehumidifier": "2600500000012...",
-				"lockControls": "2600500000012...",
-				"unlockControls": "2600500000012...",
-				"swingToggle": "2600500000012...",
-				"fanSpeed10": "2600500000012...",
-				"fanSpeed20": "2600500000012...",
-				"fanSpeed30": "2600500000012...",
-				"fanSpeed40": "2600500000012...",
-				"fanSpeed50": "2600500000012...",
-				"fanSpeed60": "2600500000012...",
-				"fanSpeed70": "2600500000012...",
-				"fanSpeed80": "2600500000012...",
-				"fanSpeed90": "2600500000012...",
-				"fanSpeed100": "2600500000012..."
-				}
-			},{
-				"name": "Air Conditioner",
-				"type": "air-conditioner",
-				"noHumidity": true,
-				"data": {
-					"off": "2600500000012...",
-					"temperature30": {
-						"pseudo-mode": "heat",
-						"data": "2600500000012..."
-					},
-					"temperature16": {
-						"pseudo-mode": "cool",
-						"data": "2600500000012..."
+				},
+				{
+					"name": "TV On/Off",
+					"type": "switch",
+					"data": {
+						"on": "2600500000012...",
+						"off": "2600500000012..."
 					}
-				}
-			},
-			{
-				"name": "Air Conditioner Advanced",
-				"type": "air-conditioner",
-				"autoCoolTemperature": 23,
-				"autoHeatTemperature": 14,
-				"autoSwitch": "A/C Auto Switch",
-				"data": {
-					"off": "2600500000012...",
-					"heat30": {
-						"data": "2600500000012..."
-					},
-					"auto22": {
-						"data": "2600500000012..."
-					},
-					"cool16": {
-						"data": "2600500000012..."
-					}
-				}
-			},
-			{
-				"name": "A/C Auto Switch",
-				"type": "switch"
-			},
-			{
-				"name": "Fan",
-				"type": "fan",
-        "showSwingMode": true,
-				"data": {
-					"on": "2600500000012...",
-					"off": "2600500000012...",
-					"swingToggle": "2600500000012...",
-					"fanSpeed10": "2600500000012...",
-					"fanSpeed20": "2600500000012...",
-					"fanSpeed30": "2600500000012...",
-					"fanSpeed40": "2600500000012...",
-					"fanSpeed50": "2600500000012...",
-					"fanSpeed60": "2600500000012...",
-					"fanSpeed70": "2600500000012...",
-					"fanSpeed80": "2600500000012...",
-					"fanSpeed90": "2600500000012...",
-					"fanSpeed100": "2600500000012..."
-				}
-			},
-      {
-				"name": "Classic Fan",
-				"type": "fanv1",
-				"data": {
-					"on": "2600500000012...",
-					"off": "2600500000012...",
-					"swingToggle": "2600500000012...",
-					"fanSpeed10": "2600500000012...",
-					"fanSpeed20": "2600500000012...",
-					"fanSpeed30": "2600500000012...",
-					"fanSpeed40": "2600500000012...",
-					"fanSpeed50": "2600500000012...",
-					"fanSpeed60": "2600500000012...",
-					"fanSpeed70": "2600500000012...",
-					"fanSpeed80": "2600500000012...",
-					"fanSpeed90": "2600500000012...",
-					"fanSpeed100": "2600500000012..."
-				}
-			},
-			{
-				"name": "Garage Door",
-				"type": "garage-door-opener",
-				"openCloseDuration": 8,
-				"data": {
-					"open": "2600500000012...",
-					"close": "2600500000012...",
-					"lock": "2600500000012...",
-					"unlock": "2600500000012..."
-				}
-			},
-			{
-				"name": "Blind",
-				"type": "window-covering",
-				"totalDurationOpen": 45,
-				"totalDurationClose": 40,
-				"data": {
-					"open": "2600500000012...",
-					"close": "2600500000012...",
-					"stop": "2600500000012..."
-				}
-			},
-			{
-				"name": "Blind Multi",
-				"type": "window-covering",
-				"totalDurationOpen": 5,
-				"totalDurationClose": 2,
-				"data": {
-					"open": "OPEN_HEX...",
-					"close": [{
-							"data": "CLOSE_HEX_1...",
-							"sendCount": 2,
-							"interval": 0.3,
+				},
+				{
+					"name": "Entertainment",
+					"type": "switch",
+					"enableAutoOff": true,
+					"onDuration": 1.5,
+					"data": [
+						{
+							"data": "HEX_1...",
 							"pause": 0.3
 						},
 						{
-							"data": "CLOSE_HEX_2..."
-						}
-					],
-					"stop": "STOP_HEX..."
-				}
-			},
-			{
-				"name": "TV",
-				"type": "tv",
-				"data": {
-					"off": "HEX...",
-					"on": "HEX...",
-					"remote": {
-						"select": "HEX...",
-						"arrowUp": "HEX...",
-						"arrowDown": "HEX...",
-						"arrowLeft": "HEX...",
-						"arrowRight": "HEX...",
-						"back": "HEX...",
-						"exit": "HEX...",
-						"playPause": "HEX...",
-						"info": "HEX..."
-					},
-					"powerMode": {
-						"show": "HEX..."
-					},
-					"volume": {
-						"up": "HEX...",
-						"down": "HEX..."
-					},
-					"inputs": [{
-						"name": "INPUT 1",
-						"type": "hdmi",
-						"data": "HEX..."
-					}]
-				}
-			},
-			{
-				"name": "Home Theatre",
-				"type": "tv",
-				"subType": "stb",
-				"pingIPAddress": "192.168.1.5",
-				"pingFrequency": 5,
-				"pingIPAddressStateOnly": true,
-				"pingUseArp": false,
-				"pingGrace": 15,
-				"data": {
-					"on": "HEX...",
-					"off": "HEX...",
-					"remote": {
-						"select": "HEX...",
-						"arrowUp": "HEX...",
-						"arrowDown": "HEX...",
-						"arrowLeft": "HEX...",
-						"arrowRight": "HEX...",
-						"back": "HEX...",
-						"playPause": "HEX...",
-						"exit": "HEX...",
-						"info": "HEX..."
-					},
-					"volume": {
-						"up": "HEX...",
-						"down": "HEX..."
-					},
-					"inputs": [{
-							"name": "Function",
-							"type": "hdmi",
-							"data": "HEX..."
+							"data": "HEX_2...",
+							"pause": 0.3
 						},
 						{
-							"name": "Optical",
-							"type": "other",
-							"data": "HEX..."
-						},
-						{
-							"name": "Home",
-							"type": "other",
-							"data": "HEX..."
+							"data": "HEX_3...",
+							"pause": 0.3
 						}
 					]
+				},
+				{
+					"name": "Light",
+					"type": "light",
+					"defaultBrightness": 70,
+					"useLastKnownBrightness": true,
+					"enableAutoOff": true,
+					"onDuration": 10,
+					"data": {
+						"off": "2600500000012...",
+						"brightness10": "2600500000012...",
+						"brightness20": "2600500000012...",
+						"brightness30": "2600500000012...",
+						"brightness40": "2600500000012...",
+						"brightness50": "2600500000012...",
+						"brightness60": "2600500000012...",
+						"brightness70": "2600500000012...",
+						"brightness80": "2600500000012...",
+						"brightness90": "2600500000012...",
+						"brightness100": "2600500000012...",
+						"hue0": "2600500000012...",
+						"hue99": "2600500000012...",
+						"hue199": "2600500000012...",
+						"hue299": "2600500000012...",
+						"hue359": "2600500000012...",
+						"white": "2600500000012..."
+					}
+				},
+				{
+					"name": "LivingRoom Humidity",
+					"type": "humiditySensor"
+				},
+				{
+					"name": "LivingRoom temperature",
+					"type": "temperatureSensor",
+					"batteryAlerts": true,
+					"mqttURL": "mqtt://localhost",
+					"mqttTopic": [
+						{
+							"identifier": "temperature",
+							"topic": "/mi_temp/LivingRoom/temperature"
+						},
+						{
+							"identifier": "battery",
+							"topic": "/mi_temp/LivingRoom/battery"
+						},
+						{
+							"identifier": "humidity",
+							"topic": "/mi_temp/LivingRoom/humidity"
+						}
+					],
+				},
+				{
+					"name": "Classic Dehumidifer",
+					"type": "humidifier-dehumidifier",
+					"noHumidity": true,
+			 		"showLockPhysicalControls": true,
+					"data":{
+						"on":"2600500000012...",
+						"off":"2600500000012...",
+						"targetStateHumidifier": "2600500000012...",
+						"targetStateDehumidifier": "2600500000012...",
+						"fanOnly": "2600500000012...",
+						"lockControls": "2600500000012...",
+						"unlockControls": "2600500000012...",
+						"swingToggle": "2600500000012...",
+						"fanSpeed10": "2600500000012...",
+						"fanSpeed20": "2600500000012...",
+						"fanSpeed30": "2600500000012...",
+						"fanSpeed40": "2600500000012...",
+						"fanSpeed50": "2600500000012...",
+						"fanSpeed60": "2600500000012...",
+						"fanSpeed70": "2600500000012...",
+						"fanSpeed80": "2600500000012...",
+						"fanSpeed90": "2600500000012...",
+						"fanSpeed100": "2600500000012..."
+					}
+				},
+				{
+					"name": "Dehumidifer using Broadlink",
+					"type": "humidifier-dehumidifier",
+					"showLockPhysicalControls": true,
+					"data":{
+						"on":"2600500000012...",
+						"off":"2600500000012...",
+						"targetStateHumidifier": "2600500000012...",
+						"targetStateDehumidifier": "2600500000012...",
+						"lockControls": "2600500000012...",
+						"unlockControls": "2600500000012...",
+						"swingToggle": "2600500000012...",
+						"fanSpeed10": "2600500000012...",
+						"fanSpeed20": "2600500000012...",
+						"fanSpeed30": "2600500000012...",
+						"fanSpeed40": "2600500000012...",
+						"fanSpeed50": "2600500000012...",
+						"fanSpeed60": "2600500000012...",
+						"fanSpeed70": "2600500000012...",
+						"fanSpeed80": "2600500000012...",
+						"fanSpeed90": "2600500000012...",
+						"fanSpeed100": "2600500000012..."
+					}
+				},
+				{
+					"name": "Air Conditioner",
+					"type": "air-conditioner",
+					"noHumidity": true,
+					"data": {
+						"off": "2600500000012...",
+						"temperature30": {
+							"pseudo-mode": "heat",
+							"data": "2600500000012..."
+						},
+						"temperature16": {
+							"pseudo-mode": "cool",
+							"data": "2600500000012..."
+						}
+					}
+				},
+				{
+					"name": "Air Conditioner Advanced",
+					"type": "air-conditioner",
+					"autoCoolTemperature": 23,
+					"autoHeatTemperature": 14,
+					"autoSwitch": "A/C Auto Switch",
+					"data": {
+						"off": "2600500000012...",
+						"heat30": {
+							"data": "2600500000012..."
+						},
+						"auto22": {
+							"data": "2600500000012..."
+						},
+						"cool16": {
+							"data": "2600500000012..."
+						}
+					}
+				},
+				{
+					"name": "A/C Auto Switch",
+					"type": "switch"
+				},
+				{
+					"name": "Fan",
+					"type": "fan",
+					"showSwingMode": true,
+					"data": {
+						"on": "2600500000012...",
+						"off": "2600500000012...",
+						"swingToggle": "2600500000012...",
+						"fanSpeed10": "2600500000012...",
+						"fanSpeed20": "2600500000012...",
+						"fanSpeed30": "2600500000012...",
+						"fanSpeed40": "2600500000012...",
+						"fanSpeed50": "2600500000012...",
+						"fanSpeed60": "2600500000012...",
+						"fanSpeed70": "2600500000012...",
+						"fanSpeed80": "2600500000012...",
+						"fanSpeed90": "2600500000012...",
+						"fanSpeed100": "2600500000012..."
+					}
+				},
+				{
+					"name": "Classic Fan",
+					"type": "fanv1",
+					"data": {
+						"on": "2600500000012...",
+						"off": "2600500000012...",
+						"swingToggle": "2600500000012...",
+						"fanSpeed10": "2600500000012...",
+						"fanSpeed20": "2600500000012...",
+						"fanSpeed30": "2600500000012...",
+						"fanSpeed40": "2600500000012...",
+						"fanSpeed50": "2600500000012...",
+						"fanSpeed60": "2600500000012...",
+						"fanSpeed70": "2600500000012...",
+						"fanSpeed80": "2600500000012...",
+						"fanSpeed90": "2600500000012...",
+						"fanSpeed100": "2600500000012..."
+					}
+				},
+				{
+					"name": "Garage Door",
+					"type": "garage-door-opener",
+					"openCloseDuration": 8,
+					"data": {
+						"open": "2600500000012...",
+						"close": "2600500000012...",
+						"lock": "2600500000012...",
+						"unlock": "2600500000012..."
+					}
+				},
+				{
+					"name": "Blind",
+					"type": "window-covering",
+					"totalDurationOpen": 45,
+					"totalDurationClose": 40,
+					"data": {
+						"open": "2600500000012...",
+						"close": "2600500000012...",
+						"stop": "2600500000012..."
+					}
+				},
+				{
+					"name": "Blind Multi",
+					"type": "window-covering",
+					"totalDurationOpen": 5,
+					"totalDurationClose": 2,
+					"data": {
+						"open": "OPEN_HEX...",
+						"close": [
+							{
+								"data": "CLOSE_HEX_1...",
+								"sendCount": 2,
+								"interval": 0.3,
+								"pause": 0.3
+							},
+							{
+								"data": "CLOSE_HEX_2..."
+							}
+						],
+						"stop": "STOP_HEX..."
+					}
+				},
+				{
+					"name": "TV",
+					"type": "tv",
+					"data": {
+						"off": "HEX...",
+						"on": "HEX...",
+						"remote": {
+							"select": "HEX...",
+							"arrowUp": "HEX...",
+							"arrowDown": "HEX...",
+							"arrowLeft": "HEX...",
+							"arrowRight": "HEX...",
+							"back": "HEX...",
+							"exit": "HEX...",
+							"playPause": "HEX...",
+							"info": "HEX..."
+						},
+						"powerMode": {
+							"show": "HEX..."
+						},
+						"volume": {
+							"up": "HEX...",
+							"down": "HEX..."
+						},
+						"inputs": [
+							{
+								"name": "INPUT 1",
+								"type": "hdmi",
+								"data": "HEX..."
+							}
+						]
+					}
+				},
+				{
+					"name": "Home Theatre",
+					"type": "tv",
+					"subType": "stb",
+					"pingIPAddress": "192.168.1.5",
+					"pingFrequency": 5,
+					"pingIPAddressStateOnly": true,
+					"pingUseArp": false,
+					"pingGrace": 15,
+					"data": {
+						"on": "HEX...",
+						"off": "HEX...",
+						"remote": {
+							"select": "HEX...",
+							"arrowUp": "HEX...",
+							"arrowDown": "HEX...",
+							"arrowLeft": "HEX...",
+							"arrowRight": "HEX...",
+							"back": "HEX...",
+							"playPause": "HEX...",
+							"exit": "HEX...",
+							"info": "HEX..."
+						},
+						"volume": {
+							"up": "HEX...",
+							"down": "HEX..."
+						},
+						"inputs": [
+							{
+								"name": "Function",
+								"type": "hdmi",
+								"data": "HEX..."
+							},
+							{
+								"name": "Optical",
+								"type": "other",
+								"data": "HEX..."
+							},
+							{
+								"name": "Home",
+								"type": "other",
+								"data": "HEX..."
+							}
+						]
+					}
+				},
+				{
+					"name": "My Portable AC",
+					"type": "heater-cooler",
+					"coolingThresholdTemperature": 70,
+					"minTemperature": 60,
+			 		"maxTemperature": 84,
+					"temperatureUnits": "F",
+		 		 	"fanStepSize": 50,
+		 		 	"data": {
+						"cool": {
+							"on": "Hex code to set device to cool mode or turn or device",
+							"off": "Hex code to turn off device",
+							"temperatureCodes": {
+								"67": {
+									"rotationSpeed50": {
+										"swingDnd": "Hex code to set AC to 67 F at fan speed of 50%",
+										"swingToggle": "Hex code to toggle swing mode of AC at 67 F, fan speed of 50%"
+									},
+									"rotationSpeed100": {
+										"swingDnd": "Hex code to set AC to 67 F at fan speed of 100%",
+										"swingToggle":"Hex code to toggle swing mode of AC at 67 F, fan speed of 100%"
+									}
+								},
+								"68": {
+									"rotationSpeed50": {
+										"swingDnd": "Hex code to set AC to 68 F at fan speed of 50%",
+										"swingToggle": "Hex code to toggle swing mode of AC at 68 F, fan speed of 50%"
+									},
+									"rotationSpeed100": {
+										"swingDnd": "Hex code to set AC to 68 F at fan speed of 100%",
+										"swingToggle":"Hex code to toggle swing mode of AC at 68 F, fan speed of 100%"
+									}
+								}
+							}
+						}
+					}
+				},
+				{
+					"name": "My Heater",
+					"type": "heater-cooler",
+					"heatingThresholdTemperature": 67,
+					"minTemperature": 63,
+					"maxTemperature": 82,
+					"temperatureUnits": "F",
+					"data": {
+						"heat": {
+							"on": "Hex code to set device to heat mode or turn on heater",
+							"off": "Hex code to turn off device",
+							"temperatureCodes": {
+								"72": {
+									"swingOn": "Hex code to set device to 72 F with swing enabled",
+									"swingOff": "Hex code to set device to 72 F with swing disabled"
+								},
+								"73": {
+									"swingOn": "Hex code to set device to 73 F with swing enabled",
+									"swingOff": "Hex code to set device to 73 F with swing disabled"
+								}
+							}
+						}
+					}
 				}
-      },
-      {
-        "name": "My Portable AC",
-        "type": "heater-cooler",
-        "coolingThresholdTemperature": 70,
-        "minTemperature": 60,
-        "maxTemperature": 84,
-        "temperatureUnits": "F",
-        "fanStepSize": 50,
-        "data": {
-          "cool": {
-            "on": "Hex code to set device to cool mode or turn or device",
-            "off": "Hex code to turn off device",
-            "temperatureCodes": {
-              "67": {
-                "rotationSpeed50": {
-                  "swingDnd": "Hex code to set AC to 67 F at fan speed of 50%",
-                  "swingToggle": "Hex code to toggle swing mode of AC at 67 F, fan speed of 50%"
-                },
-                "rotationSpeed100": {
-                  "swingDnd": "Hex code to set AC to 67 F at fan speed of 100%",
-                  "swingToggle":"Hex code to toggle swing mode of AC at 67 F, fan speed of 100%"
-                }
-              },
-              "68": {
-                "rotationSpeed50": {
-                  "swingDnd": "Hex code to set AC to 68 F at fan speed of 50%",
-                  "swingToggle": "Hex code to toggle swing mode of AC at 68 F, fan speed of 50%"
-                },
-                "rotationSpeed100": {
-                  "swingDnd": "Hex code to set AC to 68 F at fan speed of 100%",
-                  "swingToggle":"Hex code to toggle swing mode of AC at 68 F, fan speed of 100%"
-                }
-              }
-            }
-          }
-        }
-      },
-      {
-        "name": "My Heater",
-        "type": "heater-cooler",
-        "heatingThresholdTemperature": 67,
-        "minTemperature": 63,
-        "maxTemperature": 82,
-        "temperatureUnits": "F",
-        "data": {
-            "heat": {
-                "on": "Hex code to set device to heat mode or turn on heater",
-                "off": "Hex code to turn off device",
-                "temperatureCodes": {
-                    "72": {
-                        "swingOn": "Hex code to set device to 72 F with swing enabled",
-                        "swingOff": "Hex code to set device to 72 F with swing disabled"
-                    },
-                    "73": {
-                        "swingOn": "Hex code to set device to 73 F with swing enabled",
-                        "swingOff": "Hex code to set device to 73 F with swing disabled"
-                    }
-                }
-            }
-        }
-      }
-		]
-	}]
+			]
+		}
+	]
 }
