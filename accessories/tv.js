@@ -102,7 +102,7 @@ class TVAccessory extends BroadlinkRMAccessory {
       // console.log(`[${new Date().toLocaleString()}] ${name} Ping: Turned ${on}.`);
       if (config.syncInputSourceWhenOn && active && this.state.currentInput !== undefined) {
 	// console.log(`[${new Date().toLocaleString()}] ${name} Ping: sync InputSource.`);
-	await this.setInputSource(null, null);	// sync if asynchronously turned on
+	await this.setInputSource();	// sync if asynchronously turned on
       }
     }
     if (config.pingIPAddressStateOnly) {
@@ -189,7 +189,7 @@ class TVAccessory extends BroadlinkRMAccessory {
     return services;
   }
 
-  async setInputSource(hexData, previousValue) {
+  async setInputSource() {
     const { data, host, log, name, logLevel } = this;
     const newValue = this.state.currentInput;
   
