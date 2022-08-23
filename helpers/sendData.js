@@ -29,7 +29,7 @@ module.exports = async ({ host, hexData, log, name, logLevel }) => {
   if (hexData.includes('5aa5aa555')) {return log(`\x1b[31m[ERROR] \x1b[0mThis type of hex code (5aa5aa555...) is no longer valid. Use the included "Learn Code" accessory to find new (decrypted) codes.`);}
 
   const hexDataBuffer = new Buffer.from(hexData, 'hex');
-  device.sendData(hexDataBuffer, logLevel, hexData);
+  await device.sendData(hexDataBuffer, logLevel, hexData);
   
   // if (logLevel <=2) {log(`${name} sendHex (${device.host.address}; ${device.host.macAddress}) ${hexData}`);}
   // console.log(`[${new Date().toLocaleString()}] ${name} sendHex (${device.host.address}; ${device.host.macAddress}) ${hexData}`);
