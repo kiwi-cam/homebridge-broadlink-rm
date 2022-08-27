@@ -3,7 +3,7 @@ const assert = require('assert')
 const { getDevice } = require('./getDevice');
 const convertProntoCode = require('./convertProntoCode')
 
-module.exports = ({ host, hexData, log, name, logLevel }) => {
+module.exports = async ({ host, hexData, log, name, logLevel }) => {
   assert(hexData && typeof hexData === 'string', `\x1b[31m[ERROR]: \x1b[0m${name} sendData (HEX value is missing)`);
 
   // Check for pronto code
