@@ -90,13 +90,18 @@ class TVAccessory extends BroadlinkRMAccessory {
     else {arp(pingIPAddress, pingFrequency, this.pingCallback.bind(this))}
   }
 
-  pingCallback(active) {
+  async pingCallback(active) {
     const { config, state, serviceManager } = this;
     
     if (this.stateChangeInProgress){ 
       return; 
     }
 
+    if (state.switchState != active) {	// 0/1 vs. true/false
+      if (config.syncInputSourceWhenOn && active && this.state.currentInput !== undefined) {
+	await this.setInputSource();	// sync if asynchronously turned on
+      }
+    }
     if (config.pingIPAddressStateOnly) {
       state.switchState = active ? true : false;
       serviceManager.refreshCharacteristicUI(Characteristic.Active);
@@ -180,6 +185,23 @@ class TVAccessory extends BroadlinkRMAccessory {
     return services;
   }
 
+  async setInputSource() {
+    const { data, host, log, name, logLevel } = this;
+    const newValue = this.state.currentInput;
+  
+    if (
+      !data ||
+        !data.inputs ||
+        !data.inputs[newValue] ||
+        !data.inputs[newValue].data
+    ) {
+      log(`${name} Input: No input data found. Ignoring request.`);
+      return;
+    }
+  
+    await this.performSend(data.inputs[newValue].data);
+  }
+  
   setupServiceManager() {
     const { data, name, config, serviceManagerType, log } = this;
     const { on, off } = data || {};
@@ -211,32 +233,21 @@ class TVAccessory extends BroadlinkRMAccessory {
       }
     });
 
-    this.serviceManager.setCharacteristic(Characteristic.ActiveIdentifier, 1);
-
-    this.serviceManager
-      .getCharacteristic(Characteristic.ActiveIdentifier)
-      .on('get', (callback) => callback(null, this.state.input || 0))
-      .on('set', (newValue, callback) => {
-        if (
-          !data ||
-          !data.inputs ||
-          !data.inputs[newValue] ||
-          !data.inputs[newValue].data
-        ) {
-          log(`${name} Input: No input data found. Ignoring request.`);
-          callback(null);
-          return;
-        }
-
-        this.state.input = newValue;
-        this.performSend(data.inputs[newValue].data);
-
-        callback(null);
-      });
+    this.serviceManager.addToggleCharacteristic({
+      name: 'currentInput',
+      type: Characteristic.ActiveIdentifier,
+      getMethod: this.getCharacteristicValue,
+      setMethod: this.setCharacteristicValue,
+      bind: this,
+      props: {
+        setValuePromise: this.setInputSource.bind(this),
+	ignorePreviousValue: true
+      }
+    });
 
     this.serviceManager
       .getCharacteristic(Characteristic.RemoteKey)
-      .on('set', (newValue, callback) => {
+      .on('set', async (newValue, callback) => {
         if (!data || !data.remote) {
           log(`${name} RemoteKey: No remote keys found. Ignoring request.`);
           callback(null);
@@ -292,7 +303,7 @@ class TVAccessory extends BroadlinkRMAccessory {
           return;
         }
 
-        this.performSend(hexData);
+        await this.performSend(hexData);
         callback(null);
       });
 
@@ -306,7 +317,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 
     this.serviceManager
       .getCharacteristic(Characteristic.PowerModeSelection)
-      .on('set', (newValue, callback) => {
+      .on('set', async (newValue, callback) => {
         if (!data || !data.powerMode) {
           log(
             `${name} PowerModeSelection: No settings data found. Ignoring request.`
@@ -333,7 +344,7 @@ class TVAccessory extends BroadlinkRMAccessory {
           return;
         }
 
-        this.performSend(hexData);
+        await this.performSend(hexData);
         callback(null);
       });
 
@@ -350,7 +361,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 
     speakerService
       .getCharacteristic(Characteristic.VolumeSelector)
-      .on('set', (newValue, callback) => {
+      .on('set', async (newValue, callback) => {
         if (!data || !data.volume) {
           log(
             `${name} VolumeSelector: No settings data found. Ignoring request.`
@@ -377,12 +388,15 @@ class TVAccessory extends BroadlinkRMAccessory {
           return;
         }
 
-        this.performSend(hexData);
+        await this.performSend(hexData);
         callback(null);
       });
     speakerService
       .getCharacteristic(Characteristic.Mute)
-      .on('set', (newValue, callback) => {
+      .on('get', (callback) => {
+	callback(null, this.state.Mute || false);
+      })
+      .on('set', async (newValue, callback) => {
         if (!data || !data.volume || !data.volume.mute) {
           log(
             `${name} VolumeSelector: No mute data found. Ignoring request.`
@@ -400,9 +414,11 @@ class TVAccessory extends BroadlinkRMAccessory {
           return;
         }
 
-        this.performSend(hexData);
+	this.state.Mute = newValue;
+        await this.performSend(hexData);
         callback(null);         
       });
+    speakerService.setCharacteristic(Characteristic.Mute, false);
 
     this.serviceManagers.push(speakerService);
 
