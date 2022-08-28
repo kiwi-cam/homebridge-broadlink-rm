@@ -210,7 +210,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     return (!this.autoSwitchAccessory || (this.autoSwitchAccessory && this.autoSwitchAccessory.state && this.autoSwitchAccessory.state.switchState));
   }
 
-  setTargetTemperature (HexData,previousValue) {
+  async setTargetTemperature (HexData,previousValue) {
     const { HeatingCoolingConfigKeys, data, config, log, logLevel, name, serviceManager, state } = this;
     const { preventResendHex, minTemperature, maxTemperature } = config;
 
