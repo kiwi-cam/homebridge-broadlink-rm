@@ -74,7 +74,7 @@ class LightAccessory extends SwitchAccessory {
       if (brightness !== state.brightness || previousValue !== state.switchState) {
         log(`${name} setSwitchState: (brightness: ${brightness})`);
 
-        //state.switchState = false;
+        state.switchState = false;
         state.brightness = brightness;
         serviceManager.setCharacteristic(Characteristic.Brightness, brightness);
       } else {
@@ -134,11 +134,11 @@ class LightAccessory extends SwitchAccessory {
     });
   }
 
-  async setBrightness () {
+  async setBrightness (dummy, previousValue) {
     await catchDelayCancelError(async () => {
       const { config, data, host, log, name, state, logLevel, serviceManager } = this;
       const { off, on } = data;
-      let { onDelay } = config;
+      let { onDelay, incremental } = config;
 
       if (this.lastBrightness === state.brightness) {
 
@@ -164,22 +164,43 @@ class LightAccessory extends SwitchAccessory {
             log(`${name} setBrightness: (turn on, wait ${onDelay}s)`);
             await this.performSend(on);
     
-            log(`${name} setHue: (wait ${onDelay}s then send data)`);
             this.onDelayTimeoutPromise = delayForDuration(onDelay);
             await this.onDelayTimeoutPromise;
           }
         }
 
-        // Find brightness closest to the one requested
-        const foundValues = this.dataKeys('brightness')
+	if (incremental === true) {
+	  const interval = config['incrementInterval'] || 0.1;
+	  const n = config['maxIncrementStep'];
+	  const r = 100 % n;
+	  const delta = (100 - r)/n;
+	  const increment = data['brightness+'];
+	  const decrement = data['brightness-'];
+	  const current = previousValue > 0 ? Math.floor((previousValue - r)/delta) : 0;
+	  const target = state.brightness > 0 ? Math.floor((state.brightness - r)/delta) : 0;
 
-        assert(foundValues.length > 0, `\x1b[31m[CONFIG ERROR] \x1b[33mbrightness\x1b[0m keys need to ne set. See the config-sample.json file for an example.`);
-
-        const closest = foundValues.reduce((prev, curr) => Math.abs(curr - state.brightness) < Math.abs(prev - state.brightness) ? curr : prev);
-        const hexData = data[`brightness${closest}`];
-    
-        log(`${name} setBrightness: (closest: ${closest})`);
-        await this.performSend(hexData);
+          assert(increment && decrement && n, `\x1b[31m[CONFIG ERROR] \x1b[33mbrightness+, brightness- and maxIncrementStep\x1b[0m need to be set.`);
+	  
+	  log(`${name} setBrightness: (current:${previousValue}%(${current}) target:${state.brightness}%(${target}) increment:${target - current})`);
+	  if (current != target) {	// need incremental operation
+            await this.performSend([
+	      {'data': target > current ? increment : decrement,
+	       'interval': interval,
+	       'sendCount': Math.abs(target - current),
+	      }]);
+	  }
+	} else {
+          // Find brightness closest to the one requested
+          const foundValues = this.dataKeys('brightness')
+	  
+          assert(foundValues.length > 0, `\x1b[31m[CONFIG ERROR] \x1b[33mbrightness\x1b[0m keys need to be set. See the config-sample.json file for an example.`);
+	  
+          const closest = foundValues.reduce((prev, curr) => Math.abs(curr - state.brightness) < Math.abs(prev - state.brightness) ? curr : prev);
+          const hexData = data[`brightness${closest}`];
+	  
+          log(`${name} setBrightness: (closest: ${closest})`);
+          await this.performSend(hexData);
+	}
       } else {
         log(`${name} setBrightness: (off)`);
         await this.performSend(off);
