@@ -88,7 +88,9 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     const device = getDevice({ host, log });
 
     if (!host || !device) {	// Error reporting
-      return await sendData({ host, hexData: data, log, name, logLevel });
+      await sendData({ host, hexData: data, log, name, logLevel });
+
+      return;
     }
 
     await device.mutex.use(async () => {	// Queue command sequence
@@ -119,16 +121,13 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
     sendCount = sendCount || 1
     if (sendCount > 1) {interval = interval || 0.1;}
 
-    // Get the Broadlink device
-    const device = getDevice({ host, log });
-
     // Itterate through each hex config in the array
     for (let index = 0; data && index < sendCount; index++) {
       await sendData({ host, hexData: data, log, name, logLevel });
 
       if (interval && index < sendCount - 1) {
 	await new Promise(resolve => setTimeout(resolve, interval * 1000));
-	// console.log(`[${new Date().toLocaleString()}] ${name} pause (${device.host.address}; ${device.host.macAddress}) ${interval * 1000} ms`);
+	// console.log(`[${new Date().toLocaleString()}] ${name} interval (${host}) ${interval * 1000} ms`);
       }
     }
   }

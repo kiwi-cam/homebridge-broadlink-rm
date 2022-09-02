@@ -10,6 +10,7 @@ class TVAccessory extends BroadlinkRMAccessory {
     super(log, config, serviceManagerType);
 
     if (!config.isUnitTest) {this.checkPing(ping);}
+    this.lastPingResponse = undefined;
   }
 
   setDefaults() {
@@ -97,14 +98,14 @@ class TVAccessory extends BroadlinkRMAccessory {
       return; 
     }
 
-    if (state.switchState != active) {	// 0/1 vs. true/false
-      // const on = active ? 'on' : 'off';
-      // console.log(`[${new Date().toLocaleString()}] ${name} Ping: Turned ${on}.`);
+    if (this.lastPingResponse !== undefined && this.lastPingResponse !== active) {
+      // console.log(`[${new Date().toLocaleString()}] ${name} Ping: Turned ${active ? 'on' : 'off'}.`);
       if (config.syncInputSourceWhenOn && active && this.state.currentInput !== undefined) {
 	// console.log(`[${new Date().toLocaleString()}] ${name} Ping: sync InputSource.`);
 	await this.setInputSource();	// sync if asynchronously turned on
       }
     }
+    this.lastPingResponse = active;
     if (config.pingIPAddressStateOnly) {
       state.switchState = active ? true : false;
       serviceManager.refreshCharacteristicUI(Characteristic.Active);
