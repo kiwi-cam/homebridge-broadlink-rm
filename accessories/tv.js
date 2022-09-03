@@ -393,6 +393,8 @@ class TVAccessory extends BroadlinkRMAccessory {
         await this.performSend(hexData);
         callback(null);
       });
+
+    speakerService.setCharacteristic(Characteristic.Mute, false);
     speakerService
       .getCharacteristic(Characteristic.Mute)
       .on('get', (callback) => {
@@ -420,7 +422,6 @@ class TVAccessory extends BroadlinkRMAccessory {
         await this.performSend(hexData);
         callback(null);         
       });
-    speakerService.setCharacteristic(Characteristic.Mute, false);
 
     this.serviceManagers.push(speakerService);
 
