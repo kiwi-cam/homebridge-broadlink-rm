@@ -171,7 +171,7 @@ class LightAccessory extends SwitchAccessory {
 
 	if (incremental === true) {
 	  const interval = config['incrementInterval'] || 0.1;
-	  const n = config['maxIncrementStep'];
+	  const n = config['maxIncrementStep'] + 1;
 	  const r = 100 % n;
 	  const delta = (100 - r)/n;
 	  const increment = data['brightness+'];
@@ -181,7 +181,7 @@ class LightAccessory extends SwitchAccessory {
 
           assert(increment && decrement && n, `\x1b[31m[CONFIG ERROR] \x1b[33mbrightness+, brightness- and maxIncrementStep\x1b[0m need to be set.`);
 	  
-	  log(`${name} setBrightness: (current:${previousValue}%(${current}) target:${state.brightness}%(${target}) increment:${target - current})`);
+	  log(`${name} setBrightness: (current:${previousValue}%(${current}) target:${state.brightness}%(${target}) increment:${target - current} interval:${interval}s)`);
 	  if (current != target) {	// need incremental operation
             await this.performSend([
 	      {'data': target > current ? increment : decrement,

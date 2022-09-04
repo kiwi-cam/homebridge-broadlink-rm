@@ -92,7 +92,7 @@ class TVAccessory extends BroadlinkRMAccessory {
   }
 
   async pingCallback(active) {
-    const { name, config, state, serviceManager } = this;
+    const { name, config, state, serviceManager, log } = this;
     
     if (this.stateChangeInProgress){ 
       return; 
@@ -101,7 +101,7 @@ class TVAccessory extends BroadlinkRMAccessory {
     if (this.lastPingResponse !== undefined && this.lastPingResponse !== active) {
       // console.log(`[${new Date().toLocaleString()}] ${name} Ping: Turned ${active ? 'on' : 'off'}.`);
       if (config.syncInputSourceWhenOn && active && this.state.currentInput !== undefined) {
-	// console.log(`[${new Date().toLocaleString()}] ${name} Ping: sync InputSource.`);
+	log(`${name} received ping response. Sync input source.`);
 	await this.setInputSource();	// sync if asynchronously turned on
       }
     }
@@ -206,7 +206,7 @@ class TVAccessory extends BroadlinkRMAccessory {
   
     await this.performSend(data.inputs[newValue].data);
     // this.serviceManager.setCharacteristic(Characteristic.ActiveIdentifier, newValue);
-    // console.log(`[${new Date().toLocaleString()}] ${name} Input: set to ${data.inputs[newValue].name}(${newValue}).`);
+    // log(`${name} select input source to ${data.inputs[newValue].name}(${newValue}).`);
   }
   
   setupServiceManager() {
@@ -427,6 +427,8 @@ class TVAccessory extends BroadlinkRMAccessory {
         await this.performSend(hexData);
         callback(null);
       });
+    
+    speakerService.setCharacteristic(Characteristic.Mute, false);
     speakerService
       .getCharacteristic(Characteristic.Mute)
       .on('get', (callback) => {
@@ -455,7 +457,6 @@ class TVAccessory extends BroadlinkRMAccessory {
         await this.performSend(hexData);
         callback(null);         
       });
-    speakerService.setCharacteristic(Characteristic.Mute, false);
 
     this.serviceManagers.push(speakerService);
 
