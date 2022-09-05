@@ -15,6 +15,7 @@ class LightAccessory extends SwitchAccessory {
 
     config.onDelay = config.onDelay || 0.1;
     config.defaultBrightness = config.defaultBrightness || 100;
+    config.defaultColorTemperature = config.defaultColorTemperature || 500;
   }
 
   reset () {
@@ -70,19 +71,26 @@ class LightAccessory extends SwitchAccessory {
   async setSwitchState (hexData, previousValue) {
     const { config, data, host, log, name, state, logLevel, serviceManager } = this;
     let { defaultBrightness, useLastKnownBrightness } = config;
+    let { defaultColorTemperature, useLastKnownColorTemperature } = config;    
 
     this.reset();
 
     if (state.switchState) {
       this.setExclusivesOFF();
       const brightness = (useLastKnownBrightness && state.brightness > 0) ? state.brightness : defaultBrightness;
-      if (brightness !== state.brightness || previousValue !== state.switchState) {
+      const colorTemperature = useLastKnownColorTemperature ? state.colorTemperature : defaultColorTemperature;
+      if (brightness !== state.brightness || previousValue !== state.switchState || colorTemperature !== state.colorTemperature) {
         log(`${name} setSwitchState: (brightness: ${brightness})`);
 
         state.switchState = false;
         state.brightness = brightness;
         serviceManager.setCharacteristic(Characteristic.Brightness, brightness);
 	serviceManager.refreshCharacteristicUI(Characteristic.Brightness);
+	if (this.dataKeys('colorTemperature').length > 0) {
+          state.colorTemperature = colorTemperature;
+          serviceManager.setCharacteristic(Characteristic.ColorTemperature, colorTemperature);
+	  serviceManager.refreshCharacteristicUI(Characteristic.ColorTemperature);
+	}
       } else {
         if (hexData) {await this.performSend(hexData);}
 
