@@ -52,6 +52,21 @@ class LightAccessory extends SwitchAccessory {
     }
   }
 
+  async setExclusivesOFF () {
+    const { log, name, logLevel } = this;
+    if (this.exclusives) {
+      this.exclusives.forEach(x => {
+	if (x.state.switchState) {
+	  this.log(`${name} setSwitchState: (${x.name} is configured to be turned off)`);
+	  x.reset();
+	  x.state.switchState = false;
+	  x.lastBrightness = undefined;
+          x.serviceManager.refreshCharacteristicUI(Characteristic.On);
+	}
+      });
+    }
+  }
+
   async setSwitchState (hexData, previousValue) {
     const { config, data, host, log, name, state, logLevel, serviceManager } = this;
     let { defaultBrightness, useLastKnownBrightness } = config;
@@ -59,17 +74,7 @@ class LightAccessory extends SwitchAccessory {
     this.reset();
 
     if (state.switchState) {
-      if (this.exclusives) {
-	this.exclusives.forEach(x => {
-	  if (x.state.switchState) {
-	    log(`${name} setSwitchState: (${x.name} is configured to be turned off)`);
-	    x.reset();
-	    x.state.switchState = false;
-	    x.lastBrightness = undefined;
-            x.serviceManager.refreshCharacteristicUI(Characteristic.On);
-	  }
-	});
-      }
+      this.setExclusivesOFF();
       const brightness = (useLastKnownBrightness && state.brightness > 0) ? state.brightness : defaultBrightness;
       if (brightness !== state.brightness || previousValue !== state.switchState) {
         log(`${name} setSwitchState: (brightness: ${brightness})`);
@@ -160,6 +165,7 @@ class LightAccessory extends SwitchAccessory {
         if (!state.switchState) {
           state.switchState = true;
           serviceManager.refreshCharacteristicUI(Characteristic.On);
+	  this.setExclusivesOFF();
     
           if (on) {
             log(`${name} setBrightness: (turn on, wait ${onDelay}s)`);
@@ -221,6 +227,7 @@ class LightAccessory extends SwitchAccessory {
       if (!state.switchState) {
         state.switchState = true;
         serviceManager.refreshCharacteristicUI(Characteristic.On);
+	this.setExclusivesOFF();
 
         if (on) {
           log(`${name} setColorTemperature: (turn on, wait ${onDelay}s)`);
