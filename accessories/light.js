@@ -14,6 +14,7 @@ class LightAccessory extends SwitchAccessory {
 
     config.onDelay = config.onDelay || 0.1;
     config.defaultBrightness = config.defaultBrightness || 100;
+    config.defaultColorTemperature = config.defaultColorTemperature || 140;
   }
 
   reset () {
@@ -51,30 +52,42 @@ class LightAccessory extends SwitchAccessory {
     }
   }
 
+  async setExclusivesOFF () {
+    const { log, name, logLevel } = this;
+    if (this.exclusives) {
+      this.exclusives.forEach(x => {
+	if (x.state.switchState) {
+	  this.log(`${name} setSwitchState: (${x.name} is configured to be turned off)`);
+	  x.reset();
+	  x.state.switchState = false;
+	  x.lastBrightness = undefined;
+          x.serviceManager.refreshCharacteristicUI(Characteristic.On);
+	}
+      });
+    }
+  }
+
   async setSwitchState (hexData, previousValue) {
     const { config, data, host, log, name, state, logLevel, serviceManager } = this;
     let { defaultBrightness, useLastKnownBrightness } = config;
+    let { defaultColorTemperature, useLastKnownColorTemperature } = config;    
 
     this.reset();
 
     if (state.switchState) {
-      if (this.exclusives) {
-	this.exclusives.forEach(x => {
-	  if (x.state.switchState) {
-	    log(`${name} setSwitchState: (${x.name} is configured to be turned off)`);
-	    x.reset();
-	    x.state.switchState = false;
-	    x.lastBrightness = undefined;
-            x.serviceManager.refreshCharacteristicUI(Characteristic.On);
-	  }
-	});
-      }
+      this.setExclusivesOFF();
       const brightness = (useLastKnownBrightness && state.brightness > 0) ? state.brightness : defaultBrightness;
+      const colorTemperature = useLastKnownColorTemperature ? state.colorTemperature : defaultColorTemperature;
       if (brightness !== state.brightness || previousValue !== state.switchState) {
         log(`${name} setSwitchState: (brightness: ${brightness})`);
 
         state.switchState = false;
+        state.brightness = brightness;
         serviceManager.setCharacteristic(Characteristic.Brightness, brightness);
+	if (this.dataKeys('colorTemperature').length > 0) {
+          state.colorTemperature = colorTemperature;
+          serviceManager.setCharacteristic(Characteristic.ColorTemperature, colorTemperature);
+	}
       } else {
         if (hexData) {await this.performSend(hexData);}
 
@@ -132,7 +145,7 @@ class LightAccessory extends SwitchAccessory {
     });
   }
 
-  async setBrightness () {
+  async setBrightness (dummy, previousValue) {
     await catchDelayCancelError(async () => {
       const { config, data, host, log, name, state, logLevel, serviceManager } = this;
       const { off, on } = data;
@@ -157,6 +170,7 @@ class LightAccessory extends SwitchAccessory {
         if (!state.switchState) {
           state.switchState = true;
           serviceManager.refreshCharacteristicUI(Characteristic.On);
+	  this.setExclusivesOFF();
     
           if (on) {
             log(`${name} setBrightness: (turn on, wait ${onDelay}s)`);
@@ -168,21 +182,98 @@ class LightAccessory extends SwitchAccessory {
           }
         }
 
-        // Find brightness closest to the one requested
-        const foundValues = this.dataKeys('brightness')
+	if (data['brightness+'] || data['brightness-'] || data['availableBrightnessSteps']) {
+          assert(data['brightness+'] && data['brightness-'] && data['availableBrightnessSteps'], `\x1b[31m[CONFIG ERROR] \x1b[33mbrightness+, brightness- and availableBrightnessSteps\x1b[0m need to be set.`);
+	  
+	  const n = data['availableBrightnessSteps'] + 1;
+	  const r = 100 % n;
+	  const delta = (100 - r)/n;
+	  const increment = data['brightness+'];
+	  const decrement = data['brightness-'];
+	  const current = previousValue > 0 ? Math.floor((previousValue - r)/delta) : 0;
+	  const target = state.brightness > 0 ? Math.floor((state.brightness - r)/delta) : 0;
 
-        assert(foundValues.length > 0, `\x1b[31m[CONFIG ERROR] \x1b[33mbrightness\x1b[0m keys need to ne set. See the config-sample.json file for an example.`);
-
-        const closest = foundValues.reduce((prev, curr) => Math.abs(curr - state.brightness) < Math.abs(prev - state.brightness) ? curr : prev);
-        const hexData = data[`brightness${closest}`];
-    
-        log(`${name} setBrightness: (closest: ${closest})`);
-        await this.performSend(hexData);
+	  log(`${name} setBrightness: (current:${previousValue}%(${current}) target:${state.brightness}%(${target}) increment:${target - current} interval:${onDelay}s)`);
+	  if (current != target) {	// need incremental operation
+            await this.performSend([
+	      {'data': target > current ? increment : decrement,
+	       'interval': onDelay,
+	       'sendCount': Math.abs(target - current),
+	      }]);
+	  }
+	} else {
+          // Find brightness closest to the one requested
+          const foundValues = this.dataKeys('brightness')
+	  
+          assert(foundValues.length > 0, `\x1b[31m[CONFIG ERROR] \x1b[33mbrightness\x1b[0m keys need to be set. See the config-sample.json file for an example.`);
+	  
+          const closest = foundValues.reduce((prev, curr) => Math.abs(curr - state.brightness) < Math.abs(prev - state.brightness) ? curr : prev);
+          const hexData = data[`brightness${closest}`];
+	  
+          log(`${name} setBrightness: (closest: ${closest})`);
+          await this.performSend(hexData);
+	}
       } else {
         log(`${name} setBrightness: (off)`);
         await this.performSend(off);
       }
 
+      await this.checkAutoOnOff();
+    });
+  }
+
+  async setColorTemperature(dummy, previousValue) {
+    await catchDelayCancelError(async () => {
+      const { config, data, host, log, name, state, logLevel, serviceManager} = this;
+      const { onDelay } = config;
+      const { off, on } = data;
+      
+      this.reset();
+      
+      if (!state.switchState) {
+        state.switchState = true;
+        serviceManager.refreshCharacteristicUI(Characteristic.On);
+	this.setExclusivesOFF();
+
+        if (on) {
+          log(`${name} setColorTemperature: (turn on, wait ${onDelay}s)`);
+          await this.performSend(on);
+          this.onDelayTimeoutPromise = delayForDuration(onDelay);
+          await this.onDelayTimeoutPromise;
+        }
+      }
+      if (data['colorTemperature+'] || data['colorTemperature-'] || data['availableColorTemperatureSteps']) {
+        assert(data['colorTemperature+'] && data['colorTemperature-'] && data['availableColorTemperatureSteps'], `\x1b[31m[CONFIG ERROR] \x1b[33mcolorTemperature+, colorTemperature- and availableColorTemperatureSteps\x1b[0m need to be set.`);
+	const min = 140, max = 500;
+	const n = data['availableColorTemperatureSteps'] + 1;
+	const r = 100 % n;
+	const delta = (100 - r)/n;
+	const increment = data['colorTemperature+'];
+	const decrement = data['colorTemperature-'];
+	const current = Math.floor(((previousValue - min)/(max - min)*100 - r)/delta);
+	const target = Math.floor(((state.colorTemperature - min)/(max - min)*100 - r)/delta);
+	
+	log(`${name} setColorTemperature: (current:${previousValue}(${current}) target:${state.colorTemperature}(${target}) increment:${target - current} interval:${onDelay}s)`);
+	if (current != target) {	// need incremental operation
+          await this.performSend([
+	    {'data': target > current ? increment : decrement,
+	     'interval': onDelay,
+	     'sendCount': Math.abs(target - current),
+	    }]);
+	}
+      } else {
+        // Find closest to the one requested
+        const foundValues = this.dataKeys('colorTemperature')
+	
+        assert(foundValues.length > 0, `\x1b[31m[CONFIG ERROR] \x1b[33mcolorTemperature\x1b[0m keys need to be set.`);
+	
+        const closest = foundValues.reduce((prev, curr) => Math.abs(curr - state.colorTemperature) < Math.abs(prev - state.colorTemperature) ? curr : prev);
+        const hexData = data[`colorTemperature${closest}`];
+	
+        log(`${name} setColorTemperature: (closest: ${closest})`);
+        await this.performSend(hexData);
+      }
+      
       await this.checkAutoOnOff();
     });
   }
@@ -238,6 +329,19 @@ class LightAccessory extends SwitchAccessory {
       }
     });
 
+    if (this.dataKeys('colorTemperature').length > 0) {
+      this.serviceManager.addToggleCharacteristic({
+        name: 'colorTemperature',
+        type: Characteristic.ColorTemperature,
+        getMethod: this.getCharacteristicValue,
+        setMethod: this.setCharacteristicValue,
+        bind: this,
+        props: {
+          setValuePromise: this.setColorTemperature.bind(this),
+          ignorePreviousValue: true
+        }
+      });
+    }
     if (this.dataKeys('hue').length > 0) {
       this.serviceManager.addToggleCharacteristic({
         name: 'hue',
