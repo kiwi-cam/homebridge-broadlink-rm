@@ -12,7 +12,7 @@ class LightAccessory extends SwitchAccessory {
     super(log, config, serviceManagerType);
 
     // Fakegato setup
-    if(config.history === true || config.noHistory === false) {
+    if (config.type === 'light' && (config.history === true || config.noHistory === false)) {
       this.historyService = new HistoryService('switch', { displayName: config.name, log: log }, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
       this.historyService.addEntry(
 	{time: Math.round(new Date().valueOf()/1000),
@@ -25,7 +25,7 @@ class LightAccessory extends SwitchAccessory {
 	    Reflect.set(target, key, value);
 	    if (this.historyService) {
 	      if (key == `switchState`) {
-		this.log.debug(`adding history of switchState.`, value);
+		//this.log.debug(`adding history of switchState.`, value);
 		const time = Math.round(new Date().valueOf()/1000);
 		//if (value) {
 		  this.state.lastActivation = time;
