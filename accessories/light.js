@@ -8,6 +8,39 @@ const SwitchAccessory = require('./switch');
 
 class LightAccessory extends SwitchAccessory {
     
+  constructor (log, config = {}, serviceManagerType) {    
+    super(log, config, serviceManagerType);
+
+    // Fakegato setup
+    if(config.history === true || config.noHistory === false) {
+      this.historyService = new HistoryService('switch', { displayName: config.name, log: log }, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
+      this.historyService.addEntry(
+	{time: Math.round(new Date().valueOf()/1000),
+	 status: this.state.switchState ? 1 : 0})
+      
+      let state2 = this.state;
+      this.state = new Proxy(state2, {
+	set: function(target, key, value) {
+	  if (target[key] != value) {
+	    Reflect.set(target, key, value);
+	    if (this.historyService) {
+	      if (key == `switchState`) {
+		this.log.debug(`adding history of switchState.`, value);
+		const time = Math.round(new Date().valueOf()/1000);
+		//if (value) {
+		  this.state.lastActivation = time;
+		//}
+		this.historyService.addEntry(
+		  {time: time, status: value ? 1 : 0})
+	      }
+	    }
+	  }
+	  return true
+	}.bind(this)
+      })
+    }
+  }
+
   setDefaults () {
     super.setDefaults();
     
@@ -300,12 +333,51 @@ class LightAccessory extends SwitchAccessory {
     return foundValues
   }
 
+  async getLastActivation(callback) {
+    const lastActivation = this.state.lastActivation ?
+	  Math.max(0, this.state.lastActivation - this.historyService.getInitialTime()) : 0;
+    
+    callback(null, lastActivation);
+  }
+
+  localCharacteristic(key, uuid, props) {
+    let characteristic = class extends Characteristic {
+      constructor() {
+	super(key, uuid);
+	this.setProps(props);
+      }
+    }
+    characteristic.UUID = uuid;
+
+    return characteristic;
+  }
+
   setupServiceManager () {
     const { data, name, config, serviceManagerType } = this;
     const { on, off } = data || { };
+    const history = config.history === true || config.noHistory === false;
     
-    this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Lightbulb, this.log);
+    //this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, Service.Lightbulb, this.log);
+    this.serviceManager = new ServiceManagerTypes[serviceManagerType](name, history ? Service.Switch : Service.Lightbulb, this.log);
 
+    if (history) {
+      const LastActivationCharacteristic = this.localCharacteristic(
+	'LastActivation', 'E863F11A-079E-48FF-8F27-9C2605A29F52',
+	{format: Characteristic.Formats.UINT32,
+	 unit: Characteristic.Units.SECONDS,
+	 perms: [
+	   Characteristic.Perms.READ,
+	   Characteristic.Perms.NOTIFY
+	 ]});
+      
+      this.serviceManager.addGetCharacteristic({
+	name: 'LastActivation',
+	type: LastActivationCharacteristic,
+	method: this.getLastActivation,
+	bind: this
+      });
+    }
+  
     this.serviceManager.addToggleCharacteristic({
       name: 'switchState',
       type: Characteristic.On,
