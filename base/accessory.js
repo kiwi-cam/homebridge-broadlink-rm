@@ -362,6 +362,17 @@ class HomebridgeAccessory {
     })
   }
 
+  async mqttpublish (topic, message) {
+    if (this.mqttClient) {
+      try {
+	await this.mqttClient.publish(`homebridge-broadlink-rm/${this.config.type}/${this.name}/${topic}`, `${message}`)
+	this.log(`${this.name}: MQTT publish(topic: ${topic}, message: ${message})`)
+      } catch (e) {
+	this.log(`${this.name}: Failed to publish MQTT message. ${e}`)
+      }
+    }
+  }
+  
   onMQTTMessage(identifier, message) {
     this.mqttValuesTemp[identifier] = message.toString();
   }

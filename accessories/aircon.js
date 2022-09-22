@@ -1,4 +1,4 @@
-// -*- mode: js-mode; js-indent-level : 2 -*-
+// -*- mode: js; js-indent-level : 2 -*-
 const { assert } = require('chai');
 const uuid = require('uuid');
 const fs = require('fs');
@@ -46,17 +46,18 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	let state2 = this.state;
 	//console.log(state2)
 	this.state = new Proxy(state2, {
-	  set: function(target, key, value) {
+	  set: async function(target, key, value) {
 	    if (target[key] != value) {
 	      Reflect.set(target, key, value);
 	      if (this.historyService) {
 		if (key == `targetTemperature`) {
-		  this.log.debug(`adding history of targetTemperature.`, value)
+		  //this.log(`adding history of targetTemperature.`, value)
 		  this.historyService.addEntry(
 		    {time: Math.round(new Date().valueOf()/1000),
 		     setTemp: value || 30})
+		  await this.mqttpublish('targetTemperature', value)
 		} else if (key == 'targetHeatingCoolingState') {
-		  this.log.debug(`adding history of targetHeatingCoolingState.`, value * 25)
+		  // this.log(`adding history of targetHeatingCoolingState.`, value * 25)
 		  // this.historyService.addEntry(
 		  //   {time: Math.round(new Date().valueOf()/1000),
 		  //    valvePosition: value ? Math.round((this.state.currentTemperature - this.state.targetTemperature)/this.state.targetTemperature*100 + 50) : 0
@@ -64,7 +65,11 @@ class AirConAccessory extends BroadlinkRMAccessory {
 		  //   })
 		  this.valveInterval = 1;
 		  clearTimeout(this.valveTimer);
-		  this.thermoHistory();		}
+		  this.thermoHistory();
+		} else if (key == 'currentHeatingCoolingState') {
+		  await this.mqttpublish('mode', this.HeatingCoolingConfigKeys[value])
+		  await this.mqttpublish('targetTemperature', this.state.targetTemperature)
+		}
 	      }
 	    }
 	    return true
@@ -477,7 +482,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (!config.isUnitTest) {setInterval(this.updateTemperatureUI.bind(this), config.temperatureUpdateFrequency * 1000)}
   }
 
-  onTemperature (temperature,humidity) {
+  async onTemperature (temperature,humidity) {
     const { config, host, logLevel, log, name, state } = this;
     const { minTemperature, maxTemperature, temperatureAdjustment, humidityAdjustment, noHumidity } = config;
 
@@ -506,8 +511,10 @@ class AirConAccessory extends BroadlinkRMAccessory {
       if(logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} Logging data to history: temp: ${this.state.currentTemperature}, humidity: ${this.state.currentHumidity}`);}
       if(noHumidity && config.enableModeHistory === false){
         this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature });
+	await this.mqttpublish('temperature', `{"temperature":${this.state.currentTemperature}}`);
       }else{
         this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature, humidity: this.state.currentHumidity });
+	await this.mqttpublish('temperature', `{"temperature":${this.state.currentTemperature}, "humidity":${this.state.currentHumidity}}`);
       }
     }
     
