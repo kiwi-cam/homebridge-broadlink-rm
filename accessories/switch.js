@@ -20,18 +20,19 @@ class SwitchAccessory extends BroadlinkRMAccessory {
       
       let state2 = this.state;
       this.state = new Proxy(state2, {
-	set: function(target, key, value) {
+	set: async function(target, key, value) {
 	  if (target[key] != value) {
 	    Reflect.set(target, key, value);
 	    if (this.historyService) {
 	      if (key == `switchState`) {
-		//this.log.debug(`adding history of switchState.`, value);
+		//this.log(`adding history of switchState.`, value);
 		const time = Math.round(new Date().valueOf()/1000);
 		//if (value) {
 		  this.state.lastActivation = time;
 		//}
 		this.historyService.addEntry(
 		  {time: time, status: value ? 1 : 0})
+		await this.mqttpublish('On', value ? 'true' : 'false')
 	      }
 	    }
 	  }
@@ -215,6 +216,26 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     characteristic.UUID = uuid;
 
     return characteristic;
+  }
+
+  // MQTT
+  onMQTTMessage (identifier, message) {
+    const { state, logLevel, log, name, config } = this;
+    const mqttStateOnly = config.mqttStateOnly === false ? false : true;
+
+    super.onMQTTMessage(identifier, message);
+
+    if (identifier.toLowerCase() === 'on') {
+      const on = this.mqttValuesTemp[identifier] === 'true' ? 1 : 0;
+      this.reset();
+      if (mqttStateOnly) {
+	this.state.switchState = on;
+	this.serviceManager.refreshCharacteristicUI(Characteristic.On);
+      } else {
+	this.serviceManager.setCharacteristic(Characteristic.On, on)
+      }
+      log(`${name} onMQTTMessage (set switchState to ${this.state.switchState}).`);
+    }
   }
 
   setupServiceManager () {
