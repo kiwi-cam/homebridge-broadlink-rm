@@ -262,13 +262,13 @@ class HomebridgeAccessory {
     const { config, log, logLevel, name } = this;
     let { mqttTopic, mqttURL, mqttUsername, mqttPassword } = config;
 
-    if (!mqttTopic || !mqttURL) {return;}
+    if (!mqttURL) {return;}
 
     this.mqttValues = {};
     this.mqttValuesTemp = {};
 
     // Perform some validation of the mqttTopic option in the config. 
-    if (typeof mqttTopic !== 'string' && !Array.isArray(mqttTopic)) {
+    if (mqttTopic && typeof mqttTopic !== 'string' && !Array.isArray(mqttTopic)) {
       if (this.logLevel <= 4) {log(`\x1b[31m[CONFIG ERROR]\x1b[0m ${name} \x1b[33mmqttTopic\x1b[0m value is incorrect. Please check out the documentation for more details.`)}
 
       return;
@@ -304,7 +304,7 @@ class HomebridgeAccessory {
 
     // Create an easily referenced instance variable
     const mqttTopicIdentifiersByTopic = {};
-    mqttTopic.forEach(({ identifier, topic }) => {
+    mqttTopic && mqttTopic.forEach(({ identifier, topic }) => {
       mqttTopicIdentifiersByTopic[topic] = identifier;
     })
 
@@ -346,7 +346,7 @@ class HomebridgeAccessory {
 
       if (this.logLevel <= 2) {log(`\x1b[35m[INFO]\x1b[0m ${name} MQTT client connected.`)}
 
-      mqttTopic.forEach(({ topic }) => {
+      mqttTopic && mqttTopic.forEach(({ topic }) => {
         mqttClient.subscribe(topic)
       })
     })
@@ -366,7 +366,7 @@ class HomebridgeAccessory {
     if (this.mqttClient) {
       try {
 	await this.mqttClient.publish(`homebridge-broadlink-rm/${this.config.type}/${this.name}/${topic}`, `${message}`)
-	this.log(`${this.name}: MQTT publish(topic: ${topic}, message: ${message})`)
+	// this.log(`${this.name}: MQTT publish(topic: ${topic}, message: ${message})`)
       } catch (e) {
 	this.log(`${this.name}: Failed to publish MQTT message. ${e}`)
       }
