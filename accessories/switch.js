@@ -12,7 +12,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     super(log, config, serviceManagerType);
 
       // Fakegato setup
-    if (config.type === 'switch' && (config.history === true || config.noHistory === false)) {
+    if (config.history === true || config.noHistory === false) {
       this.historyService = new HistoryService('switch', { displayName: config.name, log: log }, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
       this.historyService.addEntry(
 	{time: Math.round(new Date().valueOf()/1000),

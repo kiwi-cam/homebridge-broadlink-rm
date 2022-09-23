@@ -50,7 +50,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	    if (target[key] != value) {
 	      Reflect.set(target, key, value);
 	      if (this.historyService) {
-		if (key == `targetTemperature`) {
+		if (key == 'targetTemperature') {
 		  //this.log(`adding history of targetTemperature.`, value)
 		  this.historyService.addEntry(
 		    {time: Math.round(new Date().valueOf()/1000),

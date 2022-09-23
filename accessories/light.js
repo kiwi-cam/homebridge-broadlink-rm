@@ -8,39 +8,6 @@ const SwitchAccessory = require('./switch');
 
 class LightAccessory extends SwitchAccessory {
     
-  constructor (log, config = {}, serviceManagerType) {    
-    super(log, config, serviceManagerType);
-
-    // Fakegato setup
-    if (config.type === 'light' && (config.history === true || config.noHistory === false)) {
-      this.historyService = new HistoryService('switch', { displayName: config.name, log: log }, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
-      this.historyService.addEntry(
-	{time: Math.round(new Date().valueOf()/1000),
-	 status: this.state.switchState ? 1 : 0})
-      
-      let state2 = this.state;
-      this.state = new Proxy(state2, {
-	set: function(target, key, value) {
-	  if (target[key] != value) {
-	    Reflect.set(target, key, value);
-	    if (this.historyService) {
-	      if (key == `switchState`) {
-		//this.log.debug(`adding history of switchState.`, value);
-		const time = Math.round(new Date().valueOf()/1000);
-		//if (value) {
-		  this.state.lastActivation = time;
-		//}
-		this.historyService.addEntry(
-		  {time: time, status: value ? 1 : 0})
-	      }
-	    }
-	  }
-	  return true
-	}.bind(this)
-      })
-    }
-  }
-
   setDefaults () {
     super.setDefaults();
     
