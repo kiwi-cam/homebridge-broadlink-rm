@@ -32,7 +32,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 		//}
 		this.historyService.addEntry(
 		  {time: time, status: value ? 1 : 0})
-		await this.mqttpublish('On', value ? 'true' : 'false')
+		// await this.mqttpublish('On', value ? 'true' : 'false')
 	      }
 	    }
 	  }
@@ -143,10 +143,12 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     this.reset();
 
     if (hexData) {await this.performSend(hexData);}
+    await this.mqttpublish('On', state.switchState ? 'true' : 'false')
     
     if (config.stateless === true) { 
       state.switchState = false;
       serviceManager.refreshCharacteristicUI(Characteristic.On);
+      await this.mqttpublish('On', 'false')
     } else {
       this.checkAutoOnOff();
     }
@@ -226,7 +228,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     super.onMQTTMessage(identifier, message);
 
     if (identifier.toLowerCase() === 'on') {
-      const on = this.mqttValuesTemp[identifier] === 'true' ? 1 : 0;
+      const on = this.mqttValuesTemp[identifier] === 'true' ? true : false;
       this.reset();
       if (mqttStateOnly) {
 	this.state.switchState = on;

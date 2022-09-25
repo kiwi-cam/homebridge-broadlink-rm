@@ -93,6 +93,7 @@ class LightAccessory extends SwitchAccessory {
 	}
       } else {
         if (hexData) {await this.performSend(hexData);}
+	await this.mqttpublish('On', 'true');
 
         this.checkAutoOnOff();
       }
@@ -100,6 +101,7 @@ class LightAccessory extends SwitchAccessory {
       this.lastBrightness = undefined;
 
       if (hexData) {await this.performSend(hexData);}
+      await this.mqttpublish('On', 'false');
 
       this.checkAutoOnOff();
     }
@@ -130,6 +132,7 @@ class LightAccessory extends SwitchAccessory {
           this.onDelayTimeoutPromise = delayForDuration(onDelay);
           await this.onDelayTimeoutPromise;
         }
+	await this.mqttpublish('On', 'true');
       }
 
       // Find hue closest to the one requested
@@ -158,6 +161,7 @@ class LightAccessory extends SwitchAccessory {
 
         if (state.brightness > 0) {
           state.switchState = true;
+	  // await this.mqttpublish('On', 'true');
         }
 
         await this.checkAutoOnOff();
@@ -182,6 +186,7 @@ class LightAccessory extends SwitchAccessory {
             this.onDelayTimeoutPromise = delayForDuration(onDelay);
             await this.onDelayTimeoutPromise;
           }
+    	  await this.mqttpublish('On', 'true');
         }
 
 	if (data['brightness+'] || data['brightness-'] || data['availableBrightnessSteps']) {
@@ -218,6 +223,7 @@ class LightAccessory extends SwitchAccessory {
       } else {
         log(`${name} setBrightness: (off)`);
         await this.performSend(off);
+    	await this.mqttpublish('On', 'false');
       }
 
       await this.checkAutoOnOff();
@@ -243,6 +249,7 @@ class LightAccessory extends SwitchAccessory {
           this.onDelayTimeoutPromise = delayForDuration(onDelay);
           await this.onDelayTimeoutPromise;
         }
+	await this.mqttpublish('On', 'true');
       }
       if (data['colorTemperature+'] || data['colorTemperature-'] || data['availableColorTemperatureSteps']) {
         assert(data['colorTemperature+'] && data['colorTemperature-'] && data['availableColorTemperatureSteps'], `\x1b[31m[CONFIG ERROR] \x1b[33mcolorTemperature+, colorTemperature- and availableColorTemperatureSteps\x1b[0m need to be set.`);
