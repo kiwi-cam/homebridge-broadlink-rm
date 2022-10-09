@@ -107,13 +107,13 @@ class TVAccessory extends BroadlinkRMAccessory {
     }
     this.lastPingResponse = active;
     if (config.pingIPAddressStateOnly) {
-      state.switchState = active ? true : false;
+      state.switchState = active ? 1 : 0;
       serviceManager.refreshCharacteristicUI(Characteristic.Active);
 
       return;
     }
 
-    const value = active ? true : false;
+    const value = active ? 1 : 0;
     serviceManager.setCharacteristic(Characteristic.Active, value);
   }
 
