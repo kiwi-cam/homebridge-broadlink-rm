@@ -35,11 +35,14 @@ class AirConAccessory extends BroadlinkRMAccessory {
     
     // Fakegato setup
     if(config.noHistory !== true) {
-      this.services = this.getServices();
-      this.displayName = config.name;
-      this.lastUpdatedAt = undefined;
-      this.historyService = new HistoryService(config.enableModeHistory ? 'custom' : 'room', this, { storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
-      this.historyService.log = this.log;  
+      //this.services = this.getServices();
+      //this.displayName = config.name;
+      //this.lastUpdatedAt = undefined;
+      this.historyService = new HistoryService(
+	config.enableModeHistory ? 'custom' : 'room',
+	{displayName: config.name, services: this.getServices(), log: log},
+	{storage: 'fs', filename: 'RMPro_' + config.name.replace(' ','-') + '_persist.json'});
+      // this.historyService.log = this.log;  
 
       if (config.enableModeHistory) {
 	this.valveInterval = 1;
@@ -507,7 +510,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     //Process Fakegato history
     //Ignore readings of exactly zero - the default no value value.
     if(config.noHistory !== true && this.state.currentTemperature != 0.00) {
-      this.lastUpdatedAt = Date.now();
+      //this.lastUpdatedAt = Date.now();
       if(logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} Logging data to history: temp: ${this.state.currentTemperature}, humidity: ${this.state.currentHumidity}`);}
       if(noHumidity && config.enableModeHistory === false){
         this.historyService.addEntry({ time: Math.round(new Date().valueOf() / 1000), temp: this.state.currentTemperature });
