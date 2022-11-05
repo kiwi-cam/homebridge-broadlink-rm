@@ -154,7 +154,7 @@ class HomebridgeAccessory {
   }
 
   async getCharacteristicValue(props, callback) {
-    const { propertyName } = props;
+    const { propertyName, getValuePromise } = props;
     const { log, name, logLevel } = this;
     let value;
 
@@ -171,6 +171,11 @@ class HomebridgeAccessory {
       value = this.state[propertyName];
     }
 
+    if (getValuePromise) {
+      value = await getValuePromise(value);
+      this.state[propertyName] = value;
+    }
+    
     if (this.logLevel <= 1) {log(`${name} get${capitalizedPropertyName}: ${value}`);}
     callback(null, value);
   }

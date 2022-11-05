@@ -180,20 +180,51 @@ class AirConAccessory extends BroadlinkRMAccessory {
     }
   }
 
-  updateServiceTargetHeatingCoolingState (value) {
+  async updateServiceTargetHeatingCoolingState (value) {
     const { serviceManager, state } = this;
 
-    delayForDuration(0.2).then(() => {
+    await delayForDuration(0.2).then(() => {
       serviceManager.setCharacteristic(Characteristic.TargetHeatingCoolingState, value);
     });
   }
 
-  updateServiceCurrentHeatingCoolingState (value) {
-    const { serviceManager, state } = this;
+  async updateServiceCurrentHeatingCoolingState (value) {
+    const { serviceManager, name, state } = this;
+    const keys = this.HeatingCoolingConfigKeys;
+    let update = value;
 
-    delayForDuration(0.25).then(() => {
-      serviceManager.setCharacteristic(Characteristic.CurrentHeatingCoolingState, value);
+    if (value === Characteristic.TargetHeatingCoolingState.AUTO) {
+      if (state.currentTemperature <= state.targetTemperature) {
+	update = Characteristic.TargetHeatingCoolingState.COOL;
+      } else {
+	update = Characteristic.TargetHeatingCoolingState.HEAT;
+      }
+    }
+
+    await delayForDuration(0.25).then(() => {
+      serviceManager.setCharacteristic(Characteristic.CurrentHeatingCoolingState, update);
     });
+
+    this.log(`${name} updateServiceCurrentHeatingCoolingState target:${keys[value]} update:${keys[update]}`);
+  }
+
+  async getCurrentHeatingCoolingState (current) {
+    const { serviceManager, name, state } = this;
+    const keys = this.HeatingCoolingConfigKeys;
+    let target = state.targetHeatingCoolingState;
+    let update = current;
+
+    if (current !== Characteristic.TargetHeatingCoolingState.OFF &&
+	target === Characteristic.TargetHeatingCoolingState.AUTO) {
+      if (state.currentTemperature <= state.targetTemperature) {
+	update = Characteristic.TargetHeatingCoolingState.COOL;
+      } else {
+	update = Characteristic.TargetHeatingCoolingState.HEAT;
+      }
+    }
+    this.log(`${name} getCurrentHeatingCoolingState current:${keys[current]} update:${keys[update]}`);
+
+    return update;
   }
 
 
@@ -236,11 +267,11 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const modemax = parseInt(k[k.length - 1].match(/\d+/)[0]);
     const temperature = state.targetTemperature;
     if (temperature < modemin) {
-	state.targetTemperature = previousValue;
-	throw `${name} Target temperature (${temperature}) is below minimal ${mode} temperature (${modemin})`;
+      state.targetTemperature = previousValue;
+      throw new Error(`${name} Target temperature (${temperature}) is below minimal ${mode} temperature (${modemin})`);
     } else if (temperature > modemax) {
-	state.targetTemperature = previousValue;
-	throw `${name} Target temperature (${temperature}) is above maxmum ${mode} temperature (${modemax})`;
+      state.targetTemperature = previousValue;
+      throw new Error(`${name} Target temperature (${temperature}) is above maxmum ${mode} temperature (${modemax})`);
     }
 	
     // Used within correctReloadedState() so that when re-launching the accessory it uses
@@ -267,7 +298,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (state.targetHeatingCoolingState === state.currentHeatingCoolingState && preventResendHex) {return;}
 
     if (targetHeatingCoolingState === 'off') {
-      this.updateServiceCurrentHeatingCoolingState(HeatingCoolingStates.off);
+      await this.updateServiceCurrentHeatingCoolingState(HeatingCoolingStates.off);
 
       if (currentHeatingCoolingState === 'cool' && data.offDryMode !== undefined) {
         // Dry off mode when previously cooling
@@ -293,31 +324,40 @@ class AirConAccessory extends BroadlinkRMAccessory {
     // Perform the auto -> cool/heat conversion if `replaceAutoMode` is specified
     if (replaceAutoMode && targetHeatingCoolingState === 'auto') {
       if (logLevel <=2) {log(`${name} setTargetHeatingCoolingState (converting from auto to ${replaceAutoMode})`);}
-      this.updateServiceTargetHeatingCoolingState(HeatingCoolingStates[replaceAutoMode]);
+      await this.updateServiceTargetHeatingCoolingState(HeatingCoolingStates[replaceAutoMode]);
 
       return;
     }
 
     let temperature = state.targetTemperature;
-    let mode = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
-
+    const mode = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
+    const r = new RegExp(`${mode}`);
+    const k = Object.keys(data).sort().filter(x => x.match(r));
+    const modemin = parseInt(k[0].match(/\d+/)[0]);
+    const modemax = parseInt(k[k.length - 1].match(/\d+/)[0]);
+    this.log(`${name} setTargetHeatingCoolingState mode(${mode}) range[${modemin}, ${modemax}]`);
+    // serviceManager.getCharacteristic(Characteristic.TargetTemperature).setProps({
+    //   minValue: modemin,
+    //   maxValue: modemax,
+    //   minstep: 1
+    // });
+    // this.updateServiceCurrentHeatingCoolingState(state.targetHeatingCoolingState);
+    
     if (state.currentHeatingCoolingState !== state.targetHeatingCoolingState){
-        const r = new RegExp(`${mode}`);
-	const k = Object.keys(data).sort().filter(x => x.match(r));
-	const modemin = parseInt(k[0].match(/\d+/)[0]);
-	const modemax = parseInt(k[k.length - 1].match(/\d+/)[0]);
- 	if (temperature < modemin || temperature > modemax) {
+      if (temperature < modemin || temperature > modemax) {
 	
-      // Selecting a heating/cooling state allows a default temperature to be used for the given state.
-      if (state.targetHeatingCoolingState === Characteristic.TargetHeatingCoolingState.HEAT) {
-        temperature = defaultHeatTemperature;
-      } else if (state.targetHeatingCoolingState === Characteristic.TargetHeatingCoolingState.COOL) {
-        temperature = defaultCoolTemperature;
-      }
+	// Selecting a heating/cooling state allows a default temperature to be used for the given state.
+	if (state.targetHeatingCoolingState === Characteristic.TargetHeatingCoolingState.AUTO) {
+	  temperature = temperature -  modemax > 0 ? modemax : mododemin;
+	} else if (state.targetHeatingCoolingState === Characteristic.TargetHeatingCoolingState.HEAT) {
+          temperature = modemin;
+	} else if (state.targetHeatingCoolingState === Characteristic.TargetHeatingCoolingState.COOL) {
+          temperature = modemax;
 	}
+      }
 
       //Set the mode, and send the mode hex
-      this.updateServiceCurrentHeatingCoolingState(state.targetHeatingCoolingState);
+      await this.updateServiceCurrentHeatingCoolingState(state.targetHeatingCoolingState);
       if (data.heat && mode === 'heat'){
         await this.performSend(data.heat);
       } else if (data.cool && mode === 'cool'){
@@ -332,8 +372,9 @@ class AirConAccessory extends BroadlinkRMAccessory {
       if (logLevel <=1) {this.log(`${name} sentMode (${mode})`);}
 
       //Force Temperature send
-      delayForDuration(0.25).then(() => {
-        this.sendTemperature(temperature, state.currentTemperature);
+      await delayForDuration(0.25).then(() => {
+        //this.sendTemperature(temperature, state.currentTemperature);	// what a bad.
+        this.sendTemperature(temperature, previousValue);
         serviceManager.refreshCharacteristicUI(Characteristic.TargetTemperature);
       });
     }
@@ -363,8 +404,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	this.autoOffTimeoutPromise = delayForDuration(onDuration);
 	await this.autoOffTimeoutPromise;
 	await this.performSend(data.off);
-	this.updateServiceTargetHeatingCoolingState(this.HeatingCoolingStates.off);
-	this.updateServiceCurrentHeatingCoolingState(this.HeatingCoolingStates.off);
+	await this.updateServiceTargetHeatingCoolingState(this.HeatingCoolingStates.off);
+	await this.updateServiceCurrentHeatingCoolingState(this.HeatingCoolingStates.off);
       }
     });
   }
@@ -390,7 +431,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (hexData['pseudo-mode']){
       mode = hexData['pseudo-mode'];
       if (mode) {assert.oneOf(mode, [ 'heat', 'cool', 'auto' ], `\x1b[31m[CONFIG ERROR] \x1b[33mpseudo-mode\x1b[0m should be one of "heat", "cool" or "auto"`)}
-      this.updateServiceCurrentHeatingCoolingState(HeatingCoolingStates[mode]);
+      await this.updateServiceCurrentHeatingCoolingState(HeatingCoolingStates[mode]);
     }
 
     if((previousTemperature !== finalTemperature) || (state.firstTemperatureUpdate && !preventResendHex)){
@@ -774,7 +815,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   // MQTT
-  onMQTTMessage (identifier, message) {
+  async onMQTTMessage (identifier, message) {
     const { state, logLevel, log, name, config } = this;
     const mqttStateOnly = config.mqttStateOnly === false ? false : true;
 
@@ -798,7 +839,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 	  this.state.targetHeatingCoolingState = state;
 	  this.serviceManager.refreshCharacteristicUI(Characteristic.TargetHeatingCoolingState);
 	} else {
-	  this.updateServiceTargetHeatingCoolingState(state);
+	  await this.updateServiceTargetHeatingCoolingState(state);
 	}
 	log(`${name} onMQTTMessage (set currentHeatingCoolingState to ${this.state.currentHeatingCoolingState}).`);
 	break;
@@ -1028,7 +1069,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       setMethod: this.setCharacteristicValue,
       bind: this,
       props: {
-
+        getValuePromise: this.getCurrentHeatingCoolingState.bind(this)
       }
     });
 
