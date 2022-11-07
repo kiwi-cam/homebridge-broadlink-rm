@@ -189,7 +189,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   async updateServiceCurrentHeatingCoolingState (value) {
-    const { serviceManager, name, state } = this;
+    const { serviceManager, name, state, log, logLevel } = this;
     const keys = this.HeatingCoolingConfigKeys;
     let update = value;
 
@@ -199,17 +199,16 @@ class AirConAccessory extends BroadlinkRMAccessory {
       } else {
 	update = Characteristic.TargetHeatingCoolingState.HEAT;
       }
+      log(`${name} updateServiceCurrentHeatingCoolingState target:${keys[value]} update:${keys[update]}`);
     }
 
     await delayForDuration(0.25).then(() => {
       serviceManager.setCharacteristic(Characteristic.CurrentHeatingCoolingState, update);
     });
-
-    this.log(`${name} updateServiceCurrentHeatingCoolingState target:${keys[value]} update:${keys[update]}`);
   }
 
   async getCurrentHeatingCoolingState (current) {
-    const { serviceManager, name, state } = this;
+    const { serviceManager, name, state, log, logLevel } = this;
     const keys = this.HeatingCoolingConfigKeys;
     let target = state.targetHeatingCoolingState;
     let update = current;
@@ -221,8 +220,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
       } else {
 	update = Characteristic.TargetHeatingCoolingState.HEAT;
       }
+      if (logLevel <=1) log(`${name} getCurrentHeatingCoolingState current:${keys[current]} update:${keys[update]}`);
     }
-    this.log(`${name} getCurrentHeatingCoolingState current:${keys[current]} update:${keys[update]}`);
 
     return update;
   }
