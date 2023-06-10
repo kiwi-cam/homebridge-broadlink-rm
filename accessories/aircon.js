@@ -293,15 +293,15 @@ class AirConAccessory extends BroadlinkRMAccessory {
       }
       if (enableAutoOff && parseInt(onDuration) > 0) {
         log(`${name} setTargetHeatingCoolingState: (automatically turn off in ${onDuration} seconds)`);
-	if (this.autoOffTimeoutPromise) {
+        if (this.autoOffTimeoutPromise) {
 	  this.autoOffTimeoutPromise.cancel();
 	  this.autoOffTimeoutPromise = null;
-	}
-	this.autoOffTimeoutPromise = delayForDuration(onDuration);
-	await this.autoOffTimeoutPromise;
-	await this.performSend(data.off);
-	this.updateServiceTargetHeatingCoolingState(this.HeatingCoolingStates.off);
-	this.updateServiceCurrentHeatingCoolingState(this.HeatingCoolingStates.off);
+        }
+        this.autoOffTimeoutPromise = delayForDuration(onDuration);
+        await this.autoOffTimeoutPromise;
+        await this.performSend(data.off);
+        this.updateServiceTargetHeatingCoolingState(this.HeatingCoolingStates.off);
+        this.updateServiceCurrentHeatingCoolingState(this.HeatingCoolingStates.off);
       }
     });
   }
