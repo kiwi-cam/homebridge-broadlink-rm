@@ -6,6 +6,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.4.11] - 2022-06-08
 ### Added
+ - Added tempStepSize to configuration (defaulting to 1) to allow AC units with 0.5 steps (Thanks @nasudon) #570
+### Fixed
+ - Updated versions to address vulnerabilities
+ - Set HAP properties for fan speed handling (Thanks @datibbaw) #583
+## Changed
+ - Serialised simultaneous IR/RF commands (Thanks @banboobee) #520
+ - Adjusted logging levels for temperature/humidity updates
+
+## [4.4.11] - 2022-06-08
+### Added
+ - Added support for fahrenheit temperature sources #495 - set tempSourceUnits to 'F'
+### Fixed
+ - Updated node, homebridge, ping, semver, eslint, mocha, and release-it versions
+## Changed
+ - Adds support for 0x520b and 0x520c Devices
+
+## [4.4.11] - 2022-06-08
+### Added
  - MQTT support for zigbee2mqtt (Thanks @mikicof) #467
 ### Fixed
  - "no device found" message in Node 18 (Thanks @h2oota) #486

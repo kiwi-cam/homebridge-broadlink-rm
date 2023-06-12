@@ -233,6 +233,13 @@ class FanAccessory extends SwitchAccessory {
       }
     });
 
+    // Add HAP properties for improved accessory representation in Homekit
+    this.serviceManager.getCharacteristic(Characteristic.RotationSpeed).setProps({
+      minStep: config.stepSize,
+      minValue: 0,
+      maxValue: 100
+    });
+    
     if (config.showRotationDirection) {
       this.serviceManager.addToggleCharacteristic({
         name: 'rotationDirection',
