@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.4.12] - 2023-05-24
+## [4.4.12] - 2022-06-08
 ### Added
  - Added tempStepSize to configuration (defaulting to 1) to allow AC units with 0.5 steps (Thanks @nasudon) #570
  - Added support for fahrenheit temperature sources #495 - set tempSourceUnits to 'F'
