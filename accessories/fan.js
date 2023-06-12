@@ -92,7 +92,7 @@ class FanAccessory extends SwitchAccessory {
 
   async setSwitchState(hexData, previousValue) {
     const { config, state, serviceManager } = this;
-    if (!this.state.switchState) {
+    if (!state.switchState) {
       this.lastFanSpeed = undefined;
     }
 
@@ -101,7 +101,7 @@ class FanAccessory extends SwitchAccessory {
     }
 
     // Reset the fan speed back to the default speed when turned off
-    if (this.state.switchState === false && config.alwaysResetToDefaults) {
+    if (!state.switchState && config.alwaysResetToDefaults) {
       this.setDefaults();
       serviceManager.setCharacteristic(Characteristic.RotationSpeed, state.fanSpeed);
     }
@@ -230,6 +230,13 @@ class FanAccessory extends SwitchAccessory {
       }
     });
 
+    // Add HAP properties for improved accessory representation in Homekit
+    this.serviceManager.getCharacteristic(Characteristic.RotationSpeed).setProps({
+      minStep: config.stepSize,
+      minValue: 0,
+      maxValue: 100
+    });
+    
     if (config.showRotationDirection) {
       this.serviceManager.addToggleCharacteristic({
         name: 'rotationDirection',
