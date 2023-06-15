@@ -55,6 +55,7 @@ describe('airConAccessory', async () => {
     expect(airConAccessory.config.minimumAutoOnOffDuration).to.equal(120);
     expect(airConAccessory.config.minTemperature).to.equal(-15);
     expect(airConAccessory.config.maxTemperature).to.equal(50);
+    expect(airConAccessory.config.tempStepSize).to.equal(1);
     expect(airConAccessory.config.units).to.equal('c');
     expect(airConAccessory.config.temperatureUpdateFrequency).to.equal(10);
     expect(airConAccessory.config.temperatureAdjustment).to.equal(0);
@@ -74,6 +75,7 @@ describe('airConAccessory', async () => {
       minimumAutoOnOffDuration: 60,
       minTemperature: 2,
       maxTemperature: 36,
+      tempStepSize: 0.5,
       units: 'f',
       temperatureUpdateFrequency: 20,
       temperatureAdjustment: 1,
@@ -89,6 +91,7 @@ describe('airConAccessory', async () => {
     expect(airConAccessory.config.minimumAutoOnOffDuration).to.equal(60);
     expect(airConAccessory.config.minTemperature).to.equal(2);
     expect(airConAccessory.config.maxTemperature).to.equal(36);
+    expect(airConAccessory.config.tempStepSize).to.equal(0.5);
     expect(airConAccessory.config.units).to.equal('f');
     expect(airConAccessory.config.temperatureUpdateFrequency).to.equal(20);
     expect(airConAccessory.config.temperatureAdjustment).to.equal(1);
