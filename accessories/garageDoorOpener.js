@@ -121,7 +121,7 @@ class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
     }
 
     let messsageStr = message.toString();
-    log(`\x1b[31m[INFO] \x1b[0m${name} onMQTTMessage (mqtt message received : ${identifier}, ${messsageStr})`);
+    log(`${name} onMQTTMessage (mqtt message received : ${identifier}, ${messsageStr})`);
 
     if(messsageStr==='on' && state.doorCurrentState !== Characteristic.CurrentDoorState.OPEN  
       && state.doorCurrentState !== Characteristic.CurrentDoorState.OPENING

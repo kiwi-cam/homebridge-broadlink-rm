@@ -62,6 +62,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (config.minimumAutoOnOffDuration === undefined) {config.minimumAutoOnOffDuration = config.autoMinimumDuration || 120;} // Backwards compatible with `autoMinimumDuration`
     config.minTemperature = config.minTemperature || -15;
     config.maxTemperature = config.maxTemperature || 50;
+    config.tempStepSize = config.tempStepSize || 1;
     if(config.mqttURL) {
       //MQTT updates when published so frequent refreshes aren't required ( 10 minute default as a fallback )
       config.temperatureUpdateFrequency = config.temperatureUpdateFrequency || 600;
@@ -423,15 +424,16 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   onTemperature (temperature,humidity) {
     const { config, host, logLevel, log, name, state } = this;
-    const { minTemperature, maxTemperature, temperatureAdjustment, humidityAdjustment, noHumidity } = config;
+    const { minTemperature, maxTemperature, temperatureAdjustment, humidityAdjustment, noHumidity, tempSourceUnits } = config;
 
     // onTemperature is getting called twice. No known cause currently.
     // This helps prevent the same temperature from being processed twice
     if (Object.keys(this.temperatureCallbackQueue).length === 0) {return;}
 
     temperature += temperatureAdjustment;
+    if (tempSourceUnits == 'F') {temperature = (temperature - 32) * 5/9;}
     state.currentTemperature = temperature;
-    if(logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} onTemperature (${temperature})`);}
+    if(logLevel <=2) {log(`\x1b[36m[INFO] \x1b[0m${name} onTemperature (${temperature})`);}
 
     if(humidity) {
       if(noHumidity){
@@ -439,7 +441,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       }else{
         humidity += humidityAdjustment;
         state.currentHumidity = humidity;
-        if(logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} onHumidity (` + humidity + `)`);}
+        if(logLevel <=2) {log(`\x1b[36m[INFO] \x1b[0m${name} onHumidity (` + humidity + `)`);}
       }
     }
     
@@ -865,7 +867,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       .setProps({
         minValue: config.minTemperature,
         maxValue: config.maxTemperature,
-        minStep: 1
+        minStep: config.tempStepSize
       });
 
     this.serviceManager

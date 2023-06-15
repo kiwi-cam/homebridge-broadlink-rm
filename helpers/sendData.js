@@ -3,7 +3,7 @@ const assert = require('assert')
 const { getDevice } = require('./getDevice');
 const convertProntoCode = require('./convertProntoCode')
 
-module.exports = ({ host, hexData, log, name, logLevel }) => {
+module.exports = async ({ host, hexData, log, name, logLevel }) => {
   assert(hexData && typeof hexData === 'string', `\x1b[31m[ERROR]: \x1b[0m${name} sendData (HEX value is missing)`);
 
   // Check for pronto code
@@ -28,8 +28,10 @@ module.exports = ({ host, hexData, log, name, logLevel }) => {
   if (!device.sendData) {return log(`\x1b[31m[ERROR] \x1b[0mThe device at ${device.host.address} (${device.host.macAddress}) doesn't support the sending of IR or RF codes.`);}
   if (hexData.includes('5aa5aa555')) {return log(`\x1b[31m[ERROR] \x1b[0mThis type of hex code (5aa5aa555...) is no longer valid. Use the included "Learn Code" accessory to find new (decrypted) codes.`);}
 
-  const hexDataBuffer = new Buffer(hexData, 'hex');
-  device.sendData(hexDataBuffer, logLevel, hexData);
-
-  if (logLevel <=2) {log(`${name} sendHex (${device.host.address}; ${device.host.macAddress}) ${hexData}`);}
+  await device.mutex.use(async () => {
+    const hexDataBuffer = new Buffer(hexData, 'hex');
+    device.sendData(hexDataBuffer, logLevel, hexData);
+    
+    if (logLevel <=2) {log(`${name} sendHex (${device.host.address}; ${device.host.macAddress}) ${hexData}`);}
+  });
 }
