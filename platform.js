@@ -45,7 +45,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
 
     this.discoverBroadlinkDevices();
     this.showMessage();
-    setTimeout(checkForUpdates, 1800);
+    setTimeout(() => checkForUpdates(log), 1800);
 
     if (!config.accessories) {config.accessories = []}
 
