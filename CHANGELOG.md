@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.12] - 2022-06-08
+### Added
+ - Added tempStepSize to configuration (defaulting to 1) to allow AC units with 0.5 steps (Thanks @nasudon) #570
+ - Added support for fahrenheit temperature sources #495 - set tempSourceUnits to 'F'
+### Fixed
+ - Updated versions to address vulnerabilities
+ - Set HAP properties for fan speed handling (Thanks @datibbaw) #583
+## Changed
+ - Serialised simultaneous IR/RF commands (Thanks @banboobee) #520
+ - Adjusted logging levels for temperature/humidity updates
+ - Adds support for 0x520b and 0x520c Devices
+
 ## [4.4.11] - 2022-06-08
 ### Added
  - MQTT support for zigbee2mqtt (Thanks @mikicof) #467
