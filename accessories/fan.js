@@ -92,7 +92,7 @@ class FanAccessory extends SwitchAccessory {
 
   async setSwitchState(hexData, previousValue) {
     const { config, state, serviceManager } = this;
-    if (!this.state.switchState) {
+    if (!state.switchState) {
       this.lastFanSpeed = undefined;
     }
 
@@ -101,7 +101,7 @@ class FanAccessory extends SwitchAccessory {
     }
 
     // Reset the fan speed back to the default speed when turned off
-    if (this.state.switchState === false && config.alwaysResetToDefaults) {
+    if (!state.switchState && config.alwaysResetToDefaults) {
       this.setDefaults();
       serviceManager.setCharacteristic(Characteristic.RotationSpeed, state.fanSpeed);
     }
@@ -115,16 +115,13 @@ class FanAccessory extends SwitchAccessory {
     this.reset();
 
     // Create an array of speeds specified in the data config
-    const foundSpeeds = [];
-    const allHexKeys = Object.keys(data || {});
-
-    allHexKeys.forEach((key) => {
-      const parts = key.split('fanSpeed');
-
-      if (parts.length !== 2) {return;}
-
-      foundSpeeds.push(parts[1])
-    })
+    const foundSpeeds = Object.keys(data || {}).reduce((accu, key) => {
+      const match = key.match(/fanSpeed(\d+)/);
+      if (match && match[1]) {
+        accu.push(match[1]);
+      }
+      return accu;
+    }, []);
 
     if (config.speedCycle && config.speedSteps) {
       for (let i = 1; i <= config.speedSteps; i++) {

@@ -33,20 +33,20 @@ class LightAccessory extends SwitchAccessory {
 
     if (exclusives) {
       exclusives.forEach(exname => {
-	const exAccessory = accessories.find(x => x.name === exname);
-	//console.log(exAccessory.name);
-	if (exAccessory && exAccessory.config.type === 'light') {
-	  if (!this.exclusives) this.exclusives = [];
+        const exAccessory = accessories.find(x => x.name === exname);
+        //console.log(exAccessory.name);
+        if (exAccessory && exAccessory.config.type === 'light') {
+	  if (!this.exclusives) {this.exclusives = [];}
 	  if (!this.exclusives.find(x => x === exAccessory)) {
 	    this.exclusives.push(exAccessory);
 	  }
-	  if (!exAccessory.exclusives) exAccessory.exclusives = [];
+	  if (!exAccessory.exclusives) {exAccessory.exclusives = [];}
 	  if (!exAccessory.exclusives.find(x => x === this)) {
 	    exAccessory.exclusives.push(this);
 	  }
-	} else {
+        } else {
 	  log(`${name}: No light accessory could be found with the name "${exname}". Please update the "exclusives" value or add matching light accessories.`);
-	}
+        }
       });
     }
   }
@@ -59,7 +59,7 @@ class LightAccessory extends SwitchAccessory {
 
     if (state.switchState) {
       if (this.exclusives) {
-	this.exclusives.forEach(x => {
+        this.exclusives.forEach(x => {
 	  if (x.state.switchState) {
 	    log(`${name} setSwitchState: (${x.name} is configured to be turned off)`);
 	    x.reset();
@@ -67,7 +67,7 @@ class LightAccessory extends SwitchAccessory {
 	    x.lastBrightness = undefined;
             x.serviceManager.refreshCharacteristicUI(Characteristic.On);
 	  }
-	});
+        });
       }
       const brightness = (useLastKnownBrightness && state.brightness > 0) ? state.brightness : defaultBrightness;
       if (brightness !== state.brightness || previousValue !== state.switchState) {
@@ -121,8 +121,8 @@ class LightAccessory extends SwitchAccessory {
       const closest = foundValues.reduce((prev, curr) => Math.abs(curr - state.hue) < Math.abs(prev - state.hue) ? curr : prev);
       var hexData = "";
       // If saturation is less than 10, choose white
-      if (state.saturation < 10 && data[`white`]) {
-        hexData = data[`white`];
+      if (state.saturation < 10 && data.white) {
+        hexData = data.white;
         log(`${name} setHue: (closest: white)`);
       } else {
         hexData = data[`hue${closest}`];

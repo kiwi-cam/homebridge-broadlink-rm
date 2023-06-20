@@ -1,0 +1,27 @@
+name: Build
+"on":
+  - push
+jobs:
+  build:
+    name: "Build and Test on Node ${{ matrix.node_version }} and ${{ matrix.os }}"
+    runs-on: "${{ matrix.os }}"
+    strategy:
+      matrix:
+        node_version:
+          - 16
+          - 18
+          - 20
+        os:
+          - ubuntu-latest
+          - macOS-latest
+          - windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Use Node.js ${{ matrix.node_version }}"
+        uses: actions/setup-node@v3
+        with:
+          node-version: "${{ matrix.node_version }}"
+      - name: npm build and test
+        run: |
+          npm ci
+          npm run lint

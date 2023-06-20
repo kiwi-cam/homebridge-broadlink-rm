@@ -109,7 +109,6 @@ class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
     }
   }
   
-
   // MQTT
   async onMQTTMessage (identifier, message) {
     const { config, state, logLevel, log, name} = this;
@@ -152,7 +151,6 @@ class GarageDoorOpenerAccessory extends BroadlinkRMAccessory {
     this.serviceManager.refreshCharacteristicUI(Characteristic.CurrentDoorState);
 	  this.serviceManager.refreshCharacteristicUI(Characteristic.TargetDoorState); 
   }
-
 
   // Service Manager Setup
 

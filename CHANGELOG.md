@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.13] - 2023-06-19
+### Added
+ - w1 and file temperatures will return a battery level of 100 if none found
+### Fixed
+ - Fixes log error (Thanks @hypery2k) #606
+ - Fan speed fixes (Thanks @dnicolson) #592 and #593
+ - Resolve the workaround of #440. (Thanks @banboobee) #519 
+### Changed
+ - Serializes the simultaneous IR/RF commands. (Thanks @banboobee) #520
+ - Updated dependancies to resolve known vulnerabilities
+
 ## [4.4.12] - 2023-05-24
 ### Added
  - Added tempStepSize to configuration (defaulting to 1) to allow AC units with 0.5 steps (Thanks @nasudon) #570

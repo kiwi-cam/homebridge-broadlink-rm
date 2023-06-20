@@ -293,15 +293,15 @@ class AirConAccessory extends BroadlinkRMAccessory {
       }
       if (enableAutoOff && parseInt(onDuration) > 0) {
         log(`${name} setTargetHeatingCoolingState: (automatically turn off in ${onDuration} seconds)`);
-	if (this.autoOffTimeoutPromise) {
+        if (this.autoOffTimeoutPromise) {
 	  this.autoOffTimeoutPromise.cancel();
 	  this.autoOffTimeoutPromise = null;
-	}
-	this.autoOffTimeoutPromise = delayForDuration(onDuration);
-	await this.autoOffTimeoutPromise;
-	await this.performSend(data.off);
-	this.updateServiceTargetHeatingCoolingState(this.HeatingCoolingStates.off);
-	this.updateServiceCurrentHeatingCoolingState(this.HeatingCoolingStates.off);
+        }
+        this.autoOffTimeoutPromise = delayForDuration(onDuration);
+        await this.autoOffTimeoutPromise;
+        await this.performSend(data.off);
+        this.updateServiceTargetHeatingCoolingState(this.HeatingCoolingStates.off);
+        this.updateServiceCurrentHeatingCoolingState(this.HeatingCoolingStates.off);
       }
     });
   }
@@ -522,6 +522,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const { temperatureFilePath, noHumidity, batteryAlerts } = config;
     let humidity = null;
     let temperature = null;
+	  let battery = null;
 
     if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} updateTemperatureFromFile reading file: ${temperatureFilePath}`);}
 
@@ -545,11 +546,18 @@ class AirConAccessory extends BroadlinkRMAccessory {
             let value = line.split(':');
             if(value[0] == 'temperature') {temperature = parseFloat(value[1]);}
             if(value[0] == 'humidity' && !noHumidity) {humidity = parseFloat(value[1]);}
-            if(value[0] == 'battery' && batteryAlerts) {state.batteryLevel = parseFloat(value[1]);}
+            if(value[0] == 'battery' && batteryAlerts) {battery = parseFloat(value[1]);}
           }
         });
       }
 
+      //Default battery level if none returned
+	    if (battery) {
+        state.batteryLevel = battery;
+      }else{
+        state.batteryLevel = 100;
+      }
+	    
       if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} updateTemperatureFromFile (parsed temperature: ${temperature} humidity: ${humidity})`);}
 
       this.onTemperature(temperature, humidity);
@@ -578,6 +586,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
         if (logLevel <=3) {log(`\x1b[33m[WARNING]\x1b[0m ${name} updateTemperatureFromW1 error reading file: ${fName}, using previous Temperature`);}
         temperature = (state.currentTemperature || 0);
       }
+      //Default battery level 
+      state.batteryLevel = 100;
 
       if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} updateTemperatureFromW1 (parsed temperature: ${temperature})`);}
       this.onTemperature(temperature);
