@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.14] - 2023-07-26
+### Added
+ - Adding support for 520d device (#632)
+### Fixed
+ - Fixes 'No off HEX code found for XX' error (#615)
+ - Updated semver version to resolve CVE-2022-25883
+### Changed
+ - Heater-Cooler tempStepSize default changed to 1 to match AC (#616)
+
 ## [4.4.13] - 2023-06-19
 ### Added
  - w1 and file temperatures will return a battery level of 100 if none found
@@ -15,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Serializes the simultaneous IR/RF commands. (Thanks @banboobee) #520
  - Updated dependancies to resolve known vulnerabilities
 
-## [4.4.12] - 2023-05-24
+## [4.4.12] - 2023-05-25
 ### Added
  - Added tempStepSize to configuration (defaulting to 1) to allow AC units with 0.5 steps (Thanks @nasudon) #570
  - Added support for fahrenheit temperature sources #495 - set tempSourceUnits to 'F'

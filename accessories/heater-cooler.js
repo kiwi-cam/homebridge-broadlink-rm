@@ -1205,7 +1205,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
         .setProps({
           minValue: minTemperature,
           maxValue: maxTemperature,
-          minStep: config.tempStepSize || 0.1
+          minStep: config.tempStepSize || 1
         })
     }
 
@@ -1226,7 +1226,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
         .setProps({
           minValue: minTemperature,
           maxValue: maxTemperature,
-          minStep: config.tempStepSize || 0.1
+          minStep: config.tempStepSize || 1
         })
     }
 
