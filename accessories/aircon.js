@@ -346,8 +346,11 @@ class AirConAccessory extends BroadlinkRMAccessory {
     if (mode === 'off') {
       let hexData = data.off;
       return { finalTemperature, hexData };
-    } 
-    let hexData = data[`${mode}${temperature}`];
+    }
+    const modeHex = this.dataKeys(`${mode}`);
+    const closest = modeHex.reduce((prev, curr) => Math.abs(curr - temperature) < Math.abs(prev - temperature) ? curr : prev);
+    // let hexData = data[`${mode}${temperature}`];
+    const hexData = data[`${mode}${closest}`];
 
     if (!hexData) {
       // Mode based code not found, try mode-less
@@ -694,6 +697,26 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const temperatureDisplayUnits = (config.units.toLowerCase() === 'f') ? Characteristic.TemperatureDisplayUnits.FAHRENHEIT : Characteristic.TemperatureDisplayUnits.CELSIUS;
 
     callback(null, temperatureDisplayUnits);
+  }
+
+  dataKeys (filter) {
+    const { data } = this;
+    const allHexKeys = Object.keys(data || {});
+
+    if (!filter) {return allHexKeys;}
+
+    // Create an array of value specified in the data config
+    const foundValues = [];
+
+    allHexKeys.forEach((key) => {
+      const parts = key.split(filter);
+
+      if (parts.length !== 2) {return;}
+
+      foundValues.push(parts[1]);
+    })
+
+    return foundValues
   }
 
   // MQTT
