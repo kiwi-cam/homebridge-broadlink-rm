@@ -2,14 +2,21 @@ const assert = require('assert')
 
 class ServiceManager {
 
-  constructor (name, serviceType, log) {
+  constructor (name, serviceType, log, subType = undefined) {
     assert(name, 'ServiceManager requireds a "name" to be provided.')
     assert(serviceType, 'ServiceManager requires the "type" to be provided.')
     assert(log, 'ServiceManager requires "log" to be provided.')
+    const uuid = HomebridgeAPI.hap.uuid.generate(`${serviceType}:${name}`);
     
     this.log = log
     
-    this.service = new serviceType(name);
+    this.accessory = cachedAccessories.find((cache) => cache.UUID == uuid) || new HomebridgeAPI.platformAccessory(name, uuid, subType);
+    // this.service = new serviceType(name);
+    this.accessory.getService(Service.AccessoryInformation)
+      .setCharacteristic(Characteristic.Manufacturer, 'Broadlink')
+      .setCharacteristic(Characteristic.Model, 'RM Mini or Pro')
+      .setCharacteristic(Characteristic.SerialNumber, uuid);
+    this.service = this.accessory.getService(serviceType) || this.accessory.addService(serviceType);
     this.characteristics = {}
 
     this.addNameCharacteristic()

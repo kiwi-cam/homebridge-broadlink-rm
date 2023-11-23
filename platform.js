@@ -6,7 +6,7 @@ const Accessory = require('./accessories');
 const checkForUpdates = require('./helpers/checkForUpdates');
 const broadlink = require('./helpers/broadlink');
 const { discoverDevices } = require('./helpers/getDevice');
-const { createAccessory } = require('./helpers/accessoryCreator');
+// const { createAccessory } = require('./helpers/accessoryCreator');
 
 const classTypes = {
   'air-conditioner': Accessory.AirCon,
@@ -75,23 +75,24 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
       const homeKitAccessory = new classTypes[accessory.type](log, accessory);
 
       if (classTypes[accessory.type] === classTypes.tv) {
-        if(accessory.subType.toLowerCase() === 'stb'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.TV_SET_TOP_BOX;}
-        if(accessory.subType.toLowerCase() === 'receiver'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.AUDIO_RECEIVER;}
-        if(accessory.subType.toLowerCase() === 'stick'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.TV_STREAMING_STICK;}
+	// if(accessory.subType.toLowerCase() === 'stb'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.TV_SET_TOP_BOX;}
+	// if(accessory.subType.toLowerCase() === 'receiver'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.AUDIO_RECEIVER;}
+	// if(accessory.subType.toLowerCase() === 'stick'){homeKitAccessory.subType = homebridgeRef.hap.Accessory.Categories.TV_STREAMING_STICK;}
 
-        if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m Adding Accessory ${accessory.type} (${accessory.subType})`);}
+        // if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m Adding Accessory ${accessory.type} (${accessory.subType})`);}
         tvs.push(homeKitAccessory);
-        return;
+        // return;
       }
 
       if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m Adding Accessory ${accessory.type} (${accessory.subType})`);}
       accessories.push(homeKitAccessory);
     });
+    
 
     if (tvs.length > 0) {
       if (tvs.length > 0) {
-        const TV = homebridgeRef.hap.Accessory.Categories.TELEVISION;
-        homebridgeRef.publishExternalAccessories('homebridge-broadlink-rm', tvs.map(tv => createAccessory(tv, tv.name, TV, homebridgeRef, tv.subType)));
+        // const TV = homebridgeRef.hap.Accessory.Categories.TELEVISION;
+        // homebridgeRef.publishExternalAccessories('homebridge-broadlink-rm', tvs.map(tv => createAccessory(tv, tv.name, TV, homebridgeRef, tv.subType)));
 
         log('');
         log(`**************************************************************************************************************`);
