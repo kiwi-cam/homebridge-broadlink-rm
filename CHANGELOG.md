@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
  - Fix for wrong command being sent or no command sent in certain circumstances #669 (Thanks @seidnerj)
+ - Added 0xd7 command for RF 315Mhz
 
 ## [4.4.15] - 2023-07-27
 ### Fixed
