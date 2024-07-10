@@ -226,7 +226,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
 
   async startUpdatingCurrentPositionAtIntervals (isFirst, name, log) {
     catchDelayCancelError(async () => {
-      const { config, serviceManager, state } = this;
+      const { log, logLevel, config, serviceManager, state } = this;
       const { totalDurationOpen, totalDurationClose } = config;
       
       const durationPerPercentage = this.determineOpenCloseDurationPerPercent({ positionState: state.positionState, totalDurationOpen, totalDurationClose });
