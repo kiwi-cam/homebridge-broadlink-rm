@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
  - Reduced default logging of blind positions #702
+### Changed
+ - Reduced log level for onTemperature events (now debug events)
 
 ## [4.4.16 - 2023-07-10]
 ### Fixed
