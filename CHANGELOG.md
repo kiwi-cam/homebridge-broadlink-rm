@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Adds support for RM3 Mini 0x27d0 (#691)
 ### Fixed
  - Reduced default logging of blind positions #702
+ - Updated versions of mqtt, mocha, release-it, and hap-nodejs to resolve known vulnerabilities
 ### Changed
  - Reduced log level for onTemperature events (now debug events)
 
