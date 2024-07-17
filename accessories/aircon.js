@@ -437,7 +437,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     temperature += temperatureAdjustment;
     if (tempSourceUnits == 'F') {temperature = (temperature - 32) * 5/9;}
     state.currentTemperature = temperature;
-    if(logLevel <=2) {log(`\x1b[36m[INFO] \x1b[0m${name} onTemperature (${temperature})`);}
+    if(logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} onTemperature (${temperature})`);}
 
     if(humidity) {
       if(noHumidity){
@@ -445,7 +445,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       }else{
         humidity += humidityAdjustment;
         state.currentHumidity = humidity;
-        if(logLevel <=2) {log(`\x1b[36m[INFO] \x1b[0m${name} onHumidity (` + humidity + `)`);}
+        if(logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} onHumidity (` + humidity + `)`);}
       }
     }
     

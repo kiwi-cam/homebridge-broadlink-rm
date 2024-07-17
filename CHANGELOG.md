@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.17 - 2024-07-17]
+### Added
+ - Adds support for RM3 Mini 0x27d0 (#691)
+### Fixed
+ - Reduced default logging of blind positions #702
+ - Updated versions of mqtt, mocha, release-it, and hap-nodejs to resolve known vulnerabilities
+### Changed
+ - Reduced log level for onTemperature events (now debug events)
+
 ## [4.4.16 - 2023-07-10]
 ### Fixed
  - Fix for wrong command being sent or no command sent in certain circumstances #669 (Thanks @seidnerj)
