@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [UNRELEASED]
+###
+ - Added ping state change logging for troubleshooting
+
 ## [4.4.17 - 2024-07-17]
 ### Added
  - Adds support for RM3 Mini 0x27d0 (#691)

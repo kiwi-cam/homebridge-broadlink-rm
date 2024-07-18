@@ -90,12 +90,14 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   }
 
   pingCallback (active) {
-    const { config, state, serviceManager } = this;
+    const { config, state, serviceManager, name, log, logLevel } = this;
 
     if (this.stateChangeInProgress){ 
       return; 
     }
-    
+   
+    if (state.switchState !== active && logLevel <=2){log(`\x1b[35m[INFO]\x1b[0m ${name} ping detected state change, now ${active}`);}
+ 
     if (config.pingIPAddressStateOnly) {
       state.switchState = active ? true : false;
       serviceManager.refreshCharacteristicUI(Characteristic.On);
