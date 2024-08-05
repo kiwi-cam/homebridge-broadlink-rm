@@ -14,13 +14,15 @@ function delayForDuration(duration) {
 
   class Timer extends Promise {
 
-    cancel () {
+    cancel (callback = null) {
       if (this.isCancelled) {return;}
 
       clearTimeout(timerID);
       this.isCancelled = true;
 
-      endTimer(new Error(TIMEOUT_CANCELLATION));
+      callback ?
+	callback(new Error(TIMEOUT_CANCELLATION)):
+	endTimer(new Error(TIMEOUT_CANCELLATION));
     }
   }
 

@@ -116,24 +116,25 @@ class AirConAccessory extends BroadlinkRMAccessory {
   }
 
   reset () {
+    const NULL = () => {};	// disables 'Error: Timeout Cancelled'
     super.reset();
 
     this.state.isRunningAutomatically = false;
 
     if (this.shouldIgnoreAutoOnOffPromise) {
-      this.shouldIgnoreAutoOnOffPromise.cancel();
+      this.shouldIgnoreAutoOnOffPromise.cancel(NULL);
       this.shouldIgnoreAutoOnOffPromise = undefined;
 
       this.shouldIgnoreAutoOnOff = false;
     }
 
     if (this.turnOnWhenOffDelayPromise) {
-      this.turnOnWhenOffDelayPromise.cancel();
+      this.turnOnWhenOffDelayPromise.cancel(NULL);
       this.turnOnWhenOffDelayPromise = undefined;
     }
 
     if (this.autoOffTimeoutPromise) {
-      this.autoOffTimeoutPromise.cancel();
+      this.autoOffTimeoutPromise.cancel(NULL);
       this.autoOffTimeoutPromise = null;
     }
   }
