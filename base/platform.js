@@ -45,13 +45,25 @@ class HomebridgePlatform {
     }
     if(this.config.debug) {this.logLevel = Math.min(1, this.logLevel);}
     if(this.config.disableLogs) {this.logLevel = 6;}  
+
+    homebridge.on('didFinishLaunching', async () => {
+      this.discoverDevices();
+    })
   }
 
   async addAccessories (accessories) {
     throw new Error('The addAccessories method must be overridden.')
   }
 
-  async accessories (callback) {
+  async configureAccessory(cache) {
+    this.log('Restoring existing accessory from cache:', cache.displayName);
+    
+    // add the restored accessory to the accessories cache so we can track if it has already been registered
+    cachedAccessories.push(cache);
+  }
+
+  async discoverDevices () {
+  // async accessories (callback) {
     const { config, log } = this;
     const { name, disableLogs } = config;
 
@@ -71,7 +83,7 @@ class HomebridgePlatform {
     // Check for no accessories
     if (!config.accessories || config.accessories.length === 0) {
       if (!disableLogs) {log(`No accessories have been added to the "${name}" platform config.`);}
-      return callback(accessories);
+      // return callback(accessories);
     }
 
     // Let accessories know about one-another if they wish
@@ -79,7 +91,28 @@ class HomebridgePlatform {
       if (accessory.updateAccessories) {accessory.updateAccessories(accessories);}
     })
 
-    callback(accessories);
+    // Register new accessories
+    HomebridgeAPI.registerPlatformAccessories('homebridge-broadlink-rm', 'BroadlinkRM',
+					      accessories
+					      .filter(x => !cachedAccessories.find(y => y === x.serviceManager.accessory))
+					      .filter(x => x.config.type !== 'tv')
+					      .map(x => x.serviceManager.accessory));
+
+    // Register external accessories
+    HomebridgeAPI.publishExternalAccessories('homebridge-broadlink-rm', 
+					     accessories
+					     .filter(x => x.config.type === 'tv')
+					     .map(x => x.serviceManager.accessory));
+	       
+    // Unregister deleted accessories
+    cachedAccessories.forEach(x => {
+      if (!accessories.find(y => y.serviceManager.accessory.UUID === x.UUID)) {
+	HomebridgeAPI.unregisterPlatformAccessories('homebridge-broadlink-rm', 'BroadlinkRM', [x]);
+	this.log(`Removing existing accessory from cache: ${x.displayName}`);
+      }
+    });
+
+    // callback(accessories);
   }
 }
 
