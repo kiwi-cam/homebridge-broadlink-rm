@@ -28,7 +28,7 @@ const stop = (log, device, logLevel) => {
   if(this.initalDebug !== undefined && currentDevice) {currentDevice.debug = this.initalDebug;}
 }
 
-const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) => {
+const start = (host, frequency, callback, turnOffCallback, log, disableTimeout, logLevel) => {
   stop()
 
   // Get the Broadlink device
@@ -91,7 +91,7 @@ const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) =
     if (!closeClient) {return;}
 
     if (getDataTimeout2) {clearTimeout(getDataTimeout2);}
-    getDataTimeout = null;
+    getDataTimeout2 = null;
 
     log(`\x1b[35m[INFO]\x1b[0m Scan RF (found frequency - 2 of 2)`)
     log(`\x1b[35m[ACTION]\x1b[0m Press the RF button multiple times with a pause between them to get code.`);
@@ -119,15 +119,21 @@ const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) =
   device.on('rawRFData2', onRawData2);
   device.on('rawData', onRawData3);
 
-  device.enterRFSweep();
-  log(`\x1b[35m[INFO]\x1b[0m Scan RF (scanning)`);
-  log(`\x1b[35m[ACTION]\x1b[0m Hold down the button that sends the RF frequency.`);
-
   if (callback) {callback();}
 
-  getDataTimeout = setTimeout(() => {
-    getData(device);
-  }, 1000);
+  if (!frequency) {
+    device.enterRFSweep();
+    log(`\x1b[35m[INFO]\x1b[0m Scan RF (scanning)`);
+    log(`\x1b[35m[ACTION]\x1b[0m Hold down the button that sends the RF frequency.`);
+    
+    getDataTimeout = setTimeout(() => {
+      getData(device);
+    }, 1000);
+  } else {
+    getDataTimeout2 = setTimeout(() => {
+      getData2(device, frequency);
+    }, 1000);
+  }
 
   if (disableTimeout) {return;}
 
@@ -155,14 +161,14 @@ const getData = (device) => {
   }, 1000);
 }
 
-const getData2 = (device) => {
+const getData2 = (device, frequency = undefined) => {
   if (getDataTimeout2) {clearTimeout(getDataTimeout2);}
   if (!closeClient) {return;}
 
-  device.checkRFData2();
+  device.checkRFData2(frequency);
 
   getDataTimeout2 = setTimeout(() => {
-    getData2(device);
+    getData2(device, frequency);
   }, 1000);
 }
 
