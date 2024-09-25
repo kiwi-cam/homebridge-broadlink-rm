@@ -620,7 +620,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     //serviceManager.refreshCharacteristicUI(Characteristic.CurrentTemperature);
     //if(!noHumidity){serviceManager.refreshCharacteristicUI(Characteristic.CurrentRelativeHumidity);}
-    serviceManager.updateCharacteristicUI(Characteristic.CurrentTemperature, this.state.currentTemperature);
+    serviceManager.updateCharacteristic(Characteristic.CurrentTemperature, this.state.currentTemperature);
     if(!noHumidity){serviceManager.updateCharacteristic(Characteristic.CurrentRelativeHumidity, this.state.currentHumidity);}
   }
 
