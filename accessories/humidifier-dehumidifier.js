@@ -202,7 +202,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
     device.checkHumidity();
 
     this.updateHumidityUI();
-    if (!config.isUnitTest && !config.noHumidity) {setInterval(()=>{this.getCurrentHumidity(this.updateHumidityUI.bind(this))}, config.humidityUpdateFrequency * 1000)}
+    if (!config.isUnitTest && !config.noHumidity) {setInterval(this.updateHumidityUI.bind(this), config.humidityUpdateFrequency * 1000)}
   }
 
   onHumidity (temperature,humidity) {
@@ -426,7 +426,8 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   updateHumidityUI () {
     const { config, serviceManager } = this;
 
-    serviceManager.refreshCharacteristicUI(Characteristic.CurrentRelativeHumidity);
+    //serviceManager.refreshCharacteristicUI(Characteristic.CurrentRelativeHumidity);
+    serviceManager.updateCharacteristic(Characteristic.CurrentRelativeHumidity, this.state.currentHumidity);
   }
 
   getCurrentHumidity (callback) {

@@ -424,6 +424,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     this.updateTemperatureUI();
     if (!config.isUnitTest) {setInterval(()=>{this.getCurrentTemperature(this.updateTemperatureUI.bind(this))}, config.temperatureUpdateFrequency * 1000)}
+    //if (!config.isUnitTest) {setInterval(this.updateTemperatureUI.bind(this), config.temperatureUpdateFrequency * 1000)}
   }
 
   onTemperature (temperature,humidity) {
@@ -617,8 +618,10 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const { config, serviceManager } = this;
     const { noHumidity } = config;
 
-    serviceManager.refreshCharacteristicUI(Characteristic.CurrentTemperature);
-    if(!noHumidity){serviceManager.refreshCharacteristicUI(Characteristic.CurrentRelativeHumidity);}
+    //serviceManager.refreshCharacteristicUI(Characteristic.CurrentTemperature);
+    //if(!noHumidity){serviceManager.refreshCharacteristicUI(Characteristic.CurrentRelativeHumidity);}
+    serviceManager.updateCharacteristicUI(Characteristic.CurrentTemperature, this.state.currentTemperature);
+    if(!noHumidity){serviceManager.updateCharacteristic(Characteristic.CurrentRelativeHumidity, this.state.currentHumidity);}
   }
 
   getCurrentTemperature (callback) {
