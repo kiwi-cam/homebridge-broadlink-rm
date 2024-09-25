@@ -96,7 +96,8 @@ class FanAccessory extends BroadlinkRMAccessory {
 
     if (config.pingIPAddressStateOnly) {
       state.switchState = active ? true : false;
-      serviceManager.refreshCharacteristicUI(Characteristic.Active);
+      //serviceManager.refreshCharacteristicUI(Characteristic.Active);
+      serviceManager.updateCharacteristic(Characteristic.Active,state.switchState);
 
       return;
     }
