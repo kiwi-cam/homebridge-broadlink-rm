@@ -18,7 +18,7 @@
   ],
   "engines": {
     "node": ">=7.6.0",
-    "homebridge": ">=1.4.1"
+    "homebridge": "^1.4.1 || ^2.0.0-beta.0"
   },
   "author": {
     "name": "kiwi-cam"
