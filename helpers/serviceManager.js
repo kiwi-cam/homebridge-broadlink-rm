@@ -29,7 +29,7 @@ class ServiceManager {
 
   refreshCharacteristicUI (characteristic) {
     //Historically, we refreshed the UI using getValue(). This is being depricated and replaced by the parameter value, which unfortunately does not refresh the UI, instaed use updateCharacteristic(characteristic, value)
-    this.service.getCharacteristic(characteristic).value;
+    this.updateCharacteristic(characteristic, this.service.getCharacteristic(characteristic).value);
   }
 
   // Convenience
