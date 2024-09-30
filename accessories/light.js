@@ -65,7 +65,6 @@ class LightAccessory extends SwitchAccessory {
 	    x.reset();
 	    x.state.switchState = false;
 	    x.lastBrightness = undefined;
-            //x.serviceManager.refreshCharacteristicUI(Characteristic.On);
             x.serviceManager.updateCharacteristic(Characteristic.On,x.state.switchState);
 	  }
         });
@@ -105,7 +104,6 @@ class LightAccessory extends SwitchAccessory {
       if (!state.switchState) {
 
         state.switchState = true;
-        //serviceManager.refreshCharacteristicUI(Characteristic.On);
         serviceManager.updateCharacteristic(Characteristic.On,state.switchState);
 
         if (on) {

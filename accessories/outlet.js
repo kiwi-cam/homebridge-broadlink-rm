@@ -11,7 +11,6 @@ class OutletAccessory extends SwitchAccessory {
 
     if (config.pingIPAddressStateOnly) {
       state.outletInUse = active ? true : false;
-      //serviceManager.refreshCharacteristicUI(Characteristic.OutletInUse)
       serviceManager.updateCharacteristic(Characteristic.OutletInUse, state.outletInUse)
 
       return

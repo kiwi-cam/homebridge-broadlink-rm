@@ -723,8 +723,6 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
     const { config, serviceManager, state } = this;
     const { noHumidity } = config;
 
-    //serviceManager.refreshCharacteristicUI(Characteristic.CurrentTemperature);
-    //if (!noHumidity) { serviceManager.refreshCharacteristicUI(Characteristic.CurrentRelativeHumidity); }
     serviceManager.updateCharacteristic(Characteristic.CurrentTemperature,state.currentTemperature);
     if (!noHumidity) { serviceManager.updateCharacteristic(Characteristic.CurrentRelativeHumidity,state.currentHumidity); }
   }
