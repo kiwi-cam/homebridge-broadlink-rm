@@ -424,7 +424,6 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     this.updateTemperatureUI();
     if (!config.isUnitTest) {setInterval(()=>{this.getCurrentTemperature(this.updateTemperatureUI.bind(this))}, config.temperatureUpdateFrequency * 1000)}
-    //if (!config.isUnitTest) {setInterval(this.updateTemperatureUI.bind(this), config.temperatureUpdateFrequency * 1000)}
   }
 
   onTemperature (temperature,humidity) {
