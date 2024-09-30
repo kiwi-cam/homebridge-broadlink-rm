@@ -6,8 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
- - refreshCharacteristic and value() were not updating the UI. Rebuilt to use updateValue method. (#733)
- - Replaced switch's use of refreshCharacteristicUI to update the UI (#725)
+ - refreshCharacteristic and value() were not updating the UI. Rebuilt to use updateValue method. (#733 and #725)
 ### Added
  - updated package to show Homebridge 2.0 support (#730)
 
