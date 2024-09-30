@@ -79,7 +79,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
     if (logLevel <=2) {log(`${name} setCurrentState: currently ${previousValue}, changing to ${state.currentState}`);}
 	  
     if(hexData) {await this.performSend(hexData);}
-    serviceManager.refreshCharacteristicUI(Characteristic.CurrentHumidifierDehumidifierState);
+    serviceManager.updateCharacteristic(Characteristic.CurrentHumidifierDehumidifierState,state.currentState);
     this.previouslyOff = false;
   }
   
@@ -149,13 +149,13 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
     //Do nothing if turned off
     if (!state.switchState) {
       state.currentState = Characteristic.CurrentHumidifierDehumidifierState.INACTIVE;
-      serviceManager.refreshCharacteristicUI(Characteristic.CurrentHumidifierDehumidifierState);
+      serviceManager.updateCharacteristic(Characteristic.CurrentHumidifierDehumidifierState,state.currentState);
       this.previouslyOff = true;
       return;
     }
     
     //Update "switchState to match device state
-	  if (state.targetState === Characteristic.TargetHumidifierDehumidifierState.OFF){
+    if (state.targetState === Characteristic.TargetHumidifierDehumidifierState.OFF){
       state.currentState = Characteristic.CurrentHumidifierDehumidifierState.INACTIVE;
       state.switchState = false;
       this.previouslyOff = true;
@@ -426,7 +426,7 @@ class HumidifierDehumidifierAccessory extends FanAccessory {
   updateHumidityUI () {
     const { config, serviceManager } = this;
 
-    serviceManager.refreshCharacteristicUI(Characteristic.CurrentRelativeHumidity);
+    serviceManager.updateCharacteristic(Characteristic.CurrentRelativeHumidity, this.state.currentHumidity);
   }
 
   getCurrentHumidity (callback) {

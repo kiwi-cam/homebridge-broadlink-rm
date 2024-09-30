@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.19 - 2024-09-30]
+### Fixed
+ - refreshCharacteristic and value() were not updating the UI. Rebuilt to use updateValue method. (#733 and #725)
+### Added
+ - updated package to show Homebridge 2.0 support (#730)
+
 ## [4.4.18 - 2024-08-08]
 ### Added
  - Added ping state change logging for troubleshooting

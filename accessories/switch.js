@@ -63,7 +63,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     
     if (this.serviceManager.getCharacteristic(Characteristic.On) === undefined) {
       this.state.switchState = false;
-      this.serviceManager.refreshCharacteristicUI(Characteristic.On);
+      this.serviceManager.updateCharacteristic(Characteristic.On, this.state.switchState);
     }
   }
 
@@ -100,7 +100,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
  
     if (config.pingIPAddressStateOnly) {
       state.switchState = active ? true : false;
-      serviceManager.refreshCharacteristicUI(Characteristic.On);
+      serviceManager.updateCharacteristic(Characteristic.On,state.switchState);
 
       return;
     }
@@ -118,7 +118,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     
     if (config.stateless === true) { 
       state.switchState = false;
-      serviceManager.refreshCharacteristicUI(Characteristic.On);
+      serviceManager.updateCharacteristic(Characteristic.On,state.switchState);
     } else {
       this.checkAutoOnOff();
     }
