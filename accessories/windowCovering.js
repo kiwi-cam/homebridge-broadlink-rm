@@ -64,19 +64,40 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
       const closeCompletely = await this.checkOpenOrCloseCompletely();
       if (closeCompletely) {return;}
 
-      log(`${name} setTargetPosition: (currentPosition: ${state.currentPosition})`);
+      if (logLevel <= 1) {log(`${name} setTargetPosition: (set new position)`)};
 
       // Determine if we're opening or closing
       let difference = state.targetPosition - state.currentPosition;
 
-      state.opening = (difference > 0);
-      if (!state.opening) {difference = -1 * difference;}
-
-      hexData = state.opening ? open : close
-
+      if (difference > 0) {
+        state.positionState = Characteristic.PositionState.INCREASING
+        hexData = open
+      } else if (difference < 0) {
+        state.positionState = Characteristic.PositionState.DECREASING
+        hexData = close
+      } else {
+        state.positionState = Characteristic.PositionState.STOPPED
+        hexData = stop
+      }
+      
       // Perform the actual open/close asynchronously i.e. without await so that HomeKit status can be updated
       this.openOrClose({ hexData, previousValue });
     });
+  }
+
+  getUpToDatePosition (state) {  
+    let currentValue = state.currentPosition || 0;
+  
+    if (state.positionState == Characteristic.PositionState.INCREASING) {currentValue++;}
+    if (state.positionState == Characteristic.PositionState.DECREASING) {currentValue--;}
+  
+    if (currentValue < 0) {
+      currentValue = 0
+    } else if (currentValue > 100) {
+      currentValue = 100
+    }
+  
+    return currentValue;
   }
 
   async openOrClose ({ hexData, previousValue }) {
@@ -85,23 +106,47 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
       let { totalDurationOpen, totalDurationClose } = config;
       const { stop } = data;
 
-      const newPositionState = state.opening ? Characteristic.PositionState.INCREASING : Characteristic.PositionState.DECREASING;
-      serviceManager.setCharacteristic(Characteristic.PositionState, newPositionState);
-
-      log(`${name} setTargetPosition: currently ${state.currentPosition}%, moving to ${state.targetPosition}%`);
-
-      await this.performSend(hexData);
+      serviceManager.setCharacteristic(Characteristic.PositionState, state.positionState);
 
       let difference = state.targetPosition - state.currentPosition
-      if (!state.opening) {difference = -1 * difference;}
+      let positionStateDescription = null;
+      let fullOpenCloseTime = null
 
-      const fullOpenCloseTime = state.opening ? totalDurationOpen : totalDurationClose;
-      const durationPerPercentage = fullOpenCloseTime / 100;
-      const totalTime = durationPerPercentage * difference;
+      if (state.positionState == Characteristic.PositionState.INCREASING) {
+        positionStateDescription = 'opening';
+        fullOpenCloseTime = totalDurationOpen;
+      } else if (state.positionState == Characteristic.PositionState.DECREASING) {
+        positionStateDescription = 'closing';
+        fullOpenCloseTime = totalDurationClose;
+        difference = -1 * difference;
+      } else {
+        positionStateDescription = 'stopped';
+        fullOpenCloseTime = 0;
+      }
+      
+      const totalTime = Math.abs(difference / 100 * fullOpenCloseTime);
 
-      log(`${name} setTargetPosition: ${totalTime}s (${fullOpenCloseTime} / 100 * ${difference}) until auto-stop`);
+      if (logLevel <= 1) {log(`${name} setTargetPosition: position change ${state.currentPosition}% -> ${state.targetPosition}% (${positionStateDescription})`)};
+      if (logLevel <= 1) {log(`${name} setTargetPosition: ${+totalTime.toFixed(2)}s ((${Math.abs(difference)} / 100) * ${fullOpenCloseTime}) until auto-stop`)};
 
-      this.startUpdatingCurrentPositionAtIntervals();
+      await this.performSend(hexData);
+      
+      if (state.positionState != Characteristic.PositionState.STOPPED) {
+        // immediately update position to reflect that there's already some change in the position (even though its fractional,
+        // we have to add 1 whole %), we then skip incrementing the position within startUpdatingCurrentPositionAtIntervals
+        // if this is a first iteration, this way at time 0 the position delta is already 1, and so is the position at time 1
+        // and we do not overshoot the actual position.
+                
+        // NOTE: ideally send+position update should be an "atomic" operation and the position should change by some
+        //       fractional value (e.g. 0.00001) but that requires significant changes to the code base.
+
+        const currentValue = this.getUpToDatePosition(state)
+        serviceManager.setCharacteristic(Characteristic.CurrentPosition, currentValue);
+        
+        this.startUpdatingCurrentPositionAtIntervals(true, name, log);
+      } else {
+        this.startUpdatingCurrentPositionAtIntervals(false, name, log);
+      }
 
       this.autoStopPromise = delayForDuration(totalTime);
       await this.autoStopPromise;
@@ -117,7 +162,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
     const { sendStopAt0, sendStopAt100 } = config;
     const { stop } = data;
   
-    log(`${name} setTargetPosition: (stop window covering)`);
+    if (logLevel <= 2) {log(`${name} setTargetPosition: (stop window covering)`)};
 
     // Reset the state and timers
     this.reset();
@@ -157,42 +202,61 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
 
     return false;
   }
-
+  
   // Determine how long it should take to increase/decrease a single %
-  determineOpenCloseDurationPerPercent ({ opening, totalDurationOpen, totalDurationClose  }) {
-    assert.isBoolean(opening);
+  determineOpenCloseDurationPerPercent ({ positionState, totalDurationOpen, totalDurationClose  }) {
     assert.isNumber(totalDurationOpen);
     assert.isNumber(totalDurationClose);
     assert.isAbove(totalDurationOpen, 0);
     assert.isAbove(totalDurationClose, 0);
 
-    const fullOpenCloseTime = opening ? totalDurationOpen : totalDurationClose;
+    let fullOpenCloseTime = null
+    if (positionState == Characteristic.PositionState.INCREASING) {
+      fullOpenCloseTime = totalDurationOpen;
+    } else if (positionState == Characteristic.PositionState.DECREASING) {
+      fullOpenCloseTime = totalDurationClose;
+    } else {
+      fullOpenCloseTime = 0;
+    }
+
     const durationPerPercentage = fullOpenCloseTime / 100;
 
     return durationPerPercentage;
   }
 
-  async startUpdatingCurrentPositionAtIntervals () {
+  async startUpdatingCurrentPositionAtIntervals (isFirst, name, log) {
     catchDelayCancelError(async () => {
-      const { config, serviceManager, state } = this;
+      const { log, logLevel, config, serviceManager, state } = this;
       const { totalDurationOpen, totalDurationClose } = config;
       
-      const durationPerPercentage = this.determineOpenCloseDurationPerPercent({ opening: state.opening, totalDurationOpen, totalDurationClose })
+      const durationPerPercentage = this.determineOpenCloseDurationPerPercent({ positionState: state.positionState, totalDurationOpen, totalDurationClose });
 
       // Wait for a single % to increase/decrease
       this.updateCurrentPositionPromise = delayForDuration(durationPerPercentage)
       await this.updateCurrentPositionPromise
 
       // Set the new currentPosition
-      let currentValue = state.currentPosition || 0;
+      let positionStateDescription = null;
+      
+      if (state.positionState == Characteristic.PositionState.INCREASING) {
+        positionStateDescription = 'opening';
+      } else if (state.positionState == Characteristic.PositionState.DECREASING) {
+        positionStateDescription = 'closing';
+      } else {
+        positionStateDescription = 'stopped';
+      }
 
-      if (state.opening) {currentValue++;}
-      if (!state.opening) {currentValue--;}
+      if (!isFirst) {               
+        const currentValue = this.getUpToDatePosition(state)
+        serviceManager.setCharacteristic(Characteristic.CurrentPosition, currentValue);
 
-      serviceManager.setCharacteristic(Characteristic.CurrentPosition, currentValue);
+        if (logLevel <= 2) {log(`${name} setTargetPosition: updated position to ${currentValue} (${positionStateDescription})`)};
+      }
 
       // Let's go again
-      this.startUpdatingCurrentPositionAtIntervals();
+      if (state.positionState != Characteristic.PositionState.STOPPED) {
+        this.startUpdatingCurrentPositionAtIntervals(false, name, log);
+      }
     });
   }
 

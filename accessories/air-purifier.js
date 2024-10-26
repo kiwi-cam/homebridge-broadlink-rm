@@ -33,7 +33,7 @@ class AirPurifierAccessory extends FanAccessory {
       state.currentState = Characteristic.CurrentAirPurifierState.INACTIVE
     }
     
-    serviceManager.refreshCharacteristicUI(Characteristic.CurrentAirPurifierState);
+    serviceManager.updateCharacteristic(Characteristic.CurrentAirPurifierState,state.currentState);
   }
 
   setupServiceManager () {

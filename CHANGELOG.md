@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.19 - 2024-09-30]
+### Fixed
+ - refreshCharacteristic and value() were not updating the UI. Rebuilt to use updateValue method. (#733 and #725)
+### Added
+ - updated package to show Homebridge 2.0 support (#730)
+
+## [4.4.18 - 2024-08-08]
+### Added
+ - Added ping state change logging for troubleshooting
+### Changed
+ - Removed use of Characteristic.getValue() in preparation of homebridge 2.0 (#722)
+ - The removal of getValue() has stopped the regular getCurrentTemperature and getCurrentHumidity calls. Changed the regualar updates to make these calls instead of just using refreshCharacteristic. (#722)
+
+## [4.4.17 - 2024-07-17]
+### Added
+ - Adds support for RM3 Mini 0x27d0 (#691)
+### Fixed
+ - Reduced default logging of blind positions #702
+ - Updated versions of mqtt, mocha, release-it, and hap-nodejs to resolve known vulnerabilities
+### Changed
+ - Reduced log level for onTemperature events (now debug events)
+
+## [4.4.16 - 2023-07-10]
+### Fixed
+ - Fix for wrong command being sent or no command sent in certain circumstances #669 (Thanks @seidnerj)
+ - Added 0xd7 command for RF 315Mhz
+ - Incorporates fixes from broadlinkjs-rm (https://github.com/kiwi-cam/broadlinkjs-rm/releases/tag/v0.9.20)
+ - Fixed dependancy issue in package.json
+
 ## [4.4.15] - 2023-07-27
 ### Fixed
  - Fixes the Fanv2 'On' Characteristic warning. (Thanks @dnicolson) #639

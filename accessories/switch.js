@@ -64,7 +64,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 
     if (this.serviceManager.getCharacteristic(Characteristic.On) === undefined) {
       this.state.switchState = false;
-      this.serviceManager.refreshCharacteristicUI(Characteristic.On);
+      this.serviceManager.updateCharacteristic(Characteristic.On, this.state.switchState);
     }
   }
 
@@ -104,15 +104,17 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   }
 
   pingCallback (active) {
-    const { config, state, serviceManager } = this;
+    const { config, state, serviceManager, name, log, logLevel } = this;
 
     if (this.stateChangeInProgress){
       return;
     }
 
+    if (state.switchState !== active && logLevel <=2){log(`\x1b[35m[INFO]\x1b[0m ${name} ping detected state change, now ${active}`);}
+
     if (config.pingIPAddressStateOnly) {
       state.switchState = active ? true : false;
-      serviceManager.refreshCharacteristicUI(Characteristic.On);
+      serviceManager.updateCharacteristic(Characteristic.On,state.switchState);
 
       return;
     }
@@ -130,7 +132,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
 
     if (config.stateless === true) {
       state.switchState = false;
-      serviceManager.refreshCharacteristicUI(Characteristic.On);
+      serviceManager.updateCharacteristic(Characteristic.On,state.switchState);
     } else {
       this.checkAutoOnOff();
     }

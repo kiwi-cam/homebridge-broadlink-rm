@@ -96,7 +96,7 @@ class FanAccessory extends BroadlinkRMAccessory {
 
     if (config.pingIPAddressStateOnly) {
       state.switchState = active ? true : false;
-      serviceManager.refreshCharacteristicUI(Characteristic.Active);
+      serviceManager.updateCharacteristic(Characteristic.Active,state.switchState);
 
       return;
     }
@@ -104,17 +104,6 @@ class FanAccessory extends BroadlinkRMAccessory {
     const value = active ? true : false;
     serviceManager.setCharacteristic(Characteristic.Active, value);
   }
-
-  //async setSwitchState(hexData) {
-  //  const { data, host, log, name, logLevel } = this;
-
-  //  this.stateChangeInProgress = true;
-  //  this.reset();
-
-  //  if (hexData) {await this.performSend(hexData);}
-
-  //  this.checkAutoOnOff();
-  //}
 
   async checkPingGrace () {
     await catchDelayCancelError(async () => {

@@ -15,16 +15,6 @@
 		"hideScanFrequencyButton": false,
 		"hideLearnButton": false,
 		"hideWelcomeMessage": false,
-		"hosts": [{
-			"address": "192.168.1.76",
-			"mac": "34:ea:34:e7:d7:28",
-			"isRFSupported": false
-		},{
-			"address": "192.168.1.77",
-			"mac": "34:ea:34:e8:d8:30",
-			"isRFSupported": true,
-			"isRM4": true
-		}],
 		"accessories": [{
 				"name": "Auto-off Switch",
 				"type": "switch",

@@ -193,7 +193,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     // Do the actual sending of the temperature
     this.sendTemperature(state.targetTemperature, previousValue);
-    serviceManager.refreshCharacteristicUI(Characteristic.TargetTemperature);
+    serviceManager.updateCharacteristic(Characteristic.TargetTemperature, state.targetTemperature);
   }
 
   async setTargetHeatingCoolingState (hexData, previousValue) {
@@ -271,12 +271,12 @@ class AirConAccessory extends BroadlinkRMAccessory {
       //Force Temperature send
       delayForDuration(0.25).then(() => {
         this.sendTemperature(temperature, state.currentTemperature);
-        serviceManager.refreshCharacteristicUI(Characteristic.TargetTemperature);
+        serviceManager.updateCharacteristic(Characteristic.TargetTemperature,state.targetTemperature);
       });
     }
 
-    serviceManager.refreshCharacteristicUI(Characteristic.CurrentHeatingCoolingState);
-    serviceManager.refreshCharacteristicUI(Characteristic.TargetHeatingCoolingState);
+    serviceManager.updateCharacteristic(Characteristic.CurrentHeatingCoolingState,state.currentHeatingCoolingState);
+    serviceManager.updateCharacteristic(Characteristic.TargetHeatingCoolingState,state.targetHeatingCoolingState);
 
     this.checkAutoOff();
   }
@@ -423,7 +423,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     device.checkTemperature();
 
     this.updateTemperatureUI();
-    if (!config.isUnitTest) {setInterval(this.updateTemperatureUI.bind(this), config.temperatureUpdateFrequency * 1000)}
+    if (!config.isUnitTest) {setInterval(()=>{this.getCurrentTemperature(this.updateTemperatureUI.bind(this))}, config.temperatureUpdateFrequency * 1000)}
   }
 
   onTemperature (temperature,humidity) {
@@ -437,7 +437,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     temperature += temperatureAdjustment;
     if (tempSourceUnits == 'F') {temperature = (temperature - 32) * 5/9;}
     state.currentTemperature = temperature;
-    if(logLevel <=2) {log(`\x1b[36m[INFO] \x1b[0m${name} onTemperature (${temperature})`);}
+    if(logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} onTemperature (${temperature})`);}
 
     if(humidity) {
       if(noHumidity){
@@ -445,7 +445,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       }else{
         humidity += humidityAdjustment;
         state.currentHumidity = humidity;
-        if(logLevel <=2) {log(`\x1b[36m[INFO] \x1b[0m${name} onHumidity (` + humidity + `)`);}
+        if(logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} onHumidity (` + humidity + `)`);}
       }
     }
     
@@ -617,8 +617,8 @@ class AirConAccessory extends BroadlinkRMAccessory {
     const { config, serviceManager } = this;
     const { noHumidity } = config;
 
-    serviceManager.refreshCharacteristicUI(Characteristic.CurrentTemperature);
-    if(!noHumidity){serviceManager.refreshCharacteristicUI(Characteristic.CurrentRelativeHumidity);}
+    serviceManager.updateCharacteristic(Characteristic.CurrentTemperature, this.state.currentTemperature);
+    if(!noHumidity){serviceManager.updateCharacteristic(Characteristic.CurrentRelativeHumidity, this.state.currentHumidity);}
   }
 
   getCurrentTemperature (callback) {
