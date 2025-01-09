@@ -410,19 +410,19 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     if (!w1DeviceID && !temperatureFilePath && !mqttURL){
     //Update Device if applicable
-        const device = getDevice({ host, log });
+      const device = getDevice({ host, log });
 
-        // Try again in a second if we don't have a device yet
-        if (!device) {
-            await delayForDuration(1);
+      // Try again in a second if we don't have a device yet
+      if (!device) {
+        await delayForDuration(1);
 
-            this.monitorTemperature();
+        this.monitorTemperature();
 
-            return;
-        }
+        return;
+      }
 
-        device.on('temperature', this.onTemperature.bind(this));
-        device.checkTemperature();
+      device.on('temperature', this.onTemperature.bind(this));
+      device.checkTemperature();
     }
 
     this.updateTemperatureUI();
