@@ -399,28 +399,31 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   async monitorTemperature () {
     const { config, host, log, logLevel, name, state } = this;
-    const { temperatureFilePath, pseudoDeviceTemperature, w1DeviceID } = config;
+    const { temperatureFilePath, pseudoDeviceTemperature, w1DeviceID, mqttURL } = config;
 
     if (pseudoDeviceTemperature !== undefined) {return;}
 
     //Force w1 and file devices to a minimum 1 minute refresh
     if (w1DeviceID || temperatureFilePath) {config.temperatureUpdateFrequency = Math.max(config.temperatureUpdateFrequency,60);}
 
-    const device = getDevice({ host, log });
-
-    // Try again in a second if we don't have a device yet
-    if (!device) {
-      await delayForDuration(1);
-
-      this.monitorTemperature();
-
-      return;
-    }
-
     if (logLevel <=1) {log(`${name} monitorTemperature`);}
 
-    device.on('temperature', this.onTemperature.bind(this));
-    device.checkTemperature();
+    if (!w1DeviceID && !temperatureFilePath && !mqttURL){
+    //Update Device if applicable
+        const device = getDevice({ host, log });
+
+        // Try again in a second if we don't have a device yet
+        if (!device) {
+            await delayForDuration(1);
+
+            this.monitorTemperature();
+
+            return;
+        }
+
+        device.on('temperature', this.onTemperature.bind(this));
+        device.checkTemperature();
+    }
 
     this.updateTemperatureUI();
     if (!config.isUnitTest) {setInterval(()=>{this.getCurrentTemperature(this.updateTemperatureUI.bind(this))}, config.temperatureUpdateFrequency * 1000)}
