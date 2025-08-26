@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
  - Stopped device temperature checks when they're not applicable (MQTT, File, W1)
+ - Updated dependancies
 
 ## [4.4.19 - 2024-09-30]
 ### Fixed
