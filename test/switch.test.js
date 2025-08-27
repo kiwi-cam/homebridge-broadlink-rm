@@ -201,7 +201,7 @@ describe('switchAccessory', () => {
       isUnitTest: true
     }
     
-    let switchAccessory = new Switch(null, config, 'FakeServiceManager')
+    const switchAccessory = new Switch(null, config, 'FakeServiceManager')
     const pingInterval = switchAccessory.checkPing(ping.bind({ isActive: true }))
 
     await delayForDuration(0.3)
@@ -222,7 +222,7 @@ describe('switchAccessory', () => {
       isUnitTest: true
     }
     
-    let switchAccessory = new Switch(null, config, 'FakeServiceManager')
+    const switchAccessory = new Switch(null, config, 'FakeServiceManager')
     expect(switchAccessory.state.switchState).to.equal(undefined);
     
     const pingInterval = switchAccessory.checkPing(ping.bind({ isActive: false }))
@@ -246,7 +246,7 @@ describe('switchAccessory', () => {
       isUnitTest: true
     }
     
-    let switchAccessory = new Switch(null, config, 'FakeServiceManager')
+    const switchAccessory = new Switch(null, config, 'FakeServiceManager')
     expect(switchAccessory.state.switchState).to.equal(undefined);
     
     const pingInterval = switchAccessory.checkPing(ping.bind({ isActive: true }))
@@ -271,7 +271,7 @@ describe('switchAccessory', () => {
       isUnitTest: true
     }
     
-    let switchAccessory = new Switch(null, config, 'FakeServiceManager')
+    const switchAccessory = new Switch(null, config, 'FakeServiceManager')
     expect(switchAccessory.state.switchState).to.equal(undefined);
     
     const pingInterval = switchAccessory.checkPing(ping.bind({ isActive: true }))

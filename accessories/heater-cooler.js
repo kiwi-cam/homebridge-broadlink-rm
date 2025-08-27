@@ -11,13 +11,13 @@ const BroadlinkRMAccessory = require('./accessory');
 
 // Initializing predefined constants based on homekit API
 // All temperature values passed and received from homekit API are defined in degree Celsius
-let COOLING_THRESHOLD_TEMPERATURE = {
+const COOLING_THRESHOLD_TEMPERATURE = {
   minValue: 10,
   maxValue: 30,
   minStep: 0.1
 }
 
-let HEATING_THRESHOLD_TEMPERATURE = {
+const HEATING_THRESHOLD_TEMPERATURE = {
   minValue: 18,
   maxValue: 25,
   minStep: 0.1
@@ -178,7 +178,8 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
     const { config, data, state, log, logLevel } = this
     const { internalConfig } = config
     const { available } = internalConfig
-    let { targetHeaterCoolerState, heatingThresholdTemperature, coolingThresholdTemperature } = state
+    const { targetHeaterCoolerState } = state
+    let { heatingThresholdTemperature, coolingThresholdTemperature } = state
 
     if (logLevel <= 2) {log(`Changing target state from ${previousValue} to ${targetHeaterCoolerState}`)}
     switch (targetHeaterCoolerState) {
@@ -354,14 +355,14 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
 
     if (logLevel <= 2) {log(`Looking up temperature hex codes for ${temperature}`)}
 
-    let CONFIG_CHARACTERISTICS = [
+    const CONFIG_CHARACTERISTICS = [
       //CharacteristicName.SLEEP,
       CharacteristicName.SWING_MODE,
       CharacteristicName.ROTATION_SPEED
     ]
 
     let hexCode = "0"
-    let temperatureHexDataObject = temperatureCodes[`${temperature}`]
+    const temperatureHexDataObject = temperatureCodes[`${temperature}`]
     if (temperatureHexDataObject) {
       hexCode = this.decodeHierarchichalHex(temperatureHexDataObject, CONFIG_CHARACTERISTICS, toUpdateCharacteristic)
       if (logLevel <= 2) {log(`\tSending hex codes for temperature ${temperature}`)}
@@ -382,7 +383,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
     const { name, log, logLevel, state, config } = this
     const { targetHeaterCoolerState, coolingThresholdTemperature, heatingThresholdTemperature } = state
 
-    let targetTemperature = targetHeaterCoolerState === Characteristic.TargetHeaterCoolerState.COOL ? coolingThresholdTemperature : heatingThresholdTemperature;
+    const targetTemperature = targetHeaterCoolerState === Characteristic.TargetHeaterCoolerState.COOL ? coolingThresholdTemperature : heatingThresholdTemperature;
 
     if (logLevel <= 2) {log(`${name} setTemperature: Changing temperature from ${previousValue} to ${targetTemperature}`)}
     hexData = this.decodeHexFromConfig(targetHeaterCoolerState === Characteristic.TargetHeaterCoolerState.COOL ? CharacteristicName.CoolingThresholdTemperature : CharacteristicName.HeatingThresholdTemperature)
@@ -410,7 +411,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
       //Add ON hex to be sent first
       if (logLevel <= 2) {this.log(`\tAdding ON code first`);}
       //Add pause to the ON Code
-      let onCode = targetHeaterCoolerState === Characteristic.TargetHeaterCoolerState.COOL ? data.cool.on : data.heat.on;
+      const onCode = targetHeaterCoolerState === Characteristic.TargetHeaterCoolerState.COOL ? data.cool.on : data.heat.on;
       let newCode = [];
       if (typeof onCode === 'string') {
         newCode = [{ "data": onCode, "pause": 1 }];
@@ -664,7 +665,7 @@ class HeaterCoolerAccessory extends BroadlinkRMAccessory {
       } else {
         lines.forEach((line) => {
           if (-1 < line.indexOf(':')) {
-            let value = line.split(':');
+            const value = line.split(':');
             if (value[0] == 'temperature') {temperature = parseFloat(value[1]);}
             if (value[0] == 'humidity' && !noHumidity) {humidity = parseFloat(value[1]);}
             if (value[0] == 'battery' && batteryAlerts) {state.batteryLevel = parseFloat(value[1]);}

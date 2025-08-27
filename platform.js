@@ -66,7 +66,7 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
     }
 
     // Iterate through the config accessories
-    let tvs = [];
+    const tvs = [];
     config.accessories.forEach((accessory) => {
       if (!accessory.type) {throw new Error(`Each accessory must be configured with a "type". e.g. "switch"`);}
       if (accessory.disabled) {return;}

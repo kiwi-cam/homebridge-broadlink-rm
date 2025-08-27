@@ -38,7 +38,8 @@ class SwitchRepeatAccessory extends SwitchAccessory {
       }
 
       const { config, host, log, name, state, logLevel } = this;
-      let { interval, onSendCount, offSendCount, sendCount  } = config;
+      const { interval, onSendCount, offSendCount } = config;
+      let { sendCount  } = config;
 
       if (state.switchState && onSendCount) {sendCount = onSendCount;}
       if (!state.switchState && offSendCount) {sendCount = offSendCount;}

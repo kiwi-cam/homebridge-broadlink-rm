@@ -13,7 +13,7 @@ class FanAccessory extends BroadlinkRMAccessory {
   }
 
   setDefaults() {
-    let { config, state } = this;
+    const { config, state } = this;
     config.pingFrequency = config.pingFrequency || 1;
     config.pingGrace = config.pingGrace || 10;
 
@@ -78,7 +78,7 @@ class FanAccessory extends BroadlinkRMAccessory {
 
   checkPing(ping) {
     const { config } = this;
-    let { pingIPAddress, pingFrequency, pingUseArp } = config;
+    const { pingIPAddress, pingFrequency, pingUseArp } = config;
 
     if (!pingIPAddress) {return;}
 
@@ -109,7 +109,7 @@ class FanAccessory extends BroadlinkRMAccessory {
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
 
-      let { pingGrace } = config;
+      const { pingGrace } = config;
 
       if (pingGrace) {
 
@@ -124,7 +124,7 @@ class FanAccessory extends BroadlinkRMAccessory {
   async checkAutoOff() {
     await catchDelayCancelError(async () => {
       const { config, log, logLevel, name, state, serviceManager } = this;
-      let { disableAutomaticOff, enableAutoOff, onDuration } = config;
+      const { disableAutomaticOff, enableAutoOff, onDuration } = config;
 
       if (state.switchState && enableAutoOff) {
         if (logLevel <= 2) {log(`${name} setSwitchState: (automatically turn off in ${onDuration} seconds)`);}
@@ -140,7 +140,7 @@ class FanAccessory extends BroadlinkRMAccessory {
   async checkAutoOn() {
     await catchDelayCancelError(async () => {
       const { config, log, logLevel, name, state, serviceManager } = this;
-      let { disableAutomaticOn, enableAutoOn, offDuration } = config;
+      const { disableAutomaticOn, enableAutoOn, offDuration } = config;
 
       if (!state.switchState && enableAutoOn) {
         if (logLevel <= 2) {log(`${name} setSwitchState: (automatically turn on in ${offDuration} seconds)`);}

@@ -6,7 +6,7 @@ const delayForDuration = require('../helpers/delayForDuration');
 class Fanv1Accessory extends FanAccessory {
   setDefaults () {
     super.setDefaults();
-    let { config, state } = this;
+    const { config, state } = this;
     
     // Defaults
     config.showRotationDirection = config.hideRotationDirection === true || config.showRotationDirection === false ? false : true;
@@ -20,7 +20,7 @@ class Fanv1Accessory extends FanAccessory {
   async checkAutoOff() {
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
-      let { disableAutomaticOff, enableAutoOff, onDuration } = config;
+      const { disableAutomaticOff, enableAutoOff, onDuration } = config;
 
       if (state.switchState && enableAutoOff) {
         log(
@@ -38,7 +38,7 @@ class Fanv1Accessory extends FanAccessory {
   async checkAutoOn() {
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
-      let { disableAutomaticOn, enableAutoOn, offDuration } = config;
+      const { disableAutomaticOn, enableAutoOn, offDuration } = config;
 
       if (!state.switchState && enableAutoOn) {
         log(

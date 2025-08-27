@@ -13,7 +13,7 @@ const startKeepAlive = (device, log) => {
   setInterval(() => {
     if(broadlink.debug) {log('\x1b[33m[DEBUG]\x1b[0m Sending keepalive to', device.host.address,':',device.host.port)}
     const socket = dgram.createSocket({ type:'udp4', reuseAddr:true }); 
-    let packet = Buffer.alloc(0x30, 0);
+    const packet = Buffer.alloc(0x30, 0);
     packet[0x26] = 0x1;
     socket.send(packet, 0, packet.length, device.host.port, device.host.address, (err, bytes) => {
       if (err) {log('\x1b[33m[DEBUG]\x1b[0m send keepalive packet error', err)}
@@ -132,7 +132,7 @@ const getDevice = ({ host, log, learnOnly }) => {
     // Only return device that can Learn Code codes
     if (learnOnly) {
       for (let i = 0; i < hosts.length; i++) {
-        let currentDevice = discoveredDevices[hosts[i]];
+        const currentDevice = discoveredDevices[hosts[i]];
 
         if (currentDevice.enterLearning) {
           device = currentDevice

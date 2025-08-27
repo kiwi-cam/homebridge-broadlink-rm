@@ -81,7 +81,7 @@ class TVAccessory extends BroadlinkRMAccessory {
 
   checkPing(ping) {
     const { config } = this;
-    let { pingIPAddress, pingFrequency, pingUseArp } = config;
+    const { pingIPAddress, pingFrequency, pingUseArp } = config;
 
     if (!pingIPAddress) {return;}
 
@@ -123,7 +123,7 @@ class TVAccessory extends BroadlinkRMAccessory {
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
 
-      let { pingGrace } = config;
+      const { pingGrace } = config;
 
       if (pingGrace) {
 
@@ -138,7 +138,7 @@ class TVAccessory extends BroadlinkRMAccessory {
   async checkAutoOff() {
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
-      let { disableAutomaticOff, enableAutoOff, onDuration } = config;
+      const { disableAutomaticOff, enableAutoOff, onDuration } = config;
 
       if (state.switchState && enableAutoOff) {
         log(
@@ -156,7 +156,7 @@ class TVAccessory extends BroadlinkRMAccessory {
   async checkAutoOn() {
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
-      let { disableAutomaticOn, enableAutoOn, offDuration } = config;
+      const { disableAutomaticOn, enableAutoOn, offDuration } = config;
 
       if (!state.switchState && enableAutoOn) {
         log(
@@ -391,7 +391,7 @@ class TVAccessory extends BroadlinkRMAccessory {
           return;
         }
       
-        let hexData = data.volume.mute;
+        const hexData = data.volume.mute;
         if (!hexData) {
           log(
             `${name} VolumeSelector: No IR code found for mute!`

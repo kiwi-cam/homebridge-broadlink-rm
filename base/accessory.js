@@ -20,7 +20,7 @@ class HomebridgeAccessory {
   constructor(log, config = {}, serviceManagerType = 'ServiceManager') {
     this.serviceManagerType = serviceManagerType;
 
-    let { disableLogs, host, name, data, persistState, resendDataAfterReload, resendDataAfterReloadDelay } = config;
+    const { disableLogs, host, name, data, persistState, resendDataAfterReload, resendDataAfterReloadDelay } = config;
 
     this.log = (!disableLogs && log) ? log : () => { };
     if (this.logLevel === undefined) {this.logLevel = 2;} //Default to info
@@ -161,7 +161,7 @@ class HomebridgeAccessory {
     const capitalizedPropertyName = propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
 
     if (this.state[propertyName] === undefined) {
-      let thisCharacteristic = this.serviceManager.getCharacteristicTypeForName(propertyName);
+      const thisCharacteristic = this.serviceManager.getCharacteristicTypeForName(propertyName);
       if (this.serviceManager.getCharacteristic(thisCharacteristic).props.format != 'bool' && this.serviceManager.getCharacteristic(thisCharacteristic).props.minValue) {
         value = this.serviceManager.getCharacteristic(thisCharacteristic).props.minValue;
       } else {
@@ -177,7 +177,8 @@ class HomebridgeAccessory {
 
   loadState() {
     const { config, log, logLevel, name, serviceManager } = this;
-    let { host, resendDataAfterReload, resendDataAfterReloadDelay, persistState } = config;
+    const { host, resendDataAfterReload } = config;
+    let { resendDataAfterReloadDelay, persistState } = config;
 
     // Set defaults
     if (persistState === undefined) {persistState = true;}
@@ -260,7 +261,8 @@ class HomebridgeAccessory {
   // MQTT Support
   subscribeToMQTT() {
     const { config, log, logLevel, name } = this;
-    let { mqttTopic, mqttURL, mqttUsername, mqttPassword } = config;
+    const { mqttURL, mqttUsername, mqttPassword } = config;
+    let { mqttTopic } = config;
 
     if (!mqttTopic || !mqttURL) {return;}
 

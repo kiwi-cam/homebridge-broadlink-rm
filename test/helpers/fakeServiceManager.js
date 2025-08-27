@@ -30,7 +30,7 @@ class FakeService {
   }
 
   setCharacteristic (type, value) {
-    let characteristic = this.characteristics[type]
+    const characteristic = this.characteristics[type]
 
     if (characteristic) {characteristic.set(value);}
   }
