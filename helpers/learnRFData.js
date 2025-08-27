@@ -45,9 +45,9 @@ const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) =
 
   currentDevice = device
 
-  let onRawData;
-  let onRawData2;
-  let onRawData3;
+  let onRawData
+  let onRawData2
+  let onRawData3
 
   closeClient = (err) => {
     if (timeout) {clearTimeout(timeout);}

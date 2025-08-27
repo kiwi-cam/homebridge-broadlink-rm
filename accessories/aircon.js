@@ -243,7 +243,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
     }
 
     let temperature = state.targetTemperature;
-    let mode = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
+    const mode = HeatingCoolingConfigKeys[state.targetHeatingCoolingState];
 
     if (state.currentHeatingCoolingState !== state.targetHeatingCoolingState){
       // Selecting a heating/cooling state allows a default temperature to be used for the given state.
@@ -284,7 +284,9 @@ class AirConAccessory extends BroadlinkRMAccessory {
   async checkAutoOff () {
     await catchDelayCancelError(async () => {
       const {config, name, data, log} = this;
-      let {enableAutoOff, onDuration, enableAutoOn, offDuration} = config;
+      const {enableAutoOff, enableAutoOn} = config;
+      let {onDuration, offDuration} = config;
+      
       onDuration = onDuration|| 60;
       offDuration = offDuration|| 60;
 
@@ -344,7 +346,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     let finalTemperature = temperature;
     if (mode === 'off') {
-      let hexData = data.off;
+      const hexData = data.off;
       return { finalTemperature, hexData };
     } 
     let hexData = data[`${mode}${temperature}`];
@@ -550,7 +552,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
       } else {
         lines.forEach((line) => {
           if(-1 < line.indexOf(':')){
-            let value = line.split(':');
+            const value = line.split(':');
             if(value[0] == 'temperature') {temperature = parseFloat(value[1]);}
             if(value[0] == 'humidity' && !noHumidity) {humidity = parseFloat(value[1]);}
             if(value[0] == 'battery' && batteryAlerts) {battery = parseFloat(value[1]);}
@@ -646,7 +648,7 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
   async checkTemperatureForAutoOnOff (temperature) {
     const { config, host, log, logLevel, name, serviceManager, state } = this;
-    let { autoHeatTemperature, autoCoolTemperature, minimumAutoOnOffDuration } = config;
+    const { autoHeatTemperature, autoCoolTemperature, minimumAutoOnOffDuration } = config;
 
     if (this.shouldIgnoreAutoOnOff) {
       if (logLevel <=2) {log(`${name} checkTemperatureForAutoOn (ignore within ${minimumAutoOnOffDuration}s of previous auto-on/off due to "minimumAutoOnOffDuration")`);}

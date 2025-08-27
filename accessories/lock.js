@@ -55,7 +55,7 @@ class LockAccessory extends BroadlinkRMAccessory {
 
   async lock () {
     const { config, data, host, log, name, state, logLevel, serviceManager } = this;
-    let { lockDuration } = config;
+    const { lockDuration } = config;
 
     log(`${name} setLockCurrentState: locking for ${lockDuration}s`);
 
@@ -68,7 +68,7 @@ class LockAccessory extends BroadlinkRMAccessory {
 
   async unlock (hexData) {
     const { config, data, host, log, name, state, logLevel, serviceManager } = this;
-    let { autoLockDelay, unlockDuration } = config;
+    const { autoLockDelay, unlockDuration } = config;
 
     log(`${name} setLockCurrentState: unlocking for ${unlockDuration}s`);
     this.unlockingTimeoutPromise = delayForDuration(unlockDuration);

@@ -45,7 +45,7 @@ class SwitchMultiAccessory extends SwitchAccessory {
 
   async setSwitchState(hexData) {
     const { name, config, data, log, state } = this;
-    let { interval, pause, sendCount } = config;
+    const { interval, pause, sendCount } = config;
 
     if (!hexData) {
       this.checkAutoOnOff();
@@ -75,7 +75,8 @@ class SwitchMultiAccessory extends SwitchAccessory {
 
   async performRepeatSend(hexConfig) {
     const { host, log, name, logLevel } = this;
-    let { data, interval, sendCount } = hexConfig;
+    const { data, sendCount } = hexConfig;
+    let { interval } = hexConfig;
 
     interval = interval || 1;
 

@@ -231,7 +231,7 @@ describe('outletAccessory', () => {
       isUnitTest: true
     }
     
-    let outletAccessory = new Outlet(null, config, 'FakeServiceManager')
+    const outletAccessory = new Outlet(null, config, 'FakeServiceManager')
     const pingInterval = outletAccessory.checkPing(ping.bind({ isActive: true }))
 
     await delayForDuration(0.3)
@@ -250,7 +250,7 @@ describe('outletAccessory', () => {
       isUnitTest: true
     }
     
-    let outletAccessory = new Outlet(null, config, 'FakeServiceManager')
+    const outletAccessory = new Outlet(null, config, 'FakeServiceManager')
     expect(outletAccessory.state.outletInUse).to.equal(undefined);
     
     const pingInterval = outletAccessory.checkPing(ping.bind({ isActive: false }))
@@ -273,7 +273,7 @@ describe('outletAccessory', () => {
       isUnitTest: true
     }
     
-    let outletAccessory = new Outlet(null, config, 'FakeServiceManager')
+    const outletAccessory = new Outlet(null, config, 'FakeServiceManager')
     expect(outletAccessory.state.outletInUse).to.equal(undefined);
     
     const pingInterval = outletAccessory.checkPing(ping.bind({ isActive: true }))
@@ -297,7 +297,7 @@ describe('outletAccessory', () => {
       isUnitTest: true
     }
     
-    let outletAccessory = new Outlet(null, config, 'FakeServiceManager')
+    const outletAccessory = new Outlet(null, config, 'FakeServiceManager')
     expect(outletAccessory.state.outletInUse).to.equal(undefined);
     
     const pingInterval = outletAccessory.checkPing(ping.bind({ isActive: true }))

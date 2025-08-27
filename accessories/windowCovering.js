@@ -64,10 +64,10 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
       const closeCompletely = await this.checkOpenOrCloseCompletely();
       if (closeCompletely) {return;}
 
-      if (logLevel <= 1) {log(`${name} setTargetPosition: (set new position)`)};
+      if (logLevel <= 1) {log(`${name} setTargetPosition: (set new position)`)}
 
       // Determine if we're opening or closing
-      let difference = state.targetPosition - state.currentPosition;
+      const difference = state.targetPosition - state.currentPosition;
 
       if (difference > 0) {
         state.positionState = Characteristic.PositionState.INCREASING
@@ -102,8 +102,8 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
 
   async openOrClose ({ hexData, previousValue }) {
     await catchDelayCancelError(async () => {
-      let { config, data, host, name, log, state, logLevel, serviceManager } = this;
-      let { totalDurationOpen, totalDurationClose } = config;
+      const { config, data, host, name, log, state, logLevel, serviceManager } = this;
+      const { totalDurationOpen, totalDurationClose } = config;
       const { stop } = data;
 
       serviceManager.setCharacteristic(Characteristic.PositionState, state.positionState);
@@ -126,8 +126,8 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
       
       const totalTime = Math.abs(difference / 100 * fullOpenCloseTime);
 
-      if (logLevel <= 1) {log(`${name} setTargetPosition: position change ${state.currentPosition}% -> ${state.targetPosition}% (${positionStateDescription})`)};
-      if (logLevel <= 1) {log(`${name} setTargetPosition: ${+totalTime.toFixed(2)}s ((${Math.abs(difference)} / 100) * ${fullOpenCloseTime}) until auto-stop`)};
+      if (logLevel <= 1) {log(`${name} setTargetPosition: position change ${state.currentPosition}% -> ${state.targetPosition}% (${positionStateDescription})`)}
+      if (logLevel <= 1) {log(`${name} setTargetPosition: ${+totalTime.toFixed(2)}s ((${Math.abs(difference)} / 100) * ${fullOpenCloseTime}) until auto-stop`)}
 
       await this.performSend(hexData);
       
@@ -162,7 +162,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
     const { sendStopAt0, sendStopAt100 } = config;
     const { stop } = data;
   
-    if (logLevel <= 2) {log(`${name} setTargetPosition: (stop window covering)`)};
+    if (logLevel <= 2) {log(`${name} setTargetPosition: (stop window covering)`)}
 
     // Reset the state and timers
     this.reset();
@@ -250,7 +250,7 @@ class WindowCoveringAccessory extends BroadlinkRMAccessory {
         const currentValue = this.getUpToDatePosition(state)
         serviceManager.setCharacteristic(Characteristic.CurrentPosition, currentValue);
 
-        if (logLevel <= 2) {log(`${name} setTargetPosition: updated position to ${currentValue} (${positionStateDescription})`)};
+        if (logLevel <= 2) {log(`${name} setTargetPosition: updated position to ${currentValue} (${positionStateDescription})`)}
       }
 
       // Let's go again

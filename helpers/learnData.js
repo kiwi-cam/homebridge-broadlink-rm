@@ -29,7 +29,7 @@ const start = (host, callback, turnOffCallback, log, disableTimeout, logLevel) =
 
   if (!device.enterLearning) {return log(`\x1b[31m[ERROR]\x1b[0m Learn Code (IR learning not supported for device at ${host})`);}
 
-  let onRawData;
+  let onRawData
 
   closeClient = (err) => {
     if (timeout) {clearTimeout(timeout);}

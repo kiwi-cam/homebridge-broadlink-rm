@@ -36,7 +36,7 @@ class SwitchMultiAccessory extends SwitchAccessory {
 
   async setSwitchState (hexData) {
     const { config, host, log, name, state, logLevel } = this;
-    let { interval } = config;
+    const { interval } = config;
 
     if (!hexData) {
       this.checkAutoOnOff();

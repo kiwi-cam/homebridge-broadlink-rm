@@ -106,7 +106,8 @@ class BroadlinkRMAccessory extends HomebridgeAccessory {
 
   async performRepeatSend (parentData, actionCallback) {
     const { host, log, name, logLevel } = this;
-    let { data, interval, sendCount } = parentData;
+    const { data } = parentData;
+    let { interval, sendCount } = parentData;
 
     sendCount = sendCount || 1
     if (sendCount > 1) {interval = interval || 0.1;}

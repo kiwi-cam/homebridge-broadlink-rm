@@ -77,7 +77,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   
   checkPing (ping) {
     const { config } = this
-    let { pingIPAddress, pingFrequency, pingUseArp } = config;
+    const { pingIPAddress, pingFrequency, pingUseArp } = config;
 
     if (!pingIPAddress) {return}
     
@@ -128,7 +128,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
       
-      let { pingGrace } = config;
+      const { pingGrace } = config;
 
       if (pingGrace) {
         this.pingGraceTimeoutPromise = delayForDuration(pingGrace);
@@ -142,7 +142,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   async checkAutoOff () {
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
-      let { disableAutomaticOff, enableAutoOff, onDuration } = config;
+      const { disableAutomaticOff, enableAutoOff, onDuration } = config;
 
       if (state.switchState && enableAutoOff) {
         log(`${name} setSwitchState: (automatically turn off in ${onDuration} seconds)`);
@@ -158,7 +158,7 @@ class SwitchAccessory extends BroadlinkRMAccessory {
   async checkAutoOn () {
     await catchDelayCancelError(async () => {
       const { config, log, name, state, serviceManager } = this;
-      let { disableAutomaticOn, enableAutoOn, offDuration } = config;
+      const { disableAutomaticOn, enableAutoOn, offDuration } = config;
 
       if (!state.switchState && enableAutoOn) {
         log(`${name} setSwitchState: (automatically turn on in ${offDuration} seconds)`);
