@@ -47,6 +47,6 @@
     "eslint-plugin-no-autofix": "^1.2.3",
     "hap-nodejs": "^0.12.2",
     "mocha": "^10.6.0",
-    "release-it": "^17.6.0"
+    "release-it": "^19.0.4"
   }
 }
