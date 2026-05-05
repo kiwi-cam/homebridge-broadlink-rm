@@ -132,6 +132,13 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
       let deviceType = 0x2221;
       deviceType = isRFSupported ? (deviceType | 0x2) : deviceType;
       deviceType = isRM4 ? (deviceType | 0x4) : deviceType;
+      // RM4 Pro firmware validates the deviceType bytes in incoming request
+      // packets and only accepts its real type 0x520b — the synthetic 0x2227
+      // ("Manual RM4 Pro Device") is in the lib's lookup table for client-side
+      // routing but is rejected by the device itself. Without this swap, even
+      // packets with correct MAC bytes get dropped server-side and auth
+      // never completes. Diagnosed 2026-05-05.
+      if (deviceType === 0x2227) deviceType = 0x520b;
       
       // The Device class indexes `this.mac[5..0]` to write the MAC into the
       // request packet header (sendPacket, bytes 0x2a..0x2f), expecting a
