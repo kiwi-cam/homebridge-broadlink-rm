@@ -133,7 +133,15 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
       deviceType = isRFSupported ? (deviceType | 0x2) : deviceType;
       deviceType = isRM4 ? (deviceType | 0x4) : deviceType;
       
-      broadlink.addDevice({ address, port: 80 }, mac.toLowerCase(), deviceType);
+      // The Device class indexes `this.mac[5..0]` to write the MAC into the
+      // request packet header (sendPacket, bytes 0x2a..0x2f), expecting a
+      // Buffer. Passing the MAC as a string makes those indices return
+      // single chars whose Number coercion produces NaN→0 (and stray digits
+      // for `0-9` chars), so the MAC bytes in every outgoing packet are
+      // garbage. RM3 devices ignore those bytes; RM4 Pro firmware validates
+      // them and silently drops the request — auth never completes.
+      const macBuffer = Buffer.from(mac.replace(/:/g, ''), 'hex');
+      broadlink.addDevice({ address, port: 80 }, macBuffer, deviceType);
     })
   }
 
