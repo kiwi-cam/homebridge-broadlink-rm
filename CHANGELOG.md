@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
  - Homebridge 2.0 compatibility: access HAP categories via `hap.Categories` instead of `hap.Accessory.Categories`. (#777 thanks @Gernot)
+ - Fixed RM4 Pro auth via hosts config (#779 Thanks @GlitchVector)
+### Changed
+ - Improved Battery level monitoring in Temperataure Sensors
 
 ## [4.4.20 - 2025-08-28]
 ### Fixed
