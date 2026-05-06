@@ -4,9 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.4.21 - 2026-05-05]
+## [Unreleased]
 ### Fixed
- - Homebridge 2.0 compatibility: access HAP categories via `hap.Categories` instead of `hap.Accessory.Categories`. In hap-nodejs v1 (used by Homebridge 2.0) the `Accessory.Categories` path was removed, which caused a `TypeError: Cannot read properties of undefined (reading 'TELEVISION')` crash on startup for any configuration containing a `tv` accessory. The new path is also valid in hap-nodejs v0.x, so this is backward-compatible with Homebridge 1.x.
+ - Homebridge 2.0 compatibility: access HAP categories via `hap.Categories` instead of `hap.Accessory.Categories`. (#777 thanks @Gernot)
+ - Fixed RM4 Pro auth via hosts config (#779 Thanks @GlitchVector)
+### Changed
+ - Improved Battery level monitoring in Temperataure Sensors
 
 ## [4.4.20 - 2025-08-28]
 ### Fixed
