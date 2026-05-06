@@ -561,13 +561,13 @@ class AirConAccessory extends BroadlinkRMAccessory {
       }
 
       //Default battery level if none returned
-	    if (battery) {
+	    if (Number.isInteger(battery)) {
         state.batteryLevel = battery;
       }else{
         state.batteryLevel = 100;
       }
 	    
-      if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} updateTemperatureFromFile (parsed temperature: ${temperature} humidity: ${humidity})`);}
+      if (logLevel <=1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} updateTemperatureFromFile (parsed temperature: ${temperature} humidity: ${humidity} battery: ${state.batteryLevel} ${batteryAlerts})`);}
 
       this.onTemperature(temperature, humidity);
     });
