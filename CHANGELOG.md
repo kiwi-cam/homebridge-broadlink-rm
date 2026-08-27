@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+ - Configuration UI. The plugin now ships a `config.schema.json` and a custom Homebridge UI, so it can be set up from a form instead of by hand-editing config.json. It scans the network for Broadlink devices, reports whether each one is reachable, locked to the cloud or missing a DHCP lease, and offers an accessory editor that shows only the options that apply to the chosen accessory type.
+ - Learning codes from the configuration UI. Every accessory type has a labelled slot for each hex code it can hold, with a Learn button (and Learn RF on RM Pro / RM4 Pro) that writes the captured code straight into the accessory, a Test button that sends it back out, and a guided pass that walks through every missing code in one go.
+
 ## [4.4.21 - 2026-05-10
 ### Fixed
  - Homebridge 2.0 compatibility: access HAP categories via `hap.Categories` instead of `hap.Accessory.Categories`. (#777 thanks @Gernot)

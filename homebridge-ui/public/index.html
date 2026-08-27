@@ -1,0 +1,934 @@
+<style>
+  .brm-wrap { font-size: 0.9rem; }
+  .brm-wrap .nav-tabs { margin-bottom: 1rem; }
+  .brm-hint { font-size: 0.8rem; opacity: 0.7; margin: 0.15rem 0 0; }
+  .brm-section { border: 1px solid rgba(128,128,128,0.25); border-radius: 0.5rem; padding: 0.9rem 1rem; margin-bottom: 1rem; }
+  .brm-section > h6 { margin: 0 0 0.75rem; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; font-size: 0.72rem; opacity: 0.65; }
+  .brm-row { display: flex; gap: 1rem; align-items: flex-start; }
+  .brm-list { flex: 0 0 15rem; max-height: 30rem; overflow-y: auto; border: 1px solid rgba(128,128,128,0.25); border-radius: 0.5rem; }
+  .brm-list button { display: block; width: 100%; text-align: left; border: 0; background: transparent; padding: 0.45rem 0.7rem; color: inherit; border-bottom: 1px solid rgba(128,128,128,0.15); }
+  .brm-list button:hover { background: rgba(128,128,128,0.12); }
+  .brm-list button.active { background: rgba(13,110,253,0.15); font-weight: 600; }
+  .brm-list .brm-list-type { display: block; font-size: 0.72rem; opacity: 0.6; font-weight: 400; }
+  .brm-editor { flex: 1 1 auto; min-width: 0; }
+  .brm-device { border: 1px solid rgba(128,128,128,0.25); border-radius: 0.5rem; padding: 0.7rem 0.9rem; margin-bottom: 0.6rem; }
+  .brm-device-head { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .brm-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.82rem; }
+  .brm-empty { opacity: 0.6; text-align: center; padding: 1.6rem 0.5rem; }
+  .brm-data { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.78rem; min-height: 11rem; }
+  .brm-group { margin-bottom: 0.9rem; }
+  .brm-group > span { display: block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.6; margin-bottom: 0.3rem; }
+  .brm-code { display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.5rem; border: 1px solid rgba(128,128,128,0.2); border-radius: 0.4rem; margin-bottom: 0.3rem; flex-wrap: wrap; }
+  .brm-code.is-target { border-color: #0d6efd; box-shadow: 0 0 0 2px rgba(13,110,253,0.18); }
+  .brm-code-label { font-weight: 600; flex: 0 0 11rem; }
+  .brm-code-hex { flex: 1 1 6rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: 0.65; }
+  .brm-code .btn { padding: 0.12rem 0.5rem; font-size: 0.74rem; }
+  .brm-learn { border: 1px solid #0d6efd; border-radius: 0.5rem; padding: 0.75rem 0.9rem; margin-bottom: 0.9rem; background: rgba(13,110,253,0.06); }
+  .brm-learn-state { font-weight: 600; margin: 0 0 0.2rem; }
+  .brm-add { display: flex; gap: 0.4rem; align-items: flex-end; flex-wrap: wrap; margin-top: 0.6rem; }
+  .brm-add > * { flex: 0 0 auto; }
+  .brm-add select, .brm-add input { width: auto; min-width: 7rem; }
+  details.brm-raw { margin-top: 0.9rem; }
+  details.brm-raw > summary { cursor: pointer; font-size: 0.8rem; opacity: 0.7; }
+  @media (max-width: 560px) { .brm-code-label { flex-basis: 100%; } }
+  @media (max-width: 700px) {
+    .brm-row { flex-direction: column; }
+    .brm-list { flex: 1 1 auto; width: 100%; max-height: 14rem; }
+  }
+</style>
+
+<div class="brm-wrap">
+  <ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-tab="devices" type="button">Devices</button></li>
+    <li class="nav-item"><button class="nav-link" data-tab="accessories" type="button">Accessories</button></li>
+    <li class="nav-item"><button class="nav-link" data-tab="settings" type="button">Settings</button></li>
+  </ul>
+
+  <!-- ---------------------------------------------------------- devices -->
+  <div data-panel="devices">
+    <div class="brm-section">
+      <h6>Broadlink devices on this network</h6>
+      <p class="brm-hint">
+        A scan sends a broadcast that every Broadlink RM device answers, so it finds them
+        wherever they are. Nothing here is required: leave the list below empty and the
+        plugin discovers devices by itself each time it starts.
+      </p>
+      <button class="btn btn-primary btn-sm" id="brm-scan" type="button">Scan network</button>
+      <span class="brm-hint" id="brm-scan-status"></span>
+    </div>
+
+    <div id="brm-devices"></div>
+
+    <div class="brm-section">
+      <h6>Fixed addresses</h6>
+      <p class="brm-hint">
+        Pinning a device writes its address into <code>hosts</code>, which switches automatic
+        discovery off and uses only the devices listed here. Use it when broadcast traffic is
+        blocked between Homebridge and the device, for example across VLANs.
+      </p>
+      <div id="brm-hosts"></div>
+    </div>
+  </div>
+
+  <!-- ------------------------------------------------------ accessories -->
+  <div data-panel="accessories" hidden>
+    <div class="brm-row">
+      <div>
+        <div class="brm-list" id="brm-accessory-list"></div>
+        <button class="btn btn-outline-primary btn-sm mt-2 w-100" id="brm-add" type="button">Add accessory</button>
+      </div>
+      <div class="brm-editor" id="brm-accessory-editor"></div>
+    </div>
+  </div>
+
+  <!-- --------------------------------------------------------- settings -->
+  <div data-panel="settings" hidden>
+    <div class="brm-section">
+      <h6>Platform</h6>
+      <div id="brm-settings"></div>
+    </div>
+    <p class="brm-hint">
+      Every option is described at
+      <a href="https://broadlink.kiwicam.nz" target="_blank" rel="noopener">broadlink.kiwicam.nz</a>.
+      Changes are applied when you press Save.
+    </p>
+  </div>
+</div>
+
+<script src="js/options.js"></script>
+<script>
+  (function () {
+    'use strict';
+
+    var O = window.BroadlinkOptions;
+
+    // js/options.js holds every option this editor knows how to render. If it
+    // did not load there is nothing to draw, so say so rather than leaving an
+    // empty panel behind.
+    if (!O) {
+      document.querySelector('.brm-wrap').innerHTML =
+        '<div class="alert alert-danger">The configuration UI could not load one of its own files ' +
+        '(<code>js/options.js</code>). Reload the page; if it keeps happening, use the JSON editor ' +
+        'and open an issue with the browser console output.</div>';
+      return;
+    }
+    var config = null;
+    var selected = -1;
+    var lastScan = [];
+
+    var PLATFORM_FIELDS = [
+      { key: 'name', label: 'Name', type: 'text', default: 'Broadlink RM',
+        help: 'Used by Homebridge in its logs. Not shown in the Home app.' },
+      { key: 'logLevel', label: 'Log level', type: 'select', default: 'info', options: O.LOG_LEVELS,
+        help: 'How much detail the platform writes to the Homebridge log.' },
+      { key: 'deviceDiscoveryTimeout', label: 'Discovery timeout', type: 'number', unit: 'seconds', default: 60,
+        help: 'How long the network is scanned for devices at start-up.' },
+      { key: 'hideLearnButton', label: 'Hide the Learn accessory', type: 'boolean', default: false,
+        help: 'Stops the Learn switch, used to learn IR codes, being added to HomeKit.' },
+      { key: 'hideScanFrequencyButton', label: 'Hide the Scan Frequency accessory', type: 'boolean', default: false,
+        help: 'Stops the Scan Frequency switch, used to learn RF codes, being added to HomeKit.' },
+      { key: 'hideWelcomeMessage', label: 'Hide the welcome message', type: 'boolean', default: false,
+        help: 'Stops the welcome banner being written to the log at start-up.' }
+    ];
+
+    // ------------------------------------------------------------- helpers
+
+    function el(tag, attrs, children) {
+      var node = document.createElement(tag);
+      Object.keys(attrs || {}).forEach(function (key) {
+        if (key === 'class') { node.className = attrs[key]; }
+        else if (key === 'text') { node.textContent = attrs[key]; }
+        else if (key === 'html') { node.innerHTML = attrs[key]; }
+        else if (key.indexOf('on') === 0) { node.addEventListener(key.slice(2), attrs[key]); }
+        else if (attrs[key] !== null && attrs[key] !== undefined && attrs[key] !== false) { node.setAttribute(key, attrs[key]); }
+      });
+      (children || []).forEach(function (child) { if (child) { node.appendChild(child); } });
+      return node;
+    }
+
+    function stage() {
+      homebridge.updatePluginConfig([config]);
+    }
+
+    function currentValue(target, field) {
+      return target[field.key] === undefined ? field.default : target[field.key];
+    }
+
+    // Only non-default values are written, so a configuration stays readable and
+    // an option the plugin later changes the default of keeps following it.
+    function setValue(target, field, value) {
+      if (value === undefined || value === '' || value === null) { delete target[field.key]; }
+      else if (field.default !== undefined && value === field.default) { delete target[field.key]; }
+      else { target[field.key] = value; }
+      stage();
+    }
+
+    function fieldControl(target, field) {
+      var value = currentValue(target, field);
+      var id = 'brm-f-' + field.key + '-' + Math.random().toString(36).slice(2, 8);
+      var input;
+
+      if (field.type === 'boolean') {
+        input = el('input', { type: 'checkbox', class: 'form-check-input', id: id });
+        input.checked = value === true;
+        input.addEventListener('change', function () { setValue(target, field, input.checked); });
+
+        return el('div', { class: 'form-check mb-3' }, [
+          input,
+          el('label', { class: 'form-check-label', for: id, text: field.label }),
+          field.help ? el('p', { class: 'brm-hint', text: field.help }) : null
+        ]);
+      }
+
+      if (field.type === 'select') {
+        input = el('select', { class: 'form-select form-select-sm', id: id });
+        (field.options || []).forEach(function (option) {
+          input.appendChild(el('option', { value: option.value, text: option.label }));
+        });
+        input.value = value === undefined ? '' : value;
+        input.addEventListener('change', function () { setValue(target, field, input.value); });
+      } else if (field.type === 'stringList') {
+        input = el('input', { type: 'text', class: 'form-control form-control-sm', id: id, placeholder: 'Comma separated' });
+        input.value = Array.isArray(value) ? value.join(', ') : '';
+        input.addEventListener('change', function () {
+          var parts = input.value.split(',').map(function (part) { return part.trim(); }).filter(Boolean);
+          if (parts.length) { target[field.key] = parts; } else { delete target[field.key]; }
+          stage();
+        });
+      } else {
+        input = el('input', {
+          type: field.type === 'password' ? 'password' : (field.type === 'number' ? 'number' : 'text'),
+          class: 'form-control form-control-sm',
+          id: id,
+          step: field.type === 'number' ? 'any' : null,
+          placeholder: field.default === undefined ? '' : String(field.default)
+        });
+        input.value = value === undefined ? '' : value;
+        input.addEventListener('change', function () {
+          if (field.type === 'number') {
+            var num = input.value === '' ? undefined : Number(input.value);
+            setValue(target, field, isNaN(num) ? undefined : num);
+          } else {
+            setValue(target, field, input.value.trim());
+          }
+        });
+      }
+
+      return el('div', { class: 'mb-3' }, [
+        el('label', { class: 'form-label mb-1', for: id, text: field.label + (field.unit ? ' (' + field.unit + ')' : '') }),
+        input,
+        field.help ? el('p', { class: 'brm-hint', text: field.help }) : null
+      ]);
+    }
+
+    // -------------------------------------------------------------- devices
+
+    function isPinned(mac) {
+      return (config.hosts || []).some(function (host) {
+        return String(host.mac || '').toLowerCase() === mac;
+      });
+    }
+
+    function togglePin(device, pin) {
+      if (!config.hosts) { config.hosts = []; }
+
+      var index = config.hosts.findIndex(function (host) {
+        return String(host.mac || '').toLowerCase() === device.mac;
+      });
+
+      if (pin && index === -1) {
+        config.hosts.push({
+          address: device.address,
+          mac: device.mac,
+          isRFSupported: device.supportsRF === true,
+          isRM4: /RM4/i.test(device.model || '')
+        });
+      } else if (!pin && index !== -1) {
+        config.hosts.splice(index, 1);
+      }
+
+      if (!config.hosts.length) { delete config.hosts; }
+
+      stage();
+      renderDevices();
+      renderHosts();
+    }
+
+    function renderDevices() {
+      var container = document.getElementById('brm-devices');
+      container.innerHTML = '';
+
+      if (!lastScan.length) {
+        container.appendChild(el('div', { class: 'brm-empty', text: 'No scan run yet.' }));
+        return;
+      }
+
+      lastScan.forEach(function (device) {
+        var badges = [];
+
+        if (device.model) { badges.push(el('span', { class: 'badge bg-secondary', text: device.model })); }
+        if (device.supportsRF) { badges.push(el('span', { class: 'badge bg-info text-dark', text: 'IR + RF' })); }
+        else if (device.supportsLearning) { badges.push(el('span', { class: 'badge bg-info text-dark', text: 'IR' })); }
+        if (device.locked) { badges.push(el('span', { class: 'badge bg-danger', text: 'Locked' })); }
+        else if (device.linkLocal) { badges.push(el('span', { class: 'badge bg-danger', text: 'No DHCP lease' })); }
+        else if (!device.authenticated) { badges.push(el('span', { class: 'badge bg-warning text-dark', text: 'Did not respond' })); }
+        else { badges.push(el('span', { class: 'badge bg-success', text: 'Ready' })); }
+
+        var pinId = 'brm-pin-' + device.mac.replace(/:/g, '');
+        var pin = el('input', { type: 'checkbox', class: 'form-check-input', id: pinId });
+        pin.checked = isPinned(device.mac);
+        pin.addEventListener('change', function () { togglePin(device, pin.checked); });
+
+        var notes = [];
+
+        if (device.locked) {
+          notes.push(el('div', { class: 'alert alert-danger py-2 px-3 mt-2 mb-0', html:
+            'This device is locked to the Broadlink cloud and will not accept local connections. ' +
+            'Open the Broadlink app, tap the device, tap <strong>...</strong>, and switch ' +
+            '<strong>Lock device</strong> off.' }));
+        } else if (device.linkLocal) {
+          notes.push(el('div', { class: 'alert alert-danger py-2 px-3 mt-2 mb-0', html:
+            'This device never got an address from your router, so it answered on a link-local ' +
+            'address (<span class="brm-mono">' + device.address + '</span>). It can be seen by ' +
+            'broadcast but not reached directly. Reserve an address for it on the router and ' +
+            'power-cycle the device.' }));
+        } else if (!device.authenticated) {
+          notes.push(el('div', { class: 'alert alert-warning py-2 px-3 mt-2 mb-0', text:
+            'The device answered the scan but did not complete the handshake. It may still be starting up.' }));
+        }
+
+        container.appendChild(el('div', { class: 'brm-device' }, [
+          el('div', { class: 'brm-device-head' }, badges.concat([
+            el('span', { class: 'brm-mono ms-auto', text: device.address }),
+            el('span', { class: 'brm-mono', text: device.mac })
+          ])),
+          el('div', { class: 'form-check mt-2 mb-0' }, [
+            pin,
+            el('label', { class: 'form-check-label', for: pinId, text: 'Always use this address' })
+          ])
+        ].concat(notes)));
+      });
+    }
+
+    function renderHosts() {
+      var container = document.getElementById('brm-hosts');
+      container.innerHTML = '';
+
+      var hosts = config.hosts || [];
+
+      if (!hosts.length) {
+        container.appendChild(el('p', { class: 'brm-hint mb-0',
+          text: 'Empty. Devices are discovered automatically, which is the recommended setting.' }));
+        return;
+      }
+
+      hosts.forEach(function (host) {
+        container.appendChild(el('div', { class: 'd-flex align-items-center gap-2 mb-1' }, [
+          el('span', { class: 'brm-mono', text: host.address }),
+          el('span', { class: 'brm-mono', text: host.mac }),
+          el('button', {
+            class: 'btn btn-outline-danger btn-sm ms-auto', type: 'button', text: 'Remove',
+            onclick: function () { togglePin({ mac: String(host.mac || '').toLowerCase() }, false); }
+          })
+        ]));
+      });
+    }
+
+    function scan() {
+      var status = document.getElementById('brm-scan-status');
+      var button = document.getElementById('brm-scan');
+
+      button.disabled = true;
+      status.textContent = ' Scanning, this takes about 12 seconds...';
+      homebridge.showSpinner();
+
+      homebridge.request('/discover', { seconds: 12 }).then(function (result) {
+        lastScan = result.devices || [];
+        status.textContent = lastScan.length
+          ? ' Found ' + lastScan.length + ' device' + (lastScan.length === 1 ? '' : 's') + '.'
+          : ' No devices answered.';
+        if (!lastScan.length) {
+          homebridge.toast.warning('Check that the device is powered on and on the same network as Homebridge.', 'No devices found');
+        }
+        renderDevices();
+      }).catch(function (err) {
+        status.textContent = '';
+        homebridge.toast.error(err.message || 'The scan failed.', 'Scan failed');
+      }).then(function () {
+        button.disabled = false;
+        homebridge.hideSpinner();
+        homebridge.fixScrollHeight();
+      });
+    }
+
+    // ---------------------------------------------------------- accessories
+
+    function accessories() {
+      if (!Array.isArray(config.accessories)) { config.accessories = []; }
+      return config.accessories;
+    }
+
+    function renderList() {
+      var container = document.getElementById('brm-accessory-list');
+      container.innerHTML = '';
+
+      var list = accessories();
+
+      if (!list.length) {
+        container.appendChild(el('div', { class: 'brm-empty', text: 'No accessories yet.' }));
+        return;
+      }
+
+      list.forEach(function (accessory, index) {
+        container.appendChild(el('button', {
+          type: 'button',
+          class: index === selected ? 'active' : '',
+          onclick: function () { selected = index; renderList(); renderEditor(); }
+        }, [
+          document.createTextNode(accessory.name || 'Unnamed'),
+          el('span', { class: 'brm-list-type', text: O.typeLabel(accessory.type) })
+        ]));
+      });
+    }
+
+    function deviceChoices() {
+      var seen = {};
+      var choices = [{ value: '', label: 'Any device found' }];
+
+      lastScan.forEach(function (device) {
+        seen[device.mac] = true;
+        choices.push({ value: device.mac, label: (device.model || 'Broadlink') + ' - ' + device.mac + ' (' + device.address + ')' });
+      });
+
+      (config.hosts || []).forEach(function (host) {
+        var mac = String(host.mac || '').toLowerCase();
+        if (mac && !seen[mac]) {
+          seen[mac] = true;
+          choices.push({ value: mac, label: mac + ' (' + host.address + ')' });
+        }
+      });
+
+      accessories().forEach(function (accessory) {
+        if (accessory.host && !seen[accessory.host]) {
+          seen[accessory.host] = true;
+          choices.push({ value: accessory.host, label: accessory.host + ' (from the current configuration)' });
+        }
+      });
+
+      return choices;
+    }
+
+    // --------------------------------------------------------------- codes
+
+    var learnTarget = null;   // { accessory, path, label }
+    var learnQueue = [];      // remaining slots when learning a whole remote
+    var learnStrip = null;
+
+    function accessoryDevice(accessory) {
+      if (accessory.host) { return accessory.host; }
+      return lastScan.length ? lastScan[0].mac : null;
+    }
+
+    function deviceRecord(mac) {
+      for (var i = 0; i < lastScan.length; i += 1) {
+        if (lastScan[i].mac === mac) { return lastScan[i]; }
+      }
+      return null;
+    }
+
+    function stopLearning(quiet) {
+      learnTarget = null;
+      learnQueue = [];
+      homebridge.request('/learn/stop').catch(function () {});
+      if (!quiet) { renderEditor(); }
+    }
+
+    function beginLearning(accessory, slot, mode, queue) {
+      var mac = accessoryDevice(accessory);
+
+      if (!mac) {
+        homebridge.toast.error('Run a scan on the Devices tab first, or set a device for this accessory.', 'No device');
+        return;
+      }
+
+      learnTarget = { accessory: accessory, path: slot.path, label: slot.label, mode: mode };
+      learnQueue = queue || [];
+      renderEditor();
+
+      homebridge.request('/learn/start', {
+        mac: mac,
+        mode: mode,
+        continuous: learnQueue.length > 0
+      }).catch(function (err) {
+        learnTarget = null;
+        learnQueue = [];
+        homebridge.toast.error(err.message || 'Could not start learning.', 'Learning');
+        renderEditor();
+      });
+    }
+
+    function setLearnState(text) {
+      if (learnStrip) { learnStrip.textContent = text; }
+    }
+
+    homebridge.addEventListener('learn-status', function (event) {
+      var data = event.data || {};
+      if (!learnTarget) { return; }
+
+      if (data.state === 'timeout' || data.state === 'stopped') {
+        if (data.state === 'timeout') {
+          homebridge.toast.warning(data.message || 'Nothing was received.', 'Learning stopped');
+        }
+        learnTarget = null;
+        learnQueue = [];
+        renderEditor();
+        return;
+      }
+
+      setLearnState(data.message || '');
+    });
+
+    homebridge.addEventListener('learn-code', function (event) {
+      if (!learnTarget) { return; }
+
+      var hex = (event.data || {}).hex;
+      if (!hex) { return; }
+
+      var accessory = learnTarget.accessory;
+      if (!accessory.data || typeof accessory.data !== 'object') { accessory.data = {}; }
+
+      O.writeCode(accessory.data, learnTarget.path, hex);
+      stage();
+
+      homebridge.toast.success(learnTarget.label + ' learned.', 'Code received');
+
+      // When learning a whole remote, move straight on to the next empty slot
+      // and let the server keep the device in learning mode.
+      var next = learnQueue.shift();
+
+      if (next) {
+        learnTarget = { accessory: accessory, path: next.path, label: next.label, mode: learnTarget.mode };
+        renderEditor();
+        return;
+      }
+
+      learnTarget = null;
+      homebridge.request('/learn/stop').catch(function () {});
+      renderEditor();
+    });
+
+    function codeRow(accessory, slot) {
+      var data = accessory.data && typeof accessory.data === 'object' ? accessory.data : {};
+      var hex = O.readCode(data, slot.path);
+      var isTarget = learnTarget && learnTarget.accessory === accessory && learnTarget.path === slot.path;
+
+      var buttons = [];
+      var mac = accessoryDevice(accessory);
+      var record = mac ? deviceRecord(mac) : null;
+
+      buttons.push(el('button', {
+        class: 'btn btn-outline-primary', type: 'button', text: hex ? 'Relearn' : 'Learn',
+        onclick: function () { beginLearning(accessory, slot, 'ir', []); }
+      }));
+
+      if (!record || record.supportsRF) {
+        buttons.push(el('button', {
+          class: 'btn btn-outline-primary', type: 'button', text: 'Learn RF',
+          onclick: function () { beginLearning(accessory, slot, 'rf', []); }
+        }));
+      }
+
+      if (hex && /^[0-9a-fA-F]+$/.test(hex)) {
+        buttons.push(el('button', {
+          class: 'btn', type: 'button', text: 'Test',
+          onclick: function () {
+            homebridge.request('/send', { mac: mac, hex: hex }).then(function () {
+              homebridge.toast.success('Sent ' + slot.label + '.', 'Test');
+            }).catch(function (err) {
+              homebridge.toast.error(err.message || 'Could not send the code.', 'Test');
+            });
+          }
+        }));
+      }
+
+      if (hex) {
+        buttons.push(el('button', {
+          class: 'btn btn-outline-danger', type: 'button', text: 'Clear',
+          onclick: function () {
+            O.writeCode(accessory.data || {}, slot.path, null);
+            stage();
+            renderEditor();
+          }
+        }));
+      }
+
+      return el('div', { class: 'brm-code' + (isTarget ? ' is-target' : '') }, [
+        el('span', { class: 'brm-code-label', text: slot.label }),
+        hex
+          ? el('span', { class: 'brm-mono brm-code-hex', text: hex })
+          : el('span', { class: 'badge ' + (slot.optional ? 'bg-secondary' : 'bg-warning text-dark'),
+              text: slot.optional ? 'Optional' : 'Not set' }),
+        el('span', { class: 'd-flex gap-2 ms-auto' }, buttons)
+      ]);
+    }
+
+    function familyPicker(accessory) {
+      var families = O.CODE_FAMILIES[accessory.type];
+      if (!families || !families.length) { return null; }
+
+      var familySelect = el('select', { class: 'form-select form-select-sm' });
+      families.forEach(function (family) {
+        familySelect.appendChild(el('option', { value: family.id, text: family.label }));
+      });
+
+      var number = el('input', { type: 'number', class: 'form-control form-control-sm' });
+      var mode = el('select', { class: 'form-select form-select-sm' });
+      [['cool', 'Cooling'], ['heat', 'Heating'], ['auto', 'Auto'], ['', 'No mode']].forEach(function (pair) {
+        mode.appendChild(el('option', { value: pair[0], text: pair[1] }));
+      });
+
+      var syncFamily = function () {
+        var family = families.filter(function (f) { return f.id === familySelect.value; })[0];
+        number.min = family.min;
+        number.max = family.max;
+        number.step = family.step;
+        if (!number.value) { number.value = family.min; }
+        mode.parentNode.hidden = !family.mode;
+      };
+
+      familySelect.addEventListener('change', syncFamily);
+
+      var modeWrap = el('div', {}, [
+        el('label', { class: 'form-label mb-1', text: 'Mode' }),
+        mode
+      ]);
+
+      var add = el('button', {
+        class: 'btn btn-outline-primary btn-sm', type: 'button', text: 'Add',
+        onclick: function () {
+          var family = families.filter(function (f) { return f.id === familySelect.value; })[0];
+          var value = Number(number.value);
+
+          if (isNaN(value)) {
+            homebridge.toast.error('Enter a number first.', 'Add a code');
+            return;
+          }
+
+          if (!accessory.data || typeof accessory.data !== 'object') { accessory.data = {}; }
+
+          var key = family.key(value);
+
+          if (accessory.data[key] !== undefined) {
+            homebridge.toast.info('That code is already in the list.', 'Add a code');
+            return;
+          }
+
+          // A temperature slot carries the mode it puts the unit into, so it is
+          // created as an object and learning fills in its "data".
+          if (family.mode && mode.value) {
+            accessory.data[key] = { 'pseudo-mode': mode.value, data: '' };
+          } else {
+            accessory.data[key] = '';
+          }
+
+          stage();
+          renderEditor();
+        }
+      });
+
+      var wrap = el('div', { class: 'brm-add' }, [
+        el('div', {}, [el('label', { class: 'form-label mb-1', text: 'Add a code' }), familySelect]),
+        el('div', {}, [el('label', { class: 'form-label mb-1', text: 'Value' }), number]),
+        modeWrap,
+        add
+      ]);
+
+      syncFamily();
+
+      return wrap;
+    }
+
+    function renderCodesEditor(accessory) {
+      if (O.DATA_TYPES.indexOf(accessory.type) === -1) { return null; }
+
+      var slots = O.slotsFor(accessory);
+      var data = accessory.data && typeof accessory.data === 'object' ? accessory.data : {};
+
+      var children = [
+        el('h6', { text: 'Codes' }),
+        el('p', { class: 'brm-hint', text:
+          'Press Learn, then press the button on the original remote while pointing it at the ' +
+          'Broadlink device. The code is written straight into the accessory - there is no need to ' +
+          'copy anything out of the log.' })
+      ];
+
+      // The live learning strip, shown only while a capture is running.
+      if (learnTarget && learnTarget.accessory === accessory) {
+        learnStrip = el('p', { class: 'brm-hint mb-0', text: 'Starting...' });
+
+        children.push(el('div', { class: 'brm-learn' }, [
+          el('p', { class: 'brm-learn-state mb-0',
+            text: (learnTarget.mode === 'rf' ? 'Learning RF: ' : 'Learning: ') + learnTarget.label }),
+          learnStrip,
+          learnQueue.length
+            ? el('p', { class: 'brm-hint mb-0', text: learnQueue.length + ' more to go after this one.' })
+            : null,
+          el('button', {
+            class: 'btn btn-outline-danger btn-sm mt-2', type: 'button', text: 'Stop',
+            onclick: function () { stopLearning(); }
+          })
+        ]));
+      } else {
+        learnStrip = null;
+
+        var empty = slots.filter(function (slot) {
+          return !slot.optional && !O.readCode(data, slot.path);
+        });
+
+        if (empty.length) {
+          children.push(el('div', { class: 'mb-3' }, [
+            el('button', {
+              class: 'btn btn-primary btn-sm', type: 'button',
+              text: 'Learn the ' + empty.length + ' missing code' + (empty.length === 1 ? '' : 's'),
+              onclick: function () {
+                var queue = empty.slice(1);
+                beginLearning(accessory, empty[0], 'ir', queue);
+              }
+            }),
+            el('p', { class: 'brm-hint mb-0', text:
+              'Walks through them one at a time, keeping the device in learning mode between presses. IR only.' })
+          ]));
+        }
+      }
+
+      // Group the slots under their headings, in the order the catalogue lists.
+      var order = [];
+      var grouped = {};
+
+      slots.forEach(function (slot) {
+        var group = slot.group || 'Codes';
+        if (!grouped[group]) { grouped[group] = []; order.push(group); }
+        grouped[group].push(slot);
+      });
+
+      order.forEach(function (group) {
+        children.push(el('div', { class: 'brm-group' }, [el('span', { text: group })].concat(
+          grouped[group].map(function (slot) { return codeRow(accessory, slot); })
+        )));
+      });
+
+      var picker = familyPicker(accessory);
+      if (picker) { children.push(picker); }
+
+      children.push(rawDataEditor(accessory));
+
+      return el('div', { class: 'brm-section' }, children);
+    }
+
+    // The full data object stays editable by hand, for shapes the slot list
+    // does not model - repeated codes, code lists, TV inputs.
+    function rawDataEditor(accessory) {
+      var textarea = el('textarea', { class: 'form-control brm-data', spellcheck: 'false' });
+      textarea.value = JSON.stringify(accessory.data === undefined ? {} : accessory.data, null, 2);
+
+      var error = el('p', { class: 'brm-hint text-danger', text: '' });
+
+      textarea.addEventListener('change', function () {
+        var text = textarea.value.trim();
+
+        if (!text) {
+          delete accessory.data;
+          error.textContent = '';
+          stage();
+          return;
+        }
+
+        try {
+          accessory.data = JSON.parse(text);
+          error.textContent = '';
+          stage();
+          renderEditor();
+        } catch (err) {
+          error.textContent = 'Not valid JSON, so this was not saved: ' + err.message;
+        }
+      });
+
+      var template = O.DATA_TEMPLATES[accessory.type];
+      var extras = [];
+
+      if (template && (accessory.data === undefined || !Object.keys(accessory.data || {}).length)) {
+        extras.push(el('button', {
+          class: 'btn btn-outline-secondary btn-sm mt-2', type: 'button', text: 'Insert a starting template',
+          onclick: function () {
+            accessory.data = JSON.parse(JSON.stringify(template));
+            stage();
+            renderEditor();
+          }
+        }));
+      }
+
+      return el('details', { class: 'brm-raw' }, [
+        el('summary', { text: 'Edit the raw code data' }),
+        el('p', { class: 'brm-hint', html:
+          'The shape of this object depends on the accessory type - see ' +
+          '<a href="https://broadlink.kiwicam.nz" target="_blank" rel="noopener">the documentation</a>.' }),
+        textarea,
+        error
+      ].concat(extras));
+    }
+
+    function renderEditor() {
+      var container = document.getElementById('brm-accessory-editor');
+      container.innerHTML = '';
+
+      var list = accessories();
+
+      if (selected < 0 || selected >= list.length) {
+        container.appendChild(el('div', { class: 'brm-empty', text: 'Select an accessory, or add one.' }));
+        return;
+      }
+
+      var accessory = list[selected];
+
+      var nameField = fieldControl(accessory, { key: 'name', label: 'Name', type: 'text',
+        help: 'Shown in the Home app. Changing it creates a new accessory in HomeKit.' });
+
+      var typeSelect = el('select', { class: 'form-select form-select-sm' });
+      O.ACCESSORY_TYPES.forEach(function (type) {
+        typeSelect.appendChild(el('option', { value: type.value, text: type.label }));
+      });
+      typeSelect.value = accessory.type || 'switch';
+
+      var typeHint = el('p', { class: 'brm-hint', text: '' });
+      var describeType = function () {
+        var match = O.ACCESSORY_TYPES.filter(function (type) { return type.value === typeSelect.value; })[0];
+        typeHint.textContent = match ? match.hint : '';
+      };
+      describeType();
+
+      typeSelect.addEventListener('change', function () {
+        accessory.type = typeSelect.value;
+        stage();
+        renderList();
+        renderEditor();
+      });
+
+      container.appendChild(el('div', { class: 'brm-section' }, [
+        el('h6', { text: 'Identity' }),
+        nameField,
+        el('div', { class: 'mb-3' }, [
+          el('label', { class: 'form-label mb-1', text: 'Type' }),
+          typeSelect,
+          typeHint
+        ])
+      ]));
+
+      // Group the options that apply to this accessory type.
+      var applicable = O.optionsFor(accessory.type);
+
+      O.GROUPS.forEach(function (group) {
+        var fields = applicable.filter(function (option) { return option.group === group.id; });
+        if (!fields.length) { return; }
+
+        var body = fields.map(function (field) {
+          if (field.type === 'device') {
+            return fieldControl(accessory, {
+              key: 'host', label: field.label, type: 'select', help: field.help,
+              options: deviceChoices()
+            });
+          }
+          return fieldControl(accessory, field);
+        });
+
+        container.appendChild(el('div', { class: 'brm-section' }, [el('h6', { text: group.label })].concat(body)));
+      });
+
+      var dataEditor = renderCodesEditor(accessory);
+      if (dataEditor) { container.appendChild(dataEditor); }
+
+      container.appendChild(el('div', { class: 'd-flex gap-2' }, [
+        el('button', {
+          class: 'btn btn-outline-secondary btn-sm', type: 'button', text: 'Duplicate',
+          onclick: function () {
+            var copy = JSON.parse(JSON.stringify(accessory));
+            copy.name = (copy.name || 'Accessory') + ' copy';
+            accessories().splice(selected + 1, 0, copy);
+            selected += 1;
+            stage();
+            renderList();
+            renderEditor();
+          }
+        }),
+        el('button', {
+          class: 'btn btn-outline-danger btn-sm ms-auto', type: 'button', text: 'Delete',
+          onclick: function () {
+            if (!window.confirm('Delete "' + (accessory.name || 'this accessory') + '"?')) { return; }
+            accessories().splice(selected, 1);
+            selected = -1;
+            stage();
+            renderList();
+            renderEditor();
+          }
+        })
+      ]));
+
+      homebridge.fixScrollHeight();
+    }
+
+    function addAccessory() {
+      accessories().push({ name: 'New accessory', type: 'switch' });
+      selected = accessories().length - 1;
+      stage();
+      renderList();
+      renderEditor();
+    }
+
+    // --------------------------------------------------------------- settings
+
+    function renderSettings() {
+      var container = document.getElementById('brm-settings');
+      container.innerHTML = '';
+      PLATFORM_FIELDS.forEach(function (field) {
+        container.appendChild(fieldControl(config, field));
+      });
+    }
+
+    // ------------------------------------------------------------------- init
+
+    function showTab(name) {
+      document.querySelectorAll('[data-tab]').forEach(function (button) {
+        button.classList.toggle('active', button.getAttribute('data-tab') === name);
+      });
+      document.querySelectorAll('[data-panel]').forEach(function (panel) {
+        panel.hidden = panel.getAttribute('data-panel') !== name;
+      });
+      homebridge.fixScrollHeight();
+    }
+
+    document.querySelectorAll('[data-tab]').forEach(function (button) {
+      button.addEventListener('click', function () { showTab(button.getAttribute('data-tab')); });
+    });
+
+    document.getElementById('brm-scan').addEventListener('click', scan);
+    document.getElementById('brm-add').addEventListener('click', addAccessory);
+
+    homebridge.getPluginConfig().then(function (blocks) {
+      config = blocks[0] || { platform: 'BroadlinkRM', name: 'Broadlink RM', accessories: [] };
+      if (!config.platform) { config.platform = 'BroadlinkRM'; }
+
+      renderDevices();
+      renderHosts();
+      renderList();
+      renderEditor();
+      renderSettings();
+
+      stage();
+      homebridge.fixScrollHeight();
+    }).catch(function (err) {
+      homebridge.toast.error(err.message || 'Could not read the current configuration.', 'Configuration');
+      document.querySelector('.brm-wrap').insertAdjacentHTML('afterbegin',
+        '<div class="alert alert-danger">Could not read the current configuration: ' +
+        (err.message || 'unknown error') + '</div>');
+    });
+  }());
+</script>

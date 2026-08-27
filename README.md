@@ -17,6 +17,16 @@ This plugin can be added via the Web interface, or if you perfer the terminal:
    `npm install -g homebridge-broadlink-rm-pro`
 For more information, refer to the [documentation](https://broadlink.kiwicam.nz/#installation).
 
+## Configuration
+
+The plugin ships a configuration UI. In the Homebridge web interface, open **Plugins**, find
+**Homebridge Broadlink RM Pro** and choose **Settings**. From there you can scan the network
+for your RM devices, see whether each one is reachable, and add accessories from a form that
+shows only the options relevant to the accessory type you picked.
+
+Editing `config.json` by hand still works, and every option is listed in the documentation
+below.
+
 ## Documentation
 
 **Documentation can be found [here](https://broadlink.kiwicam.nz).** If you have any trouble after reading through the information please raise an issue and we'll help out as best we can.

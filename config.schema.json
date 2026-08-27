@@ -1,0 +1,145 @@
+{
+  "pluginAlias": "BroadlinkRM",
+  "pluginType": "platform",
+  "singular": true,
+  "customUi": true,
+  "headerDisplay": "Control Broadlink RM devices from HomeKit. Use **Devices** to find the RM units on your network, then add an accessory for each thing you want to control. Full documentation: [broadlink.kiwicam.nz](https://broadlink.kiwicam.nz).",
+  "footerDisplay": "If a device is not found, check that it is not locked to the Broadlink cloud: open the Broadlink app, tap the device, tap the **...** menu and switch **Lock device** off.",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "default": "Broadlink RM",
+        "required": true,
+        "description": "A friendly name for the platform, used by Homebridge in its logs."
+      },
+      "logLevel": {
+        "title": "Log level",
+        "type": "string",
+        "default": "info",
+        "oneOf": [
+          {
+            "title": "None - log nothing",
+            "enum": [
+              "none"
+            ]
+          },
+          {
+            "title": "Critical - unrecoverable failures only",
+            "enum": [
+              "critical"
+            ]
+          },
+          {
+            "title": "Error - failures that stop the current action",
+            "enum": [
+              "error"
+            ]
+          },
+          {
+            "title": "Warning - unexpected but recoverable events",
+            "enum": [
+              "warning"
+            ]
+          },
+          {
+            "title": "Info (default) - status changes and general flow",
+            "enum": [
+              "info"
+            ]
+          },
+          {
+            "title": "Debug - detail useful when investigating a problem",
+            "enum": [
+              "debug"
+            ]
+          },
+          {
+            "title": "Trace - everything",
+            "enum": [
+              "trace"
+            ]
+          }
+        ],
+        "description": "How much detail the platform and its devices write to the Homebridge log."
+      },
+      "deviceDiscoveryTimeout": {
+        "title": "Discovery timeout (seconds)",
+        "type": "integer",
+        "default": 60,
+        "minimum": 5,
+        "maximum": 600,
+        "description": "How long the network is scanned for devices at start-up when automatic discovery is used."
+      },
+      "hideLearnButton": {
+        "title": "Hide the Learn accessory",
+        "type": "boolean",
+        "default": false,
+        "description": "Stops the Learn switch, used to learn IR codes, from being added to HomeKit."
+      },
+      "hideScanFrequencyButton": {
+        "title": "Hide the Scan Frequency accessory",
+        "type": "boolean",
+        "default": false,
+        "description": "Stops the Scan Frequency switch, used to learn RF codes, from being added to HomeKit."
+      },
+      "hideWelcomeMessage": {
+        "title": "Hide the welcome message",
+        "type": "boolean",
+        "default": false,
+        "description": "Stops the welcome banner being written to the log at start-up."
+      },
+      "isUnitTest": {
+        "title": "Unit test mode",
+        "type": "boolean",
+        "default": false,
+        "description": "Disables ongoing pings and temperature polling. Intended for testing only."
+      },
+      "hosts": {
+        "title": "Devices",
+        "type": "array",
+        "description": "Set these to skip automatic discovery and use fixed addresses instead. Leave empty to discover devices automatically.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "address": {
+              "title": "IP address",
+              "type": "string",
+              "required": true,
+              "format": "ipv4",
+              "placeholder": "192.168.1.32"
+            },
+            "mac": {
+              "title": "MAC address",
+              "type": "string",
+              "required": true,
+              "pattern": "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$",
+              "placeholder": "34:ea:34:e7:d7:28"
+            },
+            "isRFSupported": {
+              "title": "Supports RF",
+              "type": "boolean",
+              "default": false,
+              "description": "Set for RM Pro and RM4 Pro units, which can send RF as well as IR."
+            },
+            "isRM4": {
+              "title": "Is an RM4 device",
+              "type": "boolean",
+              "default": false,
+              "description": "Set for RM4 Mini and RM4 Pro units, which need different packet headers."
+            }
+          }
+        }
+      },
+      "accessories": {
+        "title": "Accessories",
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}
