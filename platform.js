@@ -108,16 +108,35 @@ const BroadlinkRMPlatform = class extends HomebridgePlatform {
     const { config, log, logLevel } = this;
     const { hosts } = config;
 
+    // How often (minutes) broadcast discovery is re-run to refresh the
+    // MAC -> IP mapping. 0 disables the scheduled sweep.
+    const rediscoveryInterval = config.rediscoveryInterval === undefined ? 60 : config.rediscoveryInterval;
+
+    const logRediscovery = () => {
+      if (logLevel > 2) {return;}
+
+      if (rediscoveryInterval > 0) {
+        log(`\x1b[35m[INFO]\x1b[0m Devices are tracked by MAC address and re-discovered every ${rediscoveryInterval} minutes.`)
+      } else {
+        log(`\x1b[33m[WARN]\x1b[0m Scheduled re-discovery is disabled ("rediscoveryInterval": 0). A device that is given a different IP address will stay unreachable until Homebridge is restarted.`)
+      }
+    }
+
     if (!hosts) {
       if (logLevel <=2) {log(`\x1b[35m[INFO]\x1b[0m Automatically discovering Broadlink RM devices.`)}
-      discoverDevices(true, log, logLevel, config.deviceDiscoveryTimeout);
+      logRediscovery();
+      discoverDevices(true, log, logLevel, config.deviceDiscoveryTimeout, rediscoveryInterval);
 
       return;
     }
 
-    discoverDevices(false, log, logLevel);
+    discoverDevices(false, log, logLevel, config.deviceDiscoveryTimeout, rediscoveryInterval);
 
-    if (logLevel <=2) {log(`\x1b[35m[INFO]\x1b[0m Automatic Broadlink RM device discovery has been disabled as the "hosts" option has been set.`)}
+    // The configured addresses are a starting point only. Broadcast discovery
+    // still runs, so a device that is given a new DHCP lease is followed to its
+    // new address instead of going silently unreachable.
+    if (logLevel <=2) {log(`\x1b[35m[INFO]\x1b[0m Using the "hosts" option for the initial device addresses.`)}
+    logRediscovery();
 
     assert.isArray(hosts, `\x1b[31m[CONFIG ERROR] \x1b[33mhosts\x1b[0m should be an array of objects.`)
 

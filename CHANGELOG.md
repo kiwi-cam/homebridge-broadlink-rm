@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Fixed
+ - Broadlink devices are now tracked by MAC address and followed across DHCP address changes, instead of being pinned to the address they were first discovered at.
+### Added
+ - `rediscoveryInterval` platform option (minutes, default 60, `0` disables): re-runs broadcast discovery on a schedule and logs a health line per device, flagging any device stuck on a link-local `169.254.x.x` address.
+
 ## [4.4.21 - 2026-05-10
 ### Fixed
  - Homebridge 2.0 compatibility: access HAP categories via `hap.Categories` instead of `hap.Accessory.Categories`. (#777 thanks @Gernot)
