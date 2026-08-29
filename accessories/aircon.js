@@ -524,6 +524,17 @@ class AirConAccessory extends BroadlinkRMAccessory {
 
     device.checkTemperature();
     if (logLevel <1) {log(`\x1b[34m[DEBUG]\x1b[0m ${name} addTemperatureCallbackToQueue (requested temperature from device, waiting)`);}
+
+    // The device may never respond (e.g. a dropped UDP packet). Without a timeout the HAP
+    // callback would be left pending indefinitely, causing Homebridge's "slow to respond" /
+    // "didn't respond at all" warnings for the Current Temperature characteristic.
+    setTimeout(() => {
+      if (this.temperatureCallbackQueue[callbackIdentifier]) {
+        if (logLevel <=3) {log(`${name} addTemperatureCallbackToQueue (device did not respond in time, using existing temperature)`);}
+        delete this.temperatureCallbackQueue[callbackIdentifier];
+        callback(null, state.currentTemperature || 0);
+      }
+    }, 3000);
   }
 
   updateTemperatureFromFile () {

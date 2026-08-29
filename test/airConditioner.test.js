@@ -65,6 +65,26 @@ describe('airConAccessory', async () => {
     expect(airConAccessory.config.replaceAutoMode).to.equal('cool');
   });
 
+  it('getCurrentTemperature falls back when the device never responds', async () => {
+    const { device } = setup();
+    defaultConfig.host = device.host.address
+
+    const config = {
+      ...defaultConfig
+    };
+
+    const airConAccessory = new AirCon(null, config, 'FakeServiceManager');
+    airConAccessory.state.currentTemperature = 21;
+
+    // FakeDevice.checkTemperature() is a no-op and never emits a 'temperature'
+    // event, simulating a dropped UDP request/response with the real device.
+    const temperature = await new Promise((resolve) => {
+      airConAccessory.getCurrentTemperature((err, value) => resolve(value));
+    });
+
+    expect(temperature).to.equal(21);
+  }).timeout(5000);
+
   it('custom config', async () => {
     const { device } = setup();
     defaultConfig.host = device.host.address
