@@ -1,10 +1,10 @@
 # Homebridge Broadlink RM Pro
 
-**After 7+ years of loyal service from this plugin, I'm an no longer using it. This makes maintaining it now impossible as I have no way to test changes. 
+**After 7+ years of loyal service from this plugin, I'm an no longer using it. This makes maintaining it now impossible as I have no way to test changes.** 
 
-I hope that someone will pick this up and build on it, as I did from @lprhodes. If I'm completely honest, I think the next step on this should be a full re-build to smooth out some of the imperfections. That has been my hope for the last two years but unfortunately that remained a hope and I never found the time.
+**I hope that someone will pick this up and build on it, as I did from @lprhodes. If I'm completely honest, I think the next step on this should be a full re-build to smooth out some of the imperfections. That has been my hope for the last two years but unfortunately that remained a hope and I never found the time.**
 
-Good luck to anyone that can add to this wonderful community and keep this plug in alive. I'm happy to help if I can.**
+**Good luck to anyone that can add to this wonderful community and keep this plug in alive. I'm happy to help if I can.**
 
 ## Introduction
 Welcome to the Broadlink RM Mini and Broadlink RM Pro plugin for [Homebridge](https://github.com/nfarina/homebridge).
